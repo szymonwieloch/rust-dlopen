@@ -7,7 +7,8 @@ use libc::{dlerror, c_char};
 #[derive(Debug, Clone)]
 pub enum Error{
     NullError(NulError),
-    DlError(DlError)
+    DlError(DlError),
+    NullPointer
 }
 #[derive(Debug, Clone)]
 pub struct DlError {
@@ -49,15 +50,17 @@ impl Display for DlError {
 impl ErrorTrait for Error {
     fn description(&self) -> &str {
         match self {
-            &Error::NullError(_) => "String conversion failed.",
-            &Error::DlError(_) => "dlerror() reported error"
+            &Error::NullError(_) => "String had a null character",
+            &Error::DlError(_) => "dlerror() reported error",
+            &Error::NullPointer => "dlsym() returned NULL as a symbol"
         }
     }
 
     fn cause(&self) -> Option<&ErrorTrait> {
         match self {
             &Error::NullError(ref val) => Some(val),
-            &Error::DlError(ref val) => Some(val)
+            &Error::DlError(ref val) => Some(val),
+            &Error::NullPointer => None
         }
     }
 }

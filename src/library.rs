@@ -1,7 +1,8 @@
-use libc::{dlopen, dlsym, dlerror, dlclose, dladdr, c_int, c_void, RTLD_LAZY};
+use libc::{dlopen, dlsym, dlerror, dlclose, c_void, RTLD_LAZY};
 use std::ffi::{CString};
 use symbol::Symbol;
-use std::mem::transmute;
+
+
 
 use super::err::{Error, DlError};
 
@@ -13,6 +14,11 @@ pub struct Library {
 
 impl Library {
     pub fn open(name: &str) -> Result<Library, Error> {
+        //str can't hold null character at the end, so wee need to convert it
+        //This introduces overhead but is negligible - usually the library is loaded only once
+        //per application run
+        //this could be further optimized by the use MAX_PATH constant and
+        // allocation of memory on the stack
         let name = CString::new(name)?;
         let handle = unsafe { dlopen(name.as_ptr(), RTLD_LAZY) };
 
@@ -25,17 +31,22 @@ impl Library {
         }
     }
 
-    pub fn symbol<T>(&self, name: &str) -> Result<Symbol<T>, Error> {
-        let _ = unsafe{dlerror()};
-        let name = CString::new(name)?;
-        let symbol = unsafe{dlsym(self.handle, name.as_ptr())};
+    pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T> , Error> {
+        //we need to call dlerror in order to clear error buffer
+        let _ = dlerror();
+        let cname = CString::new(name)?;
+        let symbol = dlsym(self.handle, cname.as_ptr());
+        //This can be either error or just the library has a NULl pointer - legal
         if symbol.is_null() {
-            let msg = unsafe{dlerror()};
-            if !msg.is_null() {} {
-                return Err(Error::DlError(DlError::from_ptr(msg)));
-            }
+            let msg = dlerror();
+            return Err(if msg.is_null() {
+                //this is correct behavior but we can't convert NULL to reference
+                Error::NullPointer
+            } else {
+                //this is just error
+                Error::DlError(DlError::from_ptr(msg))
+            })
         }
-        let symbol: * mut T = symbol as * mut T;
         Ok(Symbol::new(symbol))
     }
 }
