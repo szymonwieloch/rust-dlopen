@@ -2,10 +2,15 @@ use std::marker::PhantomData;
 use std::ops::Deref;
 use libc::c_void;
 use std::mem::transmute;
+use std::convert::From;
+use super::raw::RawPointer;
+use super::from_raw::FromRawPointer;
+use super::super::err::Error;
+
 
 #[derive(Debug, Clone, Copy)]
 pub struct Symbol<'lib, T: 'lib> {
-    symbol: * mut c_void,
+    symbol: * const c_void,
     pd: PhantomData<&'lib T>
 }
 
@@ -15,6 +20,25 @@ impl<'lib, T> Symbol<'lib, T> {
             symbol: symbol,
             pd: PhantomData
         }
+    }
+}
+
+impl<'lib, T> From<RawPointer<'lib>> for Symbol<'lib, T> {
+    fn from(raw: RawPointer<'lib>) -> Self {
+        Symbol{
+            symbol: *raw,
+            pd: PhantomData
+        }
+    }
+}
+
+impl<'lib, T> FromRawPointer for Symbol<'lib, T> {
+    type Error = Error;
+    unsafe fn from_raw_ptr(raw: RawPointer) -> Result<Self, Self::Error> {
+        Ok(Symbol{
+            symbol: *raw,
+            pd: PhantomData
+        })
     }
 }
 

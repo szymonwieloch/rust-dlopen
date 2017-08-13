@@ -1,5 +1,5 @@
 use std::error::Error as ErrorTrait;
-use std::fmt::{Display, Debug, Formatter, Error as FmtError, Result as FmtResult};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::convert::From;
 use std::ffi::{NulError, CStr};
 use libc::{dlerror, c_char};

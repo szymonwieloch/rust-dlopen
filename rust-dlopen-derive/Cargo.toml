@@ -1,21 +1,18 @@
 [package]
-name = "dlopen"
+name = "dlopen_derive"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 
-[dependencies]
-libc = "0.2.29"
-dlopen_derive = {path = "rust-dlopen-derive"}
+[lib]
+proc-macro = true
 
-[[example]]
-name = "open_lib"
-crate-type = ["bin"]
+[dependencies]
+syn = "0.11.11"
+quote = "0.3.15"
+libc = "0.2.29"
+
+
 
 [[example]]
 name = "derive"
-crate-type = ["bin"]
-
-[[example]]
-
-name = "test"
 crate-type = ["bin"]
