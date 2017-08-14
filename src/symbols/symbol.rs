@@ -2,9 +2,8 @@ use std::marker::PhantomData;
 use std::ops::Deref;
 use libc::c_void;
 use std::mem::transmute;
-use std::convert::From;
-use super::raw::RawPointer;
 use super::from_raw::FromRawPointer;
+use super::pointer::RawPointer;
 use super::super::err::Error;
 
 
@@ -23,22 +22,17 @@ impl<'lib, T> Symbol<'lib, T> {
     }
 }
 
-impl<'lib, T> From<RawPointer<'lib>> for Symbol<'lib, T> {
-    fn from(raw: RawPointer<'lib>) -> Self {
-        Symbol{
-            symbol: *raw,
-            pd: PhantomData
-        }
-    }
-}
-
 impl<'lib, T> FromRawPointer for Symbol<'lib, T> {
     type Error = Error;
     unsafe fn from_raw_ptr(raw: RawPointer) -> Result<Self, Self::Error> {
-        Ok(Symbol{
-            symbol: *raw,
-            pd: PhantomData
-        })
+        if raw.is_null(){
+            Err(Error::NullPointer)
+        } else {
+            Ok(Symbol {
+                symbol: *raw,
+                pd: PhantomData
+            })
+        }
     }
 }
 

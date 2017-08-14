@@ -1,14 +1,12 @@
 use libc::{dlopen, dlsym, dlerror, dlclose, c_void, RTLD_LAZY};
 use std::ffi::{CString};
-use symbols::{Symbol, Pointer, RawPointer};
+use symbols::{Symbol, Pointer};
 
 use super::err::{Error, DlError};
 
 pub struct Library {
     handle: * mut c_void
 }
-
-
 
 impl Library {
     pub fn open(name: &str) -> Result<Library, Error> {
@@ -62,22 +60,6 @@ impl Library {
             }
         }
         Ok(Pointer::new(symbol))
-    }
-
-    pub unsafe fn raw(&self, name: &str) -> Result<RawPointer , Error> {
-        //we need to call dlerror in order to clear error buffer
-        let _ = dlerror();
-        let cname = CString::new(name)?;
-        let symbol = dlsym(self.handle, cname.as_ptr());
-        //This can be either error or just the library has a NULl pointer - legal
-        if symbol.is_null() {
-            //for pointer null is a legal value
-            let msg = dlerror();
-            if !msg.is_null() {
-                return Err(Error::DlError(DlError::from_ptr(msg)));
-            }
-        }
-        Ok(RawPointer::new(symbol))
     }
 }
 

@@ -1,4 +1,4 @@
-use super::raw::RawPointer;
+use super::pointer::RawPointer;
 
 pub trait FromRawPointer where Self: Sized {
     type Error;

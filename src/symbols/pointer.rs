@@ -2,8 +2,6 @@ use std::marker::PhantomData;
 use std::ops::Deref;
 use libc::c_void;
 use std::mem::transmute;
-use std::convert::From;
-use super::raw::RawPointer;
 use super::from_raw::FromRawPointer;
 use super::super::err::Error;
 
@@ -13,19 +11,12 @@ pub struct Pointer<'lib, T: 'lib> {
     pd: PhantomData<&'lib T>
 }
 
+pub type RawPointer<'lib> = Pointer<'lib, c_void>;
+
 impl<'lib, T> Pointer<'lib, T> {
     pub fn new(pointer: * mut c_void) -> Pointer<'lib, T> {
         Pointer{
             pointer: pointer,
-            pd: PhantomData
-        }
-    }
-}
-
-impl<'lib, T> From<RawPointer<'lib>> for Pointer<'lib, T> {
-    fn from(raw: RawPointer<'lib>) -> Self {
-        Pointer{
-            pointer: *raw,
             pd: PhantomData
         }
     }
@@ -40,8 +31,6 @@ impl<'lib, T> FromRawPointer for Pointer<'lib, T> {
         })
     }
 }
-
-
 
 impl<'lib, T> Deref for Pointer<'lib, T> {
     type Target = *const T;
