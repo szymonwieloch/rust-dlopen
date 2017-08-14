@@ -1,73 +1,42 @@
-use libc::{dlopen, dlsym, dlerror, dlclose, c_void, RTLD_LAZY};
-use std::ffi::{CString};
+use std::ffi::{CStr};
 use symbols::{Symbol, Pointer};
+use super::dlopen::DlOpen;
 
-use super::err::{Error, DlError};
+use super::err::{Error};
 
 pub struct Library {
-    handle: * mut c_void
+    lib: DlOpen
 }
 
 impl Library {
     pub fn open(name: &str) -> Result<Library, Error> {
-        //str can't hold null character at the end, so wee need to convert it
-        //This introduces overhead but is negligible - usually the library is loaded only once
-        //per application run
-        //this could be further optimized by the use MAX_PATH constant and
-        // allocation of memory on the stack
-        let name = CString::new(name)?;
-        let handle = unsafe { dlopen(name.as_ptr(), RTLD_LAZY) };
-
-        if handle.is_null() {
-            Err(Error::DlError(DlError::new()))
-        } else {
-            Ok(Library {
-                handle: handle
-            })
-        }
+        Ok(Library{
+            lib: DlOpen::open(name)?
+        })
     }
 
-    pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T> , Error> {
-        //we need to call dlerror in order to clear error buffer
-        let _ = dlerror();
-        let cname = CString::new(name)?;
-        let symbol = dlsym(self.handle, cname.as_ptr());
-        //This can be either error or just the library has a NULl pointer - legal
-        if symbol.is_null() {
-            let msg = dlerror();
-            return Err(if msg.is_null() {
-                //this is correct behavior but we can't convert NULL to reference
-                Error::NullPointer
-            } else {
-                //this is just error
-                Error::DlError(DlError::from_ptr(msg))
-            })
-        }
-        Ok(Symbol::new(symbol))
+    pub fn open_cstr(name: &CStr) -> Result<Library, Error> {
+        Ok(Library{
+            lib: DlOpen::open_cstr(name)?
+        })
+    }
+
+    pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T> , Error> where T: Clone{
+        Ok(Symbol::new(self.lib.symbol(name)?))
+    }
+
+    pub unsafe fn symbol_str<T>(&self, name: &CStr) -> Result<Symbol<T> , Error> where T: Clone{
+        Ok(Symbol::new(self.lib.symbol_cstr(name)?))
     }
 
     pub unsafe fn pointer<T>(&self, name: &str) -> Result<Pointer<T> , Error> {
-        //we need to call dlerror in order to clear error buffer
-        let _ = dlerror();
-        let cname = CString::new(name)?;
-        let symbol = dlsym(self.handle, cname.as_ptr());
-        //This can be either error or just the library has a NULl pointer - legal
-        if symbol.is_null() {
-            //for pointer null is a legal value
-            let msg = dlerror();
-            if !msg.is_null() {
-                return Err(Error::DlError(DlError::from_ptr(msg)));
-            }
-        }
-        Ok(Pointer::new(symbol))
+        Ok(Pointer::new(self.lib.pointer(name)?))
+    }
+
+    pub unsafe fn pointer_cstr<T>(&self, name: &CStr) -> Result<Pointer<T> , Error> {
+        Ok(Pointer::new(self.lib.pointer_cstr(name)?))
     }
 }
 
 unsafe impl Send for Library {}
 unsafe impl Sync for Library {}
-
-impl Drop for Library {
-    fn drop(&mut self) {
-        assert_eq!(unsafe {dlclose(self.handle)}, 0);
-    }
-}

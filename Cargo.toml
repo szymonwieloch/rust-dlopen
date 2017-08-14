@@ -16,6 +16,9 @@ name = "derive"
 crate-type = ["bin"]
 
 [[example]]
-
 name = "test"
+crate-type = ["bin"]
+
+[[example]]
+name = "dlopen"
 crate-type = ["bin"]

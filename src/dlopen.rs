@@ -2,7 +2,7 @@ use libc::{c_void, dlopen, dlerror, dlsym, dlclose, RTLD_LAZY};
 use super::drop::DlDrop;
 use super::err::{Error, DlError};
 use std::ffi::{CString, CStr};
-use std::mem::{transmute, size_of};
+use std::mem::{transmute_copy, size_of};
 
 #[derive(Debug)]
 pub struct DlOpen {
@@ -26,12 +26,12 @@ impl DlOpen {
         Self::open_cstr(cname.as_ref())
     }
 
-    pub unsafe fn symbol<T>(&self, name: &str) -> Result<T, Error> where T: Clone {
+    pub unsafe fn symbol<T>(&self, name: &str) -> Result<T, Error> {
         let cname = CString::new(name)?;
         self.symbol_cstr(cname.as_ref())
     }
 
-    pub unsafe fn symbol_cstr<T> (&self, name: &CStr) -> Result<T, Error> where T:Clone{
+    pub unsafe fn symbol_cstr<T> (&self, name: &CStr) -> Result<T, Error> {
         //TODO: convert it to some kind of static assertion (not yet supported in Rust)
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut c_void>() {
@@ -39,10 +39,9 @@ impl DlOpen {
         }
         let raw = self.raw_cstr(name)?;
         if raw.is_null(){
-            Err(Error::NullPointer)
+            return Err(Error::NullPointer)
         } else {
-            let r: &T = transmute(&raw);
-            Ok(r.clone())
+            Ok(transmute_copy(&raw))
         }
     }
 
