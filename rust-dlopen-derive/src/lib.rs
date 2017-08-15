@@ -15,7 +15,7 @@ use proc_macro::TokenStream;
 use api::impl_library_api;
 use wrapper::impl_library_wrapper;
 
-#[proc_macro_derive(LibraryWrapper, attributes(dlopen_name, dlopen_drop))]
+#[proc_macro_derive(LibraryWrapper, attributes(dlopen_name, dlopen_drop, dlopen_allow_null))]
 pub fn library_wrapper(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();

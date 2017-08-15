@@ -13,6 +13,21 @@ struct Test<'a> {
     //pub cos: Symbol<'a, unsafe extern fn(c_double) -> c_double>,
 }
 
+fn prn () {
+    println!("Called");
+}
+
+struct T {
+    fun: unsafe extern fn()-> u32
+}
+
+impl FnOnce<(f64,)> for T {
+    type Output = bool;
+    extern "rust-call" fn call_once(self, args: (f64,)) -> Self::Output {
+        args.0 > self.x
+    }
+}
+
 fn main () {
 
 }

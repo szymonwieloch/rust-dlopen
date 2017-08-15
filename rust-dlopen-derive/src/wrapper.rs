@@ -1,25 +1,28 @@
 use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput};
 use proc_macro::TokenStream;
 use quote;
-use super::common::{get_fields, symbol_name, find_marker_attr};
+use super::common::{get_fields, symbol_name, has_marker_attr};
 
-
+const DLOPEN_DROP: &str = "dlopen_drop";
+const DLOPEN_ALLOW_NULL: &str = "dlopen_allow_null";
+const TRAIT_NAME: &str = "LibraryWrapper";
 
 pub fn impl_library_wrapper(ast: &DeriveInput) -> quote::Tokens {
-    let name = &ast.ident;
-    let fields = get_fields(ast, "LibraryWrapper");
+    let struct_name = &ast.ident;
+    let fields = get_fields(ast, TRAIT_NAME);
 
     let drop_idx = find_drop_field(fields);
+    let drop_field = &fields[drop_idx].ident;
 
 
-    let tok_iter = fields.iter().enumerate().map(|t| field_to_tokens(t.1, t.0 == drop_idx));
+    let field_iter = fields.iter().enumerate().filter(|t| t.0 != drop_idx).map(|t| normal_field(t.1));
     let q = quote! {
-        impl LibraryWrapper for #name {
-            unsafe fn load(lib_name: &str) -> Result<#name,dlopen::Error> {
-                let cname = CString::new(lib_name)?;
-                let handle = libc::dlopen(cname);
-                Ok(#name {
-                #(#tok_iter),*
+        impl LibraryWrapper for #struct_name {
+            unsafe fn load_cstr(lib_name: &::std::ffi::CStr) -> Result<Self,dlopen::Error> {
+                let lib = ::dlopen::DlOpen::open_cstr(lib_name)?;
+                Ok(Self{
+                    #(#field_iter)*
+                    #drop_field: lib.into_drop()
                 })
             }
         }
@@ -29,10 +32,8 @@ pub fn impl_library_wrapper(ast: &DeriveInput) -> quote::Tokens {
     q
 }
 
-const DLOPEN_DROP: &str = "dlopen_drop";
-
 fn find_drop_field(fields: &Vec<Field>) -> usize {
-    let marked_fields: Vec<usize> = fields.iter().enumerate().filter(|t| find_marker_attr(t.1, DLOPEN_DROP)).map(|t| t.0).collect();
+    let marked_fields: Vec<usize> = fields.iter().enumerate().filter(|t| has_marker_attr(t.1, DLOPEN_DROP)).map(|t| t.0).collect();
     match marked_fields.len() {
         1 => return *marked_fields.first().unwrap(),
         num if num>1 => panic!("{} attribute can be assigned to max 1 fields", DLOPEN_DROP),
@@ -42,8 +43,8 @@ fn find_drop_field(fields: &Vec<Field>) -> usize {
     let ld_fields: Vec<usize> = fields.iter().enumerate().filter(|t|is_library_drop(t.1)).map(|t| t.0).collect();
     match ld_fields.len() {
         1 =>  return *ld_fields.first().unwrap(),
-        0 => panic!("Add LibraryDrop to your structure od mark it with {}", DLOPEN_DROP),
-        _ => panic!("LibraryWrapper implementations can have only one LibraryDrop field")
+        0 => panic!("Add DlDrop to your structure od mark it with {}", DLOPEN_DROP),
+        _ => panic!("LibraryWrapper implementations can have only one DlDrop field")
     }
 }
 
@@ -51,7 +52,7 @@ fn is_library_drop(field: &Field) -> bool {
     match field.ty {
         Ty::Path(ref ident, ref path) => {
             match path.segments.last() {
-                Some(ref last) => last.ident.as_ref() == "LibraryWrapper",
+                Some(ref last) => last.ident.as_ref() == "DlDrop",
                 None => false
             }
         },
@@ -60,35 +61,22 @@ fn is_library_drop(field: &Field) -> bool {
     }
 }
 
-fn field_to_tokens(field: &Field, is_drop: bool) -> quote::Tokens {
+fn normal_field(field: &Field) -> quote::Tokens {
     let field_name = &field.ident;
     let symbol_name: &str = symbol_name(field);
 
     //panic!("type_name = {}, {:?}", field_type_name, field);
-    if is_drop {
+    if has_marker_attr(field, DLOPEN_ALLOW_NULL){
         quote! {
-            #field_name : libdrop
+            #field_name : lib.pointer_cstr(
+            ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+            )?,
         }
-    }else {
+    } else {
         quote! {
-            #field_name: {
-                let _ = dlerror();
-                let cname = std::ffi::CString::new(name)?;
-                let symbol = dlsym(handle, cname.as_ptr());
-                //This can be either error or just the library has a NULl pointer - legal
-                if symbol.is_null() {
-                    let msg = dlerror();
-                    return Err(if msg.is_null() {
-                        //this is correct behavior but we can't convert NULL to reference
-                        dlopen::Error::NullPointer
-                    } else {
-                        //this is just error
-                        dlopen::Error::DlError(dlopen::DlError::from_ptr(msg))
-                    })
-                }
-                std::mem::transmute(symbol)
-            }
+            #field_name : lib.symbol_cstr(
+            ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+            )?,
         }
     }
-
 }

@@ -1,22 +1,16 @@
-use libc::{c_void, dlclose};
+use super::dlopen::DlOpen;
 
 pub struct DlDrop {
-    handle: * mut c_void
+    lib: DlOpen
 }
 
 impl DlDrop {
-    pub fn new (handle: *mut c_void) -> DlDrop {
+    pub fn new (lib: DlOpen) -> DlDrop {
         DlDrop {
-            handle: handle
+            lib: lib
         }
     }
 }
 
 unsafe impl Send for DlDrop {}
 unsafe impl Sync for DlDrop {}
-
-impl Drop for DlDrop {
-    fn drop(&mut self) {
-        assert_eq!(unsafe {dlclose(self.handle)}, 0);
-    }
-}

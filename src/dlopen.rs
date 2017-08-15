@@ -72,12 +72,15 @@ impl DlOpen {
     }
 
     pub fn into_drop(self) -> DlDrop {
-        DlDrop::new(self.handle)
+        DlDrop::new(self)
     }
 }
 
 impl Drop for DlOpen {
     fn drop(&mut self) {
-        assert_eq!(unsafe {dlclose(self.handle)}, 0);
+        let result = unsafe { dlclose(self.handle) };
+        if result != 0 {
+            panic!("Call to dlclose() failed");
+        }
     }
 }

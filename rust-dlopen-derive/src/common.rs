@@ -30,7 +30,7 @@ pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<&'a st
     None
 }
 
-pub fn find_marker_attr(field :&Field, attr_name: &str) -> bool {
+pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
     for attr in field.attrs.iter() {
         match attr.value {
             MetaItem::Word(ref val) => if val == attr_name{
