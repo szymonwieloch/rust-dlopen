@@ -26,3 +26,11 @@ crate-type = ["bin"]
 [[example]]
 name = "wrapper"
 crate-type = ["bin"]
+
+[[example]]
+name = "interface"
+crate-type = ["bin"]
+
+[[example]]
+name = "double"
+crate-type = ["bin"]

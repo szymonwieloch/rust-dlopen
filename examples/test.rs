@@ -17,14 +17,19 @@ fn prn () {
     println!("Called");
 }
 
-struct T {
-    fun: unsafe extern fn()-> u32
+struct T{
+    a: u32
 }
 
-impl FnOnce<(f64,)> for T {
-    type Output = bool;
-    extern "rust-call" fn call_once(self, args: (f64,)) -> Self::Output {
-        args.0 > self.x
+impl T {
+    fn whatever(&self) {
+
+    }
+}
+
+impl T {
+    fn something(&self){
+        
     }
 }
 
