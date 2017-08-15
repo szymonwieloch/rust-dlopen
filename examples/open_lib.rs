@@ -3,8 +3,9 @@ extern crate libc;
 use dlopen::{Library, Symbol};
 use libc::c_double;
 
+const LIBRARY_NAME: &str = "libm.so.6";
+
 fn main() {
-    println!("Opening libm.so.6");
     let lib = Library::open("libm.so.6").expect("Could not find libm.so.6");
     println!("Library opened");
     let cosine = unsafe {
