@@ -4,7 +4,7 @@
 
 A long time ago in a dirty basement far, far away a programmer was trying to dynamically load a library using standard C API (because he didnt know Rust yet):
 
-'''c
+```c
 /* Open a dynamic library, get function, use it and then close the library ... */
 #include <dlfcn.h>
 #include <stdio.h>
@@ -30,7 +30,7 @@ void main() {
 
     //Ups! Now the library is closed, but the function cos still exists!
 }
-'''
+```
 
 Basicly doing even the basic operations around dynamic libraries is **extreamly prone to errors** 
 and requires **a lot of coding** to perform even the simplest operatoins. 
@@ -50,7 +50,7 @@ library.
 ## Low-level API
 Let's just open a math library on Ubuntu(because most libraries are platform-specific, I will show you examples on my platform):
 
-'''rust
+```rust
 extern crate dlopen;
 extern crate libc;
 use dlopen::{DlOpen};
@@ -64,16 +64,16 @@ fn main() {
     let result = unsafe { cos(arg) };
     println!("cos({}) = {}", arg, result);
 }
-'''
+```
 
 As you see lopening and closing libraries is quite straightforward. 
 Rust `Result<>` together with `dlopen::Error` allow simple handling of errors.
 `DlOpen` comes with two functions for opening library:
 
-'''rust
+```rust
 pub fn open(name: &str) -> Result<DlOpen, Error>;
 pub fn open_cstr(name: &CStr) -> Result<DlOpen, Error>;
-'''
+```
 
 The first one accepts normal rusty '&str', the second one requires C-like string.
 The second one actually is a little faster because it does not require conversion between Rust and C strings. 
