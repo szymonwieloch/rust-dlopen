@@ -1,4 +1,6 @@
-# rust-dlopen
+# rust-dynlib
+
+[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci]
 
 **WARNING!!! This library is jus being developped and therefore is yet unstable!!!**
 

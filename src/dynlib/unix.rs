@@ -3,6 +3,7 @@ use std::ffi::{CStr, OsStr};
 use libc::{c_void, c_int, dlopen, dlerror, dlsym, dlclose, RTLD_LAZY, RTLD_LOCAL};
 use std::ptr::null_mut;
 use std::os::unix::ffi::OsStrExt;
+use std::io::{Error as IoError, ErrorKind};
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 
@@ -14,8 +15,10 @@ lazy_static! {
     static ref DLERROR_MUTEX: Mutex<()> = Mutex::new(());
 }
 
+pub type Handle = * mut c_void;
+
 #[inline]
-pub unsafe fn get_sym(handle: *mut c_void, name: &CStr) -> Result<* mut (), Error> {
+pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<* mut (), Error> {
     let _lock = DLERROR_MUTEX.lock();
     //clear the dlerror in order to be able to distinguish between NULL pointer and error
     let _ = dlerror();
@@ -24,14 +27,15 @@ pub unsafe fn get_sym(handle: *mut c_void, name: &CStr) -> Result<* mut (), Erro
     if symbol.is_null() {
         let msg = dlerror();
         if !msg.is_null() {
-            return Err(Error::SymbolGettingError(CStr::from_ptr(msg).to_string_lossy().to_string()));
+            return Err(Error::SymbolGettingError(IoError::new(ErrorKind:: Other,
+                CStr::from_ptr(msg).to_string_lossy().to_string())));
         }
     }
     Ok(symbol as * mut ())
 }
 
 #[inline]
-pub unsafe fn open_lib(name: &OsStr) -> Result<*mut c_void, Error> {
+pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     let mut v:Vec<u8> = Vec::new();
     //as_bytes i a unix-specific extension
     let cstr= if name.len()>0 && name.as_bytes()[name.len()-1] == 0 {
@@ -46,14 +50,15 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<*mut c_void, Error> {
     let _lock = DLERROR_MUTEX.lock();
     let handle = dlopen(cstr.as_ptr(), DEFAULT_FLAGS);
     if handle.is_null() {
-        Err(Error::OpeningLibraryError(CStr::from_ptr(dlerror()).to_string_lossy().to_string()))
+        Err(Error::OpeningLibraryError(IoError::new(ErrorKind::Other,
+            CStr::from_ptr(dlerror()).to_string_lossy().to_string())))
     } else {
         Ok(handle)
     }
 }
 
 #[inline]
-pub fn close_lib(handle: *mut c_void) -> *mut c_void {
+pub fn close_lib(handle: Handle) -> Handle {
     let result = unsafe { dlclose(handle) };
     if result != 0 {
         panic!("Call to dlclose() failed");

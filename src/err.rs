@@ -2,12 +2,13 @@ use std::error::Error as ErrorTrait;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::convert::From;
 use std::ffi::{NulError};
+use std::io::Error as IoError;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Error{
     NullError(NulError),
-    OpeningLibraryError(String),
-    SymbolGettingError(String),
+    OpeningLibraryError(IoError),
+    SymbolGettingError(IoError),
     NullPointer
 }
 
@@ -37,15 +38,14 @@ impl Display for Error {
         match self {
             &Error::OpeningLibraryError(ref msg) => {
                 f.write_str(": ")?;
-                f.write_str(msg)?;
+                msg.fmt(f)
             },
             &Error::SymbolGettingError(ref msg) => {
                 f.write_str(": ")?;
-                f.write_str(msg)?;
+                msg.fmt(f)
             },
-            &Error::NullPointer | &Error::NullError(_) => {}
+            &Error::NullPointer | &Error::NullError(_) => {Ok(())}
         }
-        Ok(())
     }
 }
 

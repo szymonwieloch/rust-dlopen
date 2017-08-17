@@ -1,17 +1,17 @@
 use super::super::err::{Error};
 use std::ffi::{CString, CStr, OsStr};
 
+//choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{open_lib, get_sym, close_lib};
+use super::unix::{open_lib, get_sym, close_lib, Handle};
+#[cfg(windows)]
+use super::windows::{open_lib, get_sym, close_lib, Handle};
 
 use std::mem::{transmute_copy, size_of};
 
 #[derive(Debug)]
 pub struct DynLib {
-    #[cfg(unix)]
-    handle: * mut ::libc::c_void,
-    #[cfg(windows)]
-    handle: winapi::HMODULE
+    handle: Handle
 }
 
 impl DynLib {
