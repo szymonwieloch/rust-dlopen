@@ -1,6 +1,7 @@
 # rust-dynlib
 
 [![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci]
+
 [tcii]: https://travis-ci.org/szymonwieloch/rust-dynlib.svg?branch=master
 [tci]: https://travis-ci.org/szymonwieloch/rust-dynlib
 [acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dynlib?svg=true
@@ -43,7 +44,7 @@ and requires **a lot of coding** to perform even the simplest operatoins.
 This library aims to simplify the process of developing APIs for dynamically loaded libraries
 and to reduce number of mistakes (please note that you can't create any library that is 100% safe because
 loading libraries requires transmutation of obtained pointers). 
-The **dlopen** library is basicly a wrapper around the dl-something functions from the [libc](https://github.com/rust-lang/libc)
+The **dlopen** library is basically a wrapper around the dl-something functions from the [libc](https://github.com/rust-lang/libc)
 library.
 
 ## Features
@@ -99,10 +100,10 @@ And of course there are also their *_cstr equivalents. You may be wondering - wh
 The original API defines only `dlsym()` function.
 There are two reasons. First is that `null` is a legal value of a pointer in a dynamically loaded library.
 But it's totally unsafe to convert it into a function. Of course `null` is a legal value for a pointer.
-The second reason is easyness of conversion. 
+The second reason is easiness of conversion. 
 Please notice that a function pointer obtained from library does not point to a function.
 It **IS** a function. 
-So there is a different number of derefences that you would normally do for a pointer (for example a pointer to a C string)
+So there is a different number of dereferences that you would normally do for a pointer (for example a pointer to a C string)
 than for a function. Therefor it's best to obtain functions using the `symbol()` method and pointers using the `pointer'() method.
 
 ```rust
