@@ -1,36 +1,20 @@
 [package]
-name = "dlopen"
+name = "dynlib"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 
 [dependencies]
+
+#dlopen_derive = {path = "rust-dynlib-derive"}
+
+[target.'cfg(windows)'.dependencies]
+winapi = "0.2"
+kernel32-sys = "0.2"
+
+[target.'cfg(unix)'.dependencies]
 libc = "0.2.29"
-dlopen_derive = {path = "rust-dlopen-derive"}
+lazy_static = "0.2.8"
 
 [[example]]
 name = "open_lib"
-crate-type = ["bin"]
-
-[[example]]
-name = "derive"
-crate-type = ["bin"]
-
-[[example]]
-name = "test"
-crate-type = ["bin"]
-
-[[example]]
-name = "dlopen"
-crate-type = ["bin"]
-
-[[example]]
-name = "wrapper"
-crate-type = ["bin"]
-
-[[example]]
-name = "interface"
-crate-type = ["bin"]
-
-[[example]]
-name = "double"
 crate-type = ["bin"]

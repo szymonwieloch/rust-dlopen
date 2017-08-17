@@ -1,0 +1,62 @@
+use super::super::err::{Error};
+use std::ffi::{CStr, OsStr};
+use libc::{c_void, c_int, dlopen, dlerror, dlsym, dlclose, RTLD_LAZY, RTLD_LOCAL};
+use std::ptr::null_mut;
+use std::os::unix::ffi::OsStrExt;
+
+const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
+
+use std::sync::Mutex;
+
+// calls to dlerror are not thread unsafe. Therefore we need to guard each call with a mutex
+
+lazy_static! {
+    static ref DLERROR_MUTEX: Mutex<()> = Mutex::new(());
+}
+
+#[inline]
+pub unsafe fn get_sym(handle: *mut c_void, name: &CStr) -> Result<* mut (), Error> {
+    let _lock = DLERROR_MUTEX.lock();
+    //clear the dlerror in order to be able to distinguish between NULL pointer and error
+    let _ = dlerror();
+    let symbol = dlsym(handle, name.as_ptr());
+    //This can be either error or just the library has a NULl pointer - legal
+    if symbol.is_null() {
+        let msg = dlerror();
+        if !msg.is_null() {
+            return Err(Error::SymbolGettingError(CStr::from_ptr(msg).to_string_lossy().to_string()));
+        }
+    }
+    Ok(symbol as * mut ())
+}
+
+#[inline]
+pub unsafe fn open_lib(name: &OsStr) -> Result<*mut c_void, Error> {
+    let mut v:Vec<u8> = Vec::new();
+    //as_bytes i a unix-specific extension
+    let cstr= if name.len()>0 && name.as_bytes()[name.len()-1] == 0 {
+        //don't need to convert
+        CStr::from_bytes_with_nul_unchecked(name.as_bytes())
+    } else {
+        //need to convert
+        v.copy_from_slice(name.as_bytes());
+        v.push(0);
+        CStr::from_bytes_with_nul_unchecked(v.as_slice())
+    };
+    let _lock = DLERROR_MUTEX.lock();
+    let handle = dlopen(cstr.as_ptr(), DEFAULT_FLAGS);
+    if handle.is_null() {
+        Err(Error::OpeningLibraryError(CStr::from_ptr(dlerror()).to_string_lossy().to_string()))
+    } else {
+        Ok(handle)
+    }
+}
+
+#[inline]
+pub fn close_lib(handle: *mut c_void) -> *mut c_void {
+    let result = unsafe { dlclose(handle) };
+    if result != 0 {
+        panic!("Call to dlclose() failed");
+    }
+    null_mut()
+}
