@@ -8,6 +8,10 @@ extern crate kernel32;
 #[macro_use]
 extern crate lazy_static;
 
+#[cfg(test)]
+#[macro_use]
+extern crate const_cstr;
+
 mod err;
 mod dynlib;
 

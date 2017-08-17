@@ -43,7 +43,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
         CStr::from_bytes_with_nul_unchecked(name.as_bytes())
     } else {
         //need to convert
-        v.copy_from_slice(name.as_bytes());
+        v.extend_from_slice(name.as_bytes());
         v.push(0);
         CStr::from_bytes_with_nul_unchecked(v.as_slice())
     };

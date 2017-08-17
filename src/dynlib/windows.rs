@@ -75,7 +75,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 
 #[inline]
 pub fn close_lib(handle: Handle) -> Handle {
-   if kernel32::FreeLibrary(handle) == 0 {
+   if unsafe {kernel32::FreeLibrary(handle)} == 0 {
        //this should not happen
        panic!("FreeLibrary() failed, the error is {}", unsafe {get_win_error()});
    }

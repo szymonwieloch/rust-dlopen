@@ -15,6 +15,9 @@ kernel32-sys = "0.2"
 libc = "0.2.29"
 lazy_static = "0.2.8"
 
-[[example]]
-name = "open_lib"
-crate-type = ["bin"]
+[dev-dependencies]
+const-cstr = "0.1"
+
+#[[example]]
+#name = "open_lib"
+#crate-type = ["bin"]
