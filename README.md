@@ -1,6 +1,10 @@
 # rust-dynlib
 
 [![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci]
+[tcii]: https://travis-ci.org/szymonwieloch/rust-dynlib.svg?branch=master
+[tci]: https://travis-ci.org/szymonwieloch/rust-dynlib
+[acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dynlib?svg=true
+[aci]: https://ci.appveyor.com/project/szymonwieloch/rust-dynlib
 
 **WARNING!!! This library is jus being developped and therefore is yet unstable!!!**
 
