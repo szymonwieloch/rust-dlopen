@@ -1,9 +1,11 @@
 use winapi;
 use kernel32;
-use std::os::windows::ffi::{OsStrExt, OsStringExt};
+use std::os::windows::ffi::{OsStrExt};
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
 use std::io::{ErrorKind, Error as IoError};
 use super::super::err::Error;
+use std::ptr::null_mut;
+use std::ffi::{CStr, OsStr};
 
 static USE_ERRORMODE: AtomicBool = ATOMIC_BOOL_INIT;
 
@@ -32,7 +34,7 @@ impl Drop for ErrorModeGuard {
     fn drop(&mut self) {
         unsafe {
             if !USE_ERRORMODE.load(Ordering::Relaxed) {
-                kernel32::SetThreadErrorMode(self.0, ptr::null_mut());
+                kernel32::SetThreadErrorMode(self.0, null_mut());
             } else {
                 kernel32::SetErrorMode(self.0);
             }
@@ -53,7 +55,7 @@ unsafe fn get_win_error() -> IoError {
 pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<* mut (), Error> {
     let symbol = kernel32::GetProcAddress(handle, name.as_ptr());
     if symbol.is_null() {
-        Err(get_win_error())
+        Err(Error::SymbolGettingError(get_win_error()))
     } else {
        Ok(symbol as * mut ())
     }
@@ -63,7 +65,7 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<* mut (), Error> {
 pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     let wide_name: Vec<u16> = name.encode_wide().chain(Some(0)).collect();
     let _guard = ErrorModeGuard::new();
-    let handle = unsafe { kernel32::LoadLibraryW(wide_filename.as_ptr()) };
+    let handle = unsafe { kernel32::LoadLibraryW(wide_name.as_ptr()) };
     if handle.is_null()  {
         Err(Error::OpeningLibraryError(get_win_error()))
     } else {
