@@ -1,4 +1,4 @@
-#[cfg(unix)]
+#[cfg(any(unix, test))]
 extern crate libc;
 #[cfg(windows)]
 extern crate winapi;
