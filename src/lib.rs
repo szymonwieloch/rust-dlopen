@@ -11,15 +11,11 @@ extern crate lazy_static;
 #[cfg(test)]
 #[macro_use]
 extern crate const_cstr;
+#[cfg(test)]
+mod tests;
 
 mod err;
-mod dynlib;
+pub mod lowlevel;
+pub mod utils;
 
-pub use dynlib::DynLib;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
-}
+pub use err::Error;

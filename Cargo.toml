@@ -2,6 +2,18 @@
 name = "dynlib"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
+description = "A library for opening and operating on dynamically loadable libraries."
+keywords = [
+    #common functions
+    "dlopen", "loadlibrary", "loadlibraryw",
+    #common names
+    "shared object", "dynamic link library",
+    #other libraries that somebody may be searching for
+    "dynlib", "libloading", "rust_libloading", "dynamic_reload",
+    #common extensions
+    "dll", "so", "dylib"]
+license = "MIT"
+repository = "https://github.com/nagisa/rust_libloading/"
 
 [dependencies]
 
@@ -17,7 +29,9 @@ lazy_static = "0.2.8"
 
 [dev-dependencies]
 const-cstr = "0.1"
+example_dylib = {path = "rust-example-dylib"}
+libc = "0.2.29"
 
-#[[example]]
-#name = "open_lib"
-#crate-type = ["bin"]
+[[example]]
+name = "lowlevel"
+crate-type = ["bin"]

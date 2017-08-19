@@ -6,8 +6,10 @@ use super::windows::{get_sym, open_lib, close_lib};
 
 #[cfg(windows)]
 const EXISTING_LIB: &str = "kernel32.dll";
-#[cfg(unix)]
+#[cfg(all(unix, not(any(target_os="macos", target_os="ios"))))]
 const EXISTING_LIB: &str = "libm.so.6";
+#[cfg(any(target_os="macos", target_os="ios"))]
+const EXISTING_LIB: &str = "libm.dylib";
 const NOT_EXISTING_LIB: &str = "notexisting.ext";
 #[cfg(windows)]
 const_cstr! {EXISTING_SYM = "GetLastError";}
