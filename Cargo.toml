@@ -17,7 +17,7 @@ repository = "https://github.com/nagisa/rust_libloading/"
 
 [dependencies]
 
-#dlopen_derive = {path = "rust-dynlib-derive"}
+dynlib_derive = {path = "rust-dynlib-derive"}
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.2"
@@ -38,4 +38,8 @@ crate-type = ["bin"]
 
 [[example]]
 name = "symbor"
+crate-type = ["bin"]
+
+[[example]]
+name = "symbor_api"
 crate-type = ["bin"]

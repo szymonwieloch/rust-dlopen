@@ -32,7 +32,7 @@ pub fn library_wrapper(input: TokenStream) -> TokenStream {
     gen.parse().unwrap()
 }
 
-#[proc_macro_derive(LibraryApi, attributes(dlopen_name))]
+#[proc_macro_derive(LibraryApi, attributes(dynlib_name))]
 pub fn library_api(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();

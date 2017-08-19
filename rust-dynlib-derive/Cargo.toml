@@ -1,5 +1,5 @@
 [package]
-name = "dlopen_derive"
+name = "dynlib_derive"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 

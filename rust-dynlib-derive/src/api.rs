@@ -10,7 +10,7 @@ pub fn impl_library_api(ast: &DeriveInput) -> quote::Tokens {
     let tok_iter = fields.iter().map(field_to_tokens);
     let q = quote! {
         impl<'a> LibraryApi<'a> for #name<'a> {
-            unsafe fn load(lib: &'a ::dlopen::Library) -> Result<#name<'a>,::dlopen::Error> {
+            unsafe fn load(lib: &'a ::dynlib::symbor::Library) -> Result<#name<'a>,::dynlib::Error> {
                 Ok(#name {
                 #(#tok_iter),*
                 })
@@ -29,13 +29,10 @@ fn field_to_tokens(field: &Field) -> quote::Tokens {
 
     //panic!("type_name = {}, {:?}", field_type_name, field);
 
-    // Some fields supports null pointers, some do not
-    //but the TryFrom trait is still unstable and conditional conversion is not yet supported
-    //TODO: change this once TryFrom is stable
     quote! {
         #field_name: {
-            let raw = lib.pointer::<::libc::c_void>(#symbol_name)?;
-            dlopen::FromRawPointer::from_raw_ptr(raw)?
+            let raw_result = lib.pointer::<::libc::c_void>(#symbol_name);
+            dynlib::symbor::FromRawResult::from_raw_result(raw_result)?
         }
     }
 
