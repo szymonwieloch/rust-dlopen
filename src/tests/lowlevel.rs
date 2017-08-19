@@ -13,6 +13,7 @@ macro_rules! println_stderr(
     } }
 );
 
+#[cfg(not(any(target_os="osx", target_os="ios")))]
 #[test]
 fn open_play_close(){
     let lib_path = example_lib_path();
