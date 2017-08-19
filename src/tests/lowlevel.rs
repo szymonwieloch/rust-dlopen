@@ -59,4 +59,12 @@ fn open_play_close(){
     let converted = unsafe{CStr::from_ptr(c_const_char_ptr)}.to_str().unwrap();
     assert_eq!(converted, "Hi!");
     println_stderr!("obtaining C string OK");
+
+    //It turns out that there is a bug in rust.
+    //On OSX calls to dynamic libraries written in Rust causes segmentation fault
+    //please note that this ia a problem with the example library, not this library
+    //maybe converting the example library into cdylib would help?
+    //https://github.com/rust-lang/rust/issues/28794
+    #[cfg(any(target_os="osx", target_os="ios"))]
+    ::std::mem::forget(lib);
 }
