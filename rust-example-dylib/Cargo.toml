@@ -1,0 +1,11 @@
+[package]
+name = "example_dylib"
+version = "0.1.0"
+authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
+
+[lib]
+name = "example"
+crate-type = ["dylib"]
+
+[dependencies]
+libc = "0.2.29"
