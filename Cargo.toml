@@ -35,3 +35,7 @@ libc = "0.2.29"
 [[example]]
 name = "lowlevel"
 crate-type = ["bin"]
+
+[[example]]
+name = "symbor"
+crate-type = ["bin"]

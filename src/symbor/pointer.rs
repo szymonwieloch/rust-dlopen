@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::ops::Deref;
 use libc::c_void;
-use super::from_raw::FromRawPointer;
+use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 
 #[derive(Debug, Clone, Copy)]
@@ -21,13 +21,15 @@ impl<'lib, T> Pointer<'lib, T> {
     }
 }
 
-impl<'lib, T> FromRawPointer for Pointer<'lib, T> {
-    type Error = Error;
-    unsafe fn from_raw_ptr(raw: RawPointer) -> Result<Self, Self::Error> {
-        Ok(Pointer{
-            pointer: *raw as * const T,
-            pd: PhantomData
-        })
+impl<'lib, T> FromRawResult for Pointer<'lib, T> {
+    unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
+        match raw_result {
+            Ok(ptr) => Ok(Pointer{
+                    pointer: *ptr as * const T,
+                    pd: PhantomData
+                }),
+            Err(err) => Err(err)
+        }
     }
 }
 

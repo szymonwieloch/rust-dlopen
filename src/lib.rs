@@ -14,8 +14,8 @@ extern crate const_cstr;
 #[cfg(test)]
 mod tests;
 
-mod err;
 pub mod lowlevel;
+pub mod symbor;
 pub mod utils;
-
+mod err;
 pub use err::Error;

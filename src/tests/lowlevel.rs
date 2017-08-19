@@ -13,7 +13,7 @@ macro_rules! println_stderr(
     } }
 );
 
-#[cfg(not(any(target_os="osx", target_os="ios")))]
+//#[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]
 fn open_play_close(){
     let lib_path = example_lib_path();
@@ -66,6 +66,6 @@ fn open_play_close(){
     //please note that this ia a problem with the example library, not this library
     //maybe converting the example library into cdylib would help?
     //https://github.com/rust-lang/rust/issues/28794
-    #[cfg(any(target_os="osx", target_os="ios"))]
+    #[cfg(any(target_os="macos", target_os="ios"))]
     ::std::mem::forget(lib);
 }
