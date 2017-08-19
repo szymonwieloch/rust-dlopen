@@ -4,6 +4,15 @@ use libc::{c_int, c_char};
 use std::ffi::CStr;
 use super::{example_lib_path, SomeData};
 
+use std::io::Write;
+
+macro_rules! println_stderr(
+    ($($arg:tt)*) => { {
+        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
+        r.expect("failed printing to stderr");
+    } }
+);
+
 #[test]
 fn open_play_close(){
     let lib_path = example_lib_path();
@@ -15,39 +24,39 @@ fn open_play_close(){
 
     let c_fun_print_something_else: unsafe extern "C" fn() = unsafe { lib.symbol_cstr(const_cstr!("c_fun_print_something_else").as_cstr())}.unwrap();
     unsafe{ c_fun_print_something_else()}; //should not crash
-
+    println_stderr!("something else call OK");
     let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int = unsafe { lib.symbol_cstr(const_cstr!("c_fun_add_two").as_cstr())}.unwrap();
     assert_eq!(unsafe{c_fun_add_two(2)}, 4);
-    println!("add_two called OK");
+    println_stderr!("add_two called OK");
     let rust_i32: & i32 = unsafe { lib.symbol_cstr(const_cstr!("rust_i32").as_cstr())}.unwrap();
     assert_eq!(43, *rust_i32);
-    println!("obtaining const data OK");
+    println_stderr!("obtaining const data OK");
     let rust_i32_mut: &mut i32 = unsafe { lib.symbol_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
     assert_eq!(42, *rust_i32_mut);
-    println!("obtaining mutable data OK");
+    println_stderr!("obtaining mutable data OK");
     *rust_i32_mut = 55; //should not crash
-    println!("assigning mutable data OK");
+    println_stderr!("assigning mutable data OK");
     //for a change use pointer to obtain its value
     let rust_i32_ptr: *const i32 = unsafe { lib.pointer_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
     assert_eq!(55, unsafe{*rust_i32_ptr});
-    println!("obtaining pointer OK");
+    println_stderr!("obtaining pointer OK");
     //the same with C
     let c_int: & c_int = unsafe { lib.symbol_cstr(const_cstr!("c_int").as_cstr())}.unwrap();
     assert_eq!(45, *c_int);
-    println!("obtaining C data OK");
+    println_stderr!("obtaining C data OK");
     //now static c struct
 
     let c_struct: & SomeData = unsafe { lib.symbol_cstr(const_cstr!("c_struct").as_cstr())}.unwrap();
     assert_eq!(1, c_struct.first);
     assert_eq!(2, c_struct.second);
-    println!("obtaining C structure OK");
+    println_stderr!("obtaining C structure OK");
     //let's play with strings
 
     let  rust_str: &&str = unsafe { lib.symbol_cstr(const_cstr!("rust_str").as_cstr())}.unwrap();
     assert_eq!("Hello!", *rust_str);
-    println!("obtaining str OK");
+    println_stderr!("obtaining str OK");
     let c_const_char_ptr: * const c_char = unsafe { lib.symbol_cstr(const_cstr!("c_const_char_ptr").as_cstr())}.unwrap();
     let converted = unsafe{CStr::from_ptr(c_const_char_ptr)}.to_str().unwrap();
     assert_eq!(converted, "Hi!");
-    println!("obtaining C string OK");
+    println_stderr!("obtaining C string OK");
 }

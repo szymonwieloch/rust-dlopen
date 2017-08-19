@@ -15,7 +15,10 @@ extern crate libc;
 use dynlib::lowlevel::DynLib;
  use libc::{c_double};
 fn main(){
-//This is a Ubuntu specific example but you should get the idea.
+    //This is a Linux specific example because existing libraries depend on OS.
+    //But you should get an idea how it works on other platforms.
+    #[cfg(not(target_os="linux"))]
+    return;
     let lib = DynLib::open("libm.so.6").unwrap();
     let cos: unsafe extern "C" fn(c_double)->c_double = unsafe{lib.symbol("cos")}.unwrap();
     println!("cos(1) = {}", unsafe{cos(1.0)});
