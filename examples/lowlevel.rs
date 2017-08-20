@@ -47,7 +47,7 @@ fn main() {
 
     *rust_i32_mut = 55;
     //for a change use pointer to obtain its value
-    let rust_i32_ptr: *const i32 = unsafe { lib.pointer_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
+    let rust_i32_ptr: *const i32 = unsafe { lib.symbol_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
     println!("after change: {}", unsafe{*rust_i32_ptr});
 
     //the same with C

@@ -31,7 +31,9 @@ fn field_to_tokens(field: &Field) -> quote::Tokens {
 
     quote! {
         #field_name: {
-            let raw_result = lib.pointer::<::libc::c_void>(#symbol_name);
+            let raw_result = lib.ptr_or_null_cstr::<()>(
+                ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+            );
             dynlib::symbor::FromRawResult::from_raw_result(raw_result)?
         }
     }

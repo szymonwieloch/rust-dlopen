@@ -26,7 +26,7 @@ fn main() {
     let rust_i32_mut= unsafe { lib.reference_mut_cstr::<i32>(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
     *rust_i32_mut += 14;
 
-    let c_const_char_ptr = unsafe { lib.pointer_cstr::<c_char>(const_cstr!("c_const_char_ptr").as_cstr())}.unwrap();
+    let c_const_char_ptr = unsafe { lib.ptr_or_null_cstr::<c_char>(const_cstr!("c_const_char_ptr").as_cstr())}.unwrap();
 
     //unfortunately we can't forbid copying of pointers in Rust:
     let _str_copy: * const c_char = * c_const_char_ptr;

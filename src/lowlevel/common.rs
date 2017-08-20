@@ -47,8 +47,27 @@ impl DynLib {
 
     **Note:** It is legal for a library to export null symbols.
     However this is something that almost nobody expects.
-    This method checks the pointer value and returns `Error::NullSymbol` error if the value is null.
-    If your code does require obtaining symbols with null value, please use the `pointer` method.
+    Therefore allowing it here would bring many problems, especially if user obtains references
+    or functions.
+    This method checks the address value and returns `Error::NullSymbol` error if the value is null.
+    If your code does require obtaining symbols with null value, please do something like this:
+    ```no_run
+    extern crate dynlib;
+    use dynlib::lowlevel::DynLib;
+    use dynlib::Error;
+    use std::ptr::null;
+    fn main(){
+        let lib = DynLib::open("libyourlib.so").unwrap();
+        let ptr_or_null: * const i32 = match lib.symbol("symbolname") {
+            Ok(val) => val,
+            Err(err) => match err {
+                Error::NullSymbol => null(),
+                _ => panic!("Could not obtain the symbol")
+            }
+        }
+        //do something with the symbol
+    }
+    ```
     */
     pub unsafe fn symbol<T>(&self, name: &str) -> Result<T, Error> {
         let cname = CString::new(name)?;
@@ -66,46 +85,6 @@ impl DynLib {
             return Err(Error::NullSymbol)
         } else {
             Ok(transmute_copy(&raw))
-        }
-    }
-
-    /**
-    Obtains the given symbol as a const pointer.
-
-    **Note:** you should only use this method if you accept that the symbol may have null value.
-    In 99% of cases you should use the `symbol` method.
-    This method was added to make the API complete.
-    */
-    pub unsafe fn pointer<T>(&self, name: &str) -> Result<*const T, Error> {
-        let cname = CString::new(name)?;
-        self.pointer_cstr(cname.as_ref())
-    }
-
-    ///Equivalent of the `pointer` method but takes `CStr` as a argument.
-    pub unsafe fn pointer_cstr<T>(&self, name: &CStr) -> Result<*const T, Error> {
-        match get_sym(self.handle, name) {
-            Err(err) => Err(err),
-            Ok(ptr) => Ok(ptr as *const T)
-        }
-    }
-
-    /**
-    Obtains the given symbol as a mutable pointer.
-
-    **Note:** you should only use this method if you accept that the symbol may have null value.
-    In 99% of cases you should use the `symbol` method.
-    This method was added to make the API complete.
-    */
-    pub unsafe fn pointer_mut<T>(&self, name: &str) -> Result<*mut T, Error> {
-        let cname = CString::new(name)?;
-        self.pointer_mut_cstr(cname.as_ref())
-    }
-
-    ///Equivalent of the `pointer_mut` method but takes `CStr` as a argument.
-    pub unsafe fn pointer_mut_cstr<T>(&self, name: &CStr) -> Result<*mut T, Error> {
-        match get_sym(self.handle, name) {
-            Err(err) => Err(err),
-            Ok(ptr) => Ok(ptr as *mut T)
         }
     }
 }

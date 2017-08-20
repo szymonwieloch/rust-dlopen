@@ -1,5 +1,5 @@
 /*!
-This is low-level API for opening and getting symbols from dynamic libraries.
+Low-level API for opening and getting symbols from dynamic libraries.
 It is supposed to cover all existing platforms, be thread-safe and provide consistent Rust interface.
 As a low-level API it does not guarantee full safety.
 

@@ -5,7 +5,7 @@ extern crate dynlib;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::symbor::{Library, Pointer, PointerMut, Ref, RefMut, Symbol, LibraryApi};
+use dynlib::symbor::{Library, PtrOrNull, PtrOrNullMut, Ref, RefMut, Symbol, LibraryApi};
 use dynlib::utils::platform_file_name;
 use libc::{c_char};
 use std::env;
@@ -15,7 +15,7 @@ use std::path::PathBuf;
 struct ExampleApi<'a>{
     pub rust_fun_print_something: Symbol<'a, fn()>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    pub c_const_char_ptr: Pointer<'a, * const c_char>,
+    pub c_const_char_ptr: PtrOrNull<'a, * const c_char>,
     pub optional_function: Option<Symbol<'a, fn()->i32>>,
     #[dynlib_name="rust_fun_add_one"]
     pub i_want_other_name: Symbol<'a, fn(i32)->i32>,

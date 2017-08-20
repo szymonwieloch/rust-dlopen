@@ -43,3 +43,7 @@ crate-type = ["bin"]
 [[example]]
 name = "symbor_api"
 crate-type = ["bin"]
+
+[[example]]
+name = "test"
+crate-type = ["bin"]

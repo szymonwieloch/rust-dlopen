@@ -38,7 +38,7 @@ fn open_play_close(){
     *rust_i32_mut = 55; //should not crash
     println_stderr!("assigning mutable data OK");
     //for a change use pointer to obtain its value
-    let rust_i32_ptr: *const i32 = unsafe { lib.pointer_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
+    let rust_i32_ptr: *const i32 = unsafe { lib.symbol_cstr(const_cstr!("rust_i32_mut").as_cstr())}.unwrap();
     assert_eq!(55, unsafe{*rust_i32_ptr});
     println_stderr!("obtaining pointer OK");
     //the same with C

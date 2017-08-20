@@ -1,11 +1,12 @@
 use std::marker::PhantomData;
-use std::ops::Deref;
-use libc::c_void;
+use std::ops::{Deref, DerefMut};
 use std::mem::transmute_copy;
 use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 
-
+///Safe wrapper around a symbol obtained from `Library`.
+/// This is the most generic type, valid for obtaining functions and pointers.
+/// It does not accept null value of the library symbol.
 #[derive(Debug, Clone, Copy)]
 pub struct Symbol<'lib, T: 'lib> {
     symbol: T,
@@ -27,7 +28,7 @@ impl<'lib, T> FromRawResult for Symbol<'lib, T> {
             Ok(ptr) => if ptr.is_null(){
                 Err(Error::NullSymbol)
             } else {
-                let raw: * const c_void = *ptr;
+                let raw: * const () = *ptr;
                 Ok(Symbol {
                     symbol: transmute_copy(&raw),
                     pd: PhantomData
@@ -43,6 +44,13 @@ impl<'lib, T> Deref for Symbol<'lib, T> {
     type Target =  T;
     fn deref(&self) -> & T {
         return &self.symbol
+    }
+}
+
+impl<'lib, T> DerefMut for Symbol<'lib, T> {
+    //type Target =  T;
+    fn deref_mut(&mut self) -> &mut T {
+        return &mut self.symbol
     }
 }
 
