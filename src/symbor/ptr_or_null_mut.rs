@@ -3,7 +3,8 @@ use std::ops::Deref;
 use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 
-///This is the mutable version of a pointer obtained from`Library`.
+///The mutable version of a pointer obtained from`Library`.
+///
 /// It is valid only for obtaining pointers that can have null value.
 #[derive(Debug, Clone, Copy)]
 pub struct PtrOrNullMut<'lib, T: 'lib> {

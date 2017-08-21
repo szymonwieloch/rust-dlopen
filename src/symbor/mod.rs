@@ -75,11 +75,13 @@ mod option;
 mod reference;
 mod reference_mut;
 mod api;
+
+pub use self::library::Library;
+pub use self::symbol::Symbol;
+pub use self::api::LibraryApi;
 pub use self::ptr_or_null::PtrOrNull;
 pub use self::ptr_or_null_mut::PtrOrNullMut;
-pub use self::symbol::Symbol;
 pub use self::reference::Ref;
 pub use self::reference_mut::RefMut;
 pub use self::from_raw::FromRawResult;
-pub use self::library::Library;
-pub use self::api::LibraryApi;
+

@@ -3,6 +3,10 @@ use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 use std::mem::transmute;
 
+///Const reference obtained from `Library`.
+///
+/// This type is intended to be used only inside structures implementing `LibraryApi` trait.
+/// In other cases you can as well use normal Rust reference.
 #[derive(Debug, Clone, Copy)]
 pub struct Ref<'lib, T: 'lib> {
     reference: &'lib T

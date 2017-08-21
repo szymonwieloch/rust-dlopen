@@ -58,7 +58,7 @@ Please notice several supported features:
     different versions of libraries and the new versions support more functions.
     If it is not possible to obtain the given symbol, the option is set to `None',
     otherwise it contains the obtained symbol.
-* Both `Symbol` and `Ref` or `RefMut` can be used to obtain references. to statically
+* Both `Symbol` and `Ref` or `RefMut` can be used to obtain references to statically
     allocated objects. But `Ref` and `RefMut` are just easier to use - they require
     less dereferences to access the final value.
     Actually they behave like a normal reference does, it just that they implement the
