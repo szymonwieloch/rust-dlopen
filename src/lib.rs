@@ -17,5 +17,6 @@ mod tests;
 pub mod lowlevel;
 pub mod symbor;
 pub mod utils;
+pub mod wrapper;
 mod err;
 pub use err::Error;
