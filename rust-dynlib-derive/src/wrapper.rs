@@ -1,4 +1,4 @@
-use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput, Visibility};
+use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput, Visibility, BareFnTy, BareFnArg, FunctionRetTy};
 use proc_macro::TokenStream;
 use quote;
 use super::common::{get_fields, symbol_name, has_marker_attr};
@@ -33,7 +33,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
         }
 
         impl #generics #struct_name #generics {
-            #(#wrapper_iter), *
+            #(#wrapper_iter)*
         }
     };
 
@@ -84,8 +84,22 @@ fn allow_null_field(field: &Field) -> quote::Tokens {
 fn field_to_wrapper(field: &Field) -> Option<quote::Tokens> {
     let ident = &field.ident;
     match &field.ty {
-        &Ty::BareFn(_) => {
-            None
+        &Ty::BareFn(ref fun) => {
+            let ret_ty = match fun.output {
+                FunctionRetTy::Default => quote::Tokens::new(),
+                FunctionRetTy::Ty(ref val) => quote!{-> #val}
+            };
+            let unsafety = &fun.unsafety;
+            let arg_iter = fun.inputs.iter().map(|a |fun_arg_to_tokens(a, ident.as_ref().unwrap().as_ref()));
+            let arg_names = fun.inputs.iter().map(|a| match a.name {
+                Some(ref val) => val,
+                None => panic!("This should never happen")
+            });
+            Some(quote!{
+                pub #unsafety fn #ident (&self, #(#arg_iter),* ) #ret_ty {
+                    (self.#ident)(#(#arg_names),*)
+                }
+            })
         },
         &Ty::Rptr(_, ref mut_ty) => {
             let ty = &mut_ty.ty;
@@ -98,5 +112,16 @@ fn field_to_wrapper(field: &Field) -> Option<quote::Tokens> {
         },
         &Ty::Ptr(_) => None,
         _ => panic!("Unknown field type, this should not happen!")
+    }
+}
+
+fn fun_arg_to_tokens(arg: &BareFnArg, function_name: &str) -> quote::Tokens {
+    let name = match arg.name {
+        Some(ref val) => val,
+        None => panic!("Function {} has an unnamed argument.", function_name)
+    };
+    let ty = &arg.ty;
+    quote!{
+        #name: #ty
     }
 }
