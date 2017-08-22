@@ -21,13 +21,17 @@ struct Example<'a>{
     rust_fun_add_one: fn(arg: i32) -> i32,
     c_fun_print_something_else: extern "C" fn(),
     c_fun_add_two: extern "C" fn(arg: c_int) -> c_int,
+    c_fun_variadic: extern "C" fn(txt: * const c_char, ...),
     rust_i32_mut: &'a mut i32,
     rust_i32: &'a i32,
     c_int_mut: &'a mut c_int,
     c_int: &'a c_int,
     c_struct: &'a SomeData,
     rust_str: &'a &'static str,
-    c_const_char_ptr: * const c_char
+    c_const_char_ptr: * const c_char,
+    #[dynlib_name="c_const_char_ptr"]
+    #[dynlib_allow_null]
+    null_ptr: * const c_char
 }
 
 //WrapperApi on purpose won't generate accessors for pointers

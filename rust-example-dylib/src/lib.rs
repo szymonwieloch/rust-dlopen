@@ -6,7 +6,7 @@
 
 #![allow(non_upper_case_globals)]
 extern crate libc;
-use libc::{c_int};
+use libc::{c_int, c_char};
 
 
 //FUNCTIONS
@@ -28,6 +28,11 @@ pub extern "C" fn c_fun_print_something_else() {
 #[no_mangle]
 pub extern "C" fn c_fun_add_two(arg: c_int) -> c_int {
     arg + 2
+}
+
+#[no_mangle]
+pub extern "C" fn c_fun_variadic(txt: * const c_char) {
+    //pretend to be variadic - impossible to do in Rust code
 }
 
 //STATIC DATA

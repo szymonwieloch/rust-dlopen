@@ -1,4 +1,4 @@
-use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput, Visibility, BareFnTy, BareFnArg, FunctionRetTy};
+use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput, Visibility, BareFnTy, BareFnArg, FunctionRetTy, MutTy, Mutability};
 use proc_macro::TokenStream;
 use quote;
 use super::common::{get_fields, symbol_name, has_marker_attr};
@@ -50,8 +50,8 @@ fn field_to_tokens(field: &Field) -> quote::Tokens {
             }
             normal_field(field)
         },
-        Ty::Ptr(_) => if has_marker_attr(field, ALLOW_NULL) {
-            allow_null_field(field)
+        Ty::Ptr(ref ptr) => if allow_null {
+            allow_null_field(field, ptr)
         } else {
             normal_field(field)
         },
@@ -71,13 +71,23 @@ fn normal_field(field: &Field) -> quote::Tokens {
 }
 
 
-fn allow_null_field(field: &Field) -> quote::Tokens {
+fn allow_null_field(field: &Field, ptr: &Box<MutTy>) -> quote::Tokens {
     let field_name = &field.ident;
     let symbol_name: &str = symbol_name(field);
+    let null_fun = match ptr.mutability {
+        Mutability::Immutable => quote!{null},
+        Mutability::Mutable => quote!{null_mut}
+    };
     quote! {
-        #field_name : lib.symbol_cstr(
+        #field_name : match lib.symbol_cstr(
         ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
-        )?
+        ) {
+        Ok(val) => val,
+        Err(err) => match err {
+                ::dynlib::Error::NullSymbol => ::std::ptr:: #null_fun (),
+                _ => return Err(err)
+            }
+        }
     }
 }
 
@@ -85,21 +95,25 @@ fn field_to_wrapper(field: &Field) -> Option<quote::Tokens> {
     let ident = &field.ident;
     match &field.ty {
         &Ty::BareFn(ref fun) => {
-            let ret_ty = match fun.output {
-                FunctionRetTy::Default => quote::Tokens::new(),
-                FunctionRetTy::Ty(ref val) => quote!{-> #val}
-            };
-            let unsafety = &fun.unsafety;
-            let arg_iter = fun.inputs.iter().map(|a |fun_arg_to_tokens(a, ident.as_ref().unwrap().as_ref()));
-            let arg_names = fun.inputs.iter().map(|a| match a.name {
-                Some(ref val) => val,
-                None => panic!("This should never happen")
-            });
-            Some(quote!{
-                pub #unsafety fn #ident (&self, #(#arg_iter),* ) #ret_ty {
-                    (self.#ident)(#(#arg_names),*)
-                }
-            })
+            if fun.variadic {
+                None
+            } else {
+                let ret_ty = match fun.output {
+                    FunctionRetTy::Default => quote::Tokens::new(),
+                    FunctionRetTy::Ty(ref val) => quote! {-> #val}
+                };
+                let unsafety = &fun.unsafety;
+                let arg_iter = fun.inputs.iter().map(|a| fun_arg_to_tokens(a, ident.as_ref().unwrap().as_ref()));
+                let arg_names = fun.inputs.iter().map(|a| match a.name {
+                    Some(ref val) => val,
+                    None => panic!("This should never happen")
+                });
+                Some(quote! {
+                    pub #unsafety fn #ident (&self, #(#arg_iter),* ) #ret_ty {
+                        (self.#ident)(#(#arg_names),*)
+                    }
+                })
+            }
         },
         &Ty::Rptr(_, ref mut_ty) => {
             let ty = &mut_ty.ty;
