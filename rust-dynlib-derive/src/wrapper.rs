@@ -117,11 +117,27 @@ fn field_to_wrapper(field: &Field) -> Option<quote::Tokens> {
         },
         &Ty::Rptr(_, ref mut_ty) => {
             let ty = &mut_ty.ty;
-            let mutability = &mut_ty.mutability;
-            Some(quote! {
-                pub unsafe fn #ident (& #mutability self) -> & #mutability #ty {
+            let mut_acc = match mut_ty.mutability {
+                Mutability::Mutable => {
+                    let mut_ident = quote::Ident::new(format!("{}_mut", ident.as_ref().unwrap()));
+                    quote!{
+                        pub fn #mut_ident (&mut self) -> &mut #ty {
+                            self.#ident
+                        }
+                    }
+                },
+                Mutability::Immutable => quote::Tokens::new()
+            };
+            //constant accessor
+            let const_acc = quote! {
+                pub fn #ident (&self) -> & #ty {
                     self.#ident
                 }
+            };
+
+            Some(quote! {
+            #const_acc
+            #mut_acc
             })
         },
         &Ty::Ptr(_) => None,
