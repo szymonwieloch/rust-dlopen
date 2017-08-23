@@ -12,6 +12,8 @@ of those versions have broader API than others. This structure allows you to use
 same time - an obligatory one and an optional one. This library does not cover more cases (such as
 several optional APIs) - you need to write a custom wrapper on your own.
 
+#Example
+
 ```no_run
 #[macro_use]
 extern crate dynlib_derive;

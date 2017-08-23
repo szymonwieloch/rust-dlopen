@@ -5,11 +5,13 @@ use super::api::WrapperApi;
 use std::ffi::{OsStr};
 
 /**
-Wraps a dynamic load library handle and a API if this library into one single structure.
+Wraps a dynamic load library handle and its API into one single structure.
 
 Wrapping both library handle and symbols makes it safe to use it because symbols are released
 together with the library. Wrapper also doesn't have any external lifetimes - this makes it
 easy to use Wrapper inside structures.
+
+#Example
 
 ```no_run
 #[macro_use]

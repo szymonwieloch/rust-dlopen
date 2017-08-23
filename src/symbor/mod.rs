@@ -75,6 +75,7 @@ mod option;
 mod reference;
 mod reference_mut;
 mod api;
+mod wrapper;
 
 pub use self::library::Library;
 pub use self::symbol::Symbol;

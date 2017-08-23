@@ -46,8 +46,11 @@ println!("C string: {}", wrapper.c_string().to_str().unwrap())
 */
 
 mod api;
+mod multi_api;
 mod wrapper;
 mod optional;
+mod option;
 pub use self::api::WrapperApi;
+pub use self::multi_api::WrapperMultiApi;
 pub use self::wrapper::Wrapper;
 pub use self::optional::WrapperOptional;

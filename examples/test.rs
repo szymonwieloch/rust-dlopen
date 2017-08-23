@@ -1,39 +1,53 @@
-#[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-extern crate libc;
-use dynlib::symbor::{Library, Symbol, LibraryApi, PtrOrNull, RefMut, PtrOrNullMut};
-use libc::{c_double, c_char};
+use std::mem::transmute;
 
-#[derive(LibraryApi)]
-struct Example<'a> {
-    pub simple_fun: Symbol<'a, unsafe extern "C" fn()>,
-    pub complex_fun: Symbol<'a, unsafe extern "C" fn(c_double)->c_double>,
-    pub optional_fun: Option<Symbol<'a, unsafe extern "C" fn()>>,
-    pub nullable_ptr: PtrOrNullMut<'a, c_char>,
-    pub mut_ref_i32: Symbol<'a, &'a mut i32>,
-    #[dynlib_name="mut_ref_i32"]
-    pub the_same_mut_ref_i32: RefMut<'a, i32>,
-    pub not_nullable_ptr: Symbol<'a, * mut c_double>
+struct Wrapper<T> where T: ApiTrait<'static>{
+    lib: Lib,
+    api: T
 }
 
-fn main(){
-    let lib = Library::open("example.dll").expect("Could not open library");
-    let mut api = unsafe{Example::load(&lib)}.expect("Could not load symbols");
-
-    //now we can do something with loaded symbols.
-    unsafe{(api.simple_fun)()};
-    let _ = unsafe{(api.complex_fun)(1.0)};
-    match api.optional_fun {
-        Some(fun) => unsafe {fun()},
-        None => println!("Optional function could not be loaded"),
-    };
-    if api.nullable_ptr.is_null(){
-        println!("Library has a null symbol");
+impl<T> Wrapper<T> where T: ApiTrait<'static>{
+    pub fn new() -> Wrapper<T> {
+        let lib = Lib {
+            something: 3
+        };
+        let static_lib: &'static Lib = unsafe{transmute(&lib)};
+        let api = T::load(static_lib);
+        Wrapper{
+            lib: lib,
+            api: api
+        }
     }
-    //while Symbol is good for everything, RefMut requires one less dereference to use
-    **api.mut_ref_i32 =34;
-    *api.the_same_mut_ref_i32 =35;
-    unsafe{**api.not_nullable_ptr = 55.0};
-    unsafe{**api.nullable_ptr = 0};
+}
+
+trait ApiTrait<'a>{
+    fn load(lib: &'a Lib) -> Self;
+}
+
+
+struct Lib {
+    pub something: u32
+}
+
+
+
+struct Api {
+    whatever: u32
+}
+
+impl<'a> ApiTrait<'a> for Api {
+    fn load(lib: &'a Lib) -> Self{
+        Api{
+            whatever: lib.something
+        }
+    }
+}
+
+
+fn main(){
+    let lib = Lib{
+        something: 4
+    };
+
+    let api = Api::load(&lib);
+    drop(lib);
 }

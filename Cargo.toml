@@ -49,5 +49,9 @@ name = "wrapper"
 crate-type = ["bin"]
 
 [[example]]
+name = "multi_api"
+crate-type = ["bin"]
+
+[[example]]
 name = "test"
 crate-type = ["bin"]
