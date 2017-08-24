@@ -5,7 +5,8 @@ use std::ops::{Deref, DerefMut};
 use std::ffi::OsStr;
 use super::super::Error;
 
-struct Wrapper<T> where T: LibraryApi<'static> {
+pub struct Wrapper<T> where T: LibraryApi<'static> {
+    #[allow(dead_code)]
     lib: Library,
     api: T
 }
