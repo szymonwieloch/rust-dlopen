@@ -12,8 +12,8 @@ use std::mem::{transmute_copy, size_of};
 /**
     Main interface for opening and working with a dynamic link library.
 
-    **Note: ** Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
-    actually use C-strings. If you pass [`CStr'](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
+    **Note:** Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
+    actually use C-strings. If you pass [`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
     as an argument, RawLib doesn't need to perform additional conversion from Rust string to
     C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
     It is recommended that you use
@@ -41,15 +41,15 @@ impl RawLib {
 
     #Example
 
-    '''no_run
-    mod dynlib;
+    ```no_run
+    extern crate dynlib;
     use dynlib::raw::RawLib;
 
     fn main() {
         //use full path
-        let lib = DynLib::open("/lib/i386-linux-gnu/libm.so.6").unwrap();
+        let lib = RawLib::open("/lib/i386-linux-gnu/libm.so.6").unwrap();
         //use only file name
-        let lib = DynLib::open("libm.so.6").unwrap();
+        let lib = RawLib::open("libm.so.6").unwrap();
     }
     ```
     */
@@ -72,6 +72,9 @@ impl RawLib {
     or functions.
     This method checks the address value and returns `Error::NullSymbol` error if the value is null.
     If your code does require obtaining symbols with null value, please do something like this:
+
+    #Example
+
     ```no_run
     extern crate dynlib;
     use dynlib::raw::RawLib;
@@ -79,13 +82,13 @@ impl RawLib {
     use std::ptr::null;
     fn main(){
         let lib = RawLib::open("libyourlib.so").unwrap();
-        let ptr_or_null: * const i32 = match lib.symbol("symbolname") {
+        let ptr_or_null: * const i32 = match unsafe{ lib.symbol("symbolname") } {
             Ok(val) => val,
             Err(err) => match err {
                 Error::NullSymbol => null(),
                 _ => panic!("Could not obtain the symbol")
             }
-        }
+        };
         //do something with the symbol
     }
     ```

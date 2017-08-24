@@ -1,7 +1,7 @@
 /*!
 Low-level API for opening and getting raw symbols from dynamic link libraries.
 
-As a low-leve API it returns raw pointers, references and functions from loaded libraries.
+As a low-level API it returns raw pointers, references and functions from loaded libraries.
 This means that this API does not provide any protection against problems with dangling symbols.
 You may consider using other APIs to achieve better safety.
 However this API is the most flexible one and you may find is useful when creating your custom

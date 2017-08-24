@@ -9,11 +9,11 @@ use std::io::Error as IoError;
 pub enum Error{
     ///Provided string could not be coverted into `std::ffi::CString` because it contained null character.
     NullCharacter(NulError),
-    ///The library could not be opened
+    ///The library could not be opened.
     OpeningLibraryError(IoError),
     ///The symbol could not be obtained.
     SymbolGettingError(IoError),
-    ///Value of the symbol was null
+    ///Value of the symbol was null.
     NullSymbol
 }
 
