@@ -9,14 +9,14 @@ that take place when the library gets closed but the symbols still exist and are
 ```
 extern crate dynlib;
 extern crate libc;
-use dynlib::symbor::{Library, Symbol};
+use dynlib::symbor::{SymBorLib, Symbol};
  use libc::{c_double};
 fn main(){
     //This is a Linux specific example because existing libraries depend on OS.
     //But you should get an idea how it works on other platforms.
     #[cfg(not(target_os="linux"))]
     return;
-    let lib = Library::open("libm.so.6").unwrap();
+    let lib = SymBorLib::open("libm.so.6").unwrap();
     let cos = unsafe{lib.symbol::<unsafe extern "C" fn(c_double)->c_double>("cos")}.unwrap();
     println!("cos(1) = {}", unsafe{cos(1.0)});
 
@@ -34,7 +34,7 @@ This is especially handy if you have a huge API with multiple symbols:
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::symbor::{Library, Symbol, LibraryApi};
+use dynlib::symbor::{SymBorLib, Symbol, LibraryApi};
  use libc::{c_double};
 
  #[derive(LibraryApi)]
@@ -47,7 +47,7 @@ fn main(){
     //But you should get an idea how it works on other platforms.
     #[cfg(not(target_os="linux"))]
     return;
-    let libm = Library::open("libm.so.6").expect("Could not open library");
+    let libm = SymBorLib::open("libm.so.6").expect("Could not open library");
     let api = unsafe{LibM::load(&libm)}.expect("Could not load symbols");
     println!("cos(1) = {}", unsafe{(api.cos)(1.0)});
 
@@ -77,7 +77,7 @@ mod reference_mut;
 mod api;
 mod wrapper;
 
-pub use self::library::Library;
+pub use self::library::SymBorLib;
 pub use self::symbol::Symbol;
 pub use self::api::LibraryApi;
 pub use self::ptr_or_null::PtrOrNull;

@@ -30,7 +30,7 @@ pub struct RawLib {
 
 impl RawLib {
     /**
-    Opens a dynamic library.
+    Open a dynamic library.
 
     **Note:** different platforms search for libraries in different directories.
     Therefore this function cannot be 100% platform independent.
@@ -60,7 +60,7 @@ impl RawLib {
         })
     }
     /**
-    Obtains symbol from opened library.
+    Obtain symbol from opened library.
 
     **Note:** the `T` template type needs to have a size of a pointer.
     Because Rust does not support static casts at the moment, the size of the type

@@ -1,4 +1,4 @@
-use super::library::Library;
+use super::library::SymBorLib;
 use super::super::err::Error;
 /**
 Trait for automatic loading of symbols from library.
@@ -13,7 +13,7 @@ generated `load(&Library)` function to load all symbols from previously opened l
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::symbor::{Library, Symbol, LibraryApi, PtrOrNull, RefMut, PtrOrNullMut};
+use dynlib::symbor::{SymBorLib, Symbol, LibraryApi, PtrOrNull, RefMut, PtrOrNullMut};
 use libc::{c_double, c_char};
 
 #[derive(LibraryApi)]
@@ -29,7 +29,7 @@ struct Example<'a> {
 }
 
 fn main(){
-    let lib = Library::open("example.dll").expect("Could not open library");
+    let lib = SymBorLib::open("example.dll").expect("Could not open library");
     let mut api = unsafe{Example::load(&lib)}.expect("Could not load symbols");
     unsafe{(api.simple_fun)()};
     let _ = unsafe{(api.complex_fun)(1.0)};
@@ -67,5 +67,5 @@ Please notice several supported features:
 
 */
 pub trait LibraryApi<'a> where Self:Sized {
-    unsafe fn load(lib: &'a Library) -> Result<Self, Error>;
+    unsafe fn load(lib: &'a SymBorLib) -> Result<Self, Error>;
 }

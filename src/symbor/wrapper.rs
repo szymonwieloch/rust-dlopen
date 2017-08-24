@@ -1,5 +1,5 @@
 use super::api::LibraryApi;
-use super::Library;
+use super::SymBorLib;
 use std::mem::transmute;
 use std::ops::{Deref, DerefMut};
 use std::ffi::OsStr;
@@ -7,17 +7,17 @@ use super::super::Error;
 
 pub struct Wrapper<T> where T: LibraryApi<'static> {
     #[allow(dead_code)]
-    lib: Library,
+    lib: SymBorLib,
     api: T
 }
 
 impl <T> Wrapper<T> where T: LibraryApi<'static> {
     pub unsafe fn load<S>(name: S) -> Result<Self, Error>  where S: AsRef<OsStr> {
-        let lib = Library::open(name)?;
+        let lib = SymBorLib::open(name)?;
         //this is cheating of course
         //but it is safe because Library and api is placed in the same structure
         //and therefore it is released at the same time.
-        let static_ref: &'static Library = transmute(&lib);
+        let static_ref: &'static SymBorLib = transmute(&lib);
         let api = T::load(static_ref)?;
         Ok(Self{
             api: api,
