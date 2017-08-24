@@ -1,4 +1,4 @@
-use super::super::lowlevel::{DynLib};
+use super::super::raw::{RawLib};
 use libc::{c_int, c_char};
 
 use std::ffi::CStr;
@@ -17,7 +17,7 @@ macro_rules! println_stderr(
 #[test]
 fn open_play_close(){
     let lib_path = example_lib_path();
-    let lib = DynLib::open(lib_path).expect("Could not open library");
+    let lib = RawLib::open(lib_path).expect("Could not open library");
     let rust_fun_print_something: fn() = unsafe { lib.symbol_cstr(const_cstr!("rust_fun_print_something").as_cstr())}.unwrap();
     rust_fun_print_something(); //should not crash
     let rust_fun_add_one: fn(i32) -> i32 = unsafe { lib.symbol_cstr(const_cstr!("rust_fun_add_one").as_cstr())}.unwrap();

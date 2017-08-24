@@ -14,7 +14,7 @@ extern crate const_cstr;
 #[cfg(test)]
 mod tests;
 
-pub mod lowlevel;
+pub mod raw;
 pub mod symbor;
 pub mod utils;
 pub mod wrapper;

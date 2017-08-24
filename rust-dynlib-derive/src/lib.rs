@@ -9,7 +9,6 @@ mod api;
 mod multi_api;
 mod wrapper;
 mod common;
-mod interface;
 
 
 
@@ -17,7 +16,6 @@ use proc_macro::TokenStream;
 use api::impl_library_api;
 use wrapper::impl_wrapper_api;
 use multi_api::impl_wrapper_multi_api;
-use interface::impl_library_interface;
 
 #[proc_macro_derive(WrapperApi, attributes(dynlib_name, dynlib_allow_null))]
 pub fn wrapper_api(input: TokenStream) -> TokenStream {
@@ -59,21 +57,6 @@ pub fn library_api(input: TokenStream) -> TokenStream {
 
     // Build the impl
     let gen = impl_library_api(&ast);
-
-    // Return the generated impl
-    gen.parse().unwrap()
-}
-
-#[proc_macro_derive(LibraryInterface, attributes(dlopen_name))]
-pub fn library_interface(input: TokenStream) -> TokenStream {
-    // Construct a string representation of the type definition
-    let s = input.to_string();
-
-    // Parse the string representation
-    let ast = syn::parse_derive_input(&s).unwrap();
-
-    // Build the impl
-    let gen = impl_library_interface(&ast);
 
     // Return the generated impl
     gen.parse().unwrap()

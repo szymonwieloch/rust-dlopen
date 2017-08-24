@@ -33,7 +33,7 @@ example_dylib = {path = "rust-example-dylib"}
 libc = "0.2.29"
 
 [[example]]
-name = "lowlevel"
+name = "raw"
 crate-type = ["bin"]
 
 [[example]]

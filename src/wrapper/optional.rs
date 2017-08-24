@@ -1,4 +1,4 @@
-use super::super::lowlevel::DynLib;
+use super::super::raw::RawLib;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
@@ -59,7 +59,7 @@ fn main () {
 */
 pub struct WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
-    lib: DynLib,
+    lib: RawLib,
     api: Api,
     optional: Option<Optional>
 }
@@ -67,7 +67,7 @@ pub struct WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: Wrapp
 impl<Api, Optional> WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     ///Opens the library using provided file name or path and loads all symbols (including optional if it is possible).
     pub unsafe fn open<S>(name: S) -> Result<WrapperOptional<Api, Optional>, Error>  where S: AsRef<OsStr> {
-        let lib = DynLib::open(name)?;
+        let lib = RawLib::open(name)?;
         let api = Api::load(&lib)?;
         let optional = match Optional::load(&lib) {
             Ok(val) => Some(val),

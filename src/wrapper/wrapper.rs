@@ -1,4 +1,4 @@
-use super::super::lowlevel::DynLib;
+use super::super::raw::RawLib;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
@@ -48,14 +48,14 @@ println!("C string: {}", wrapper.c_string().to_str().unwrap())
 */
 pub struct Wrapper<T> where T: WrapperApi {
     #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
-    lib: DynLib,
+    lib: RawLib,
     api: T
 }
 
 impl<T> Wrapper<T> where T: WrapperApi {
     ///Open the library using provided file name or path and load all symbols.
     pub unsafe fn open<S>(name: S) -> Result<Wrapper<T>, Error>  where S: AsRef<OsStr> {
-        let lib = DynLib::open(name)?;
+        let lib = RawLib::open(name)?;
         let api = T::load(&lib)?;
         Ok(Self{
             lib: lib,

@@ -31,6 +31,6 @@ fn main() {
     //unfortunately we can't forbid copying of pointers in Rust:
     let _str_copy: * const c_char = * c_const_char_ptr;
     let _fun_copy: fn() = *rust_fun_print_something;
-    //So it's not perfectly safe, but much safer than using the lowlevel API.
+    //So it's not perfectly safe, but much safer than using the raw API.
 
 }

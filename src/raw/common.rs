@@ -10,20 +10,25 @@ use super::windows::{open_lib, get_sym, close_lib, Handle};
 use std::mem::{transmute_copy, size_of};
 
 /**
-    `DynLib` is the structure that represents low-level API.
+    Main interface for opening and working with a dynamic link library.
 
-    Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
-    actually use C-string. DynLib needs to perform additional conversion from Rust string to
-    `std::ffi::CString` to be able to call those functions. This introduces certain overhead.
-    Therefore you may consider using the "*_cstr" equivalents together with the
-    [const-cstr](https://github.com/abonander/const-cstr) crate.
+    **Note: ** Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
+    actually use C-strings. If you pass [`CStr'](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
+    as an argument, RawLib doesn't need to perform additional conversion from Rust string to
+    C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
+    It is recommended that you use
+    [const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated C-strings.
+
+    **Note:** The handle to the library gets released when the library object gets dropped.
+    Unless your application opened the library multiple times, this is the moment when symbols
+    obtained from the library become dangling symbols.
 */
 #[derive(Debug)]
-pub struct DynLib {
+pub struct RawLib {
     handle: Handle
 }
 
-impl DynLib {
+impl RawLib {
     /**
     Opens a dynamic library.
 
@@ -31,8 +36,24 @@ impl DynLib {
     Therefore this function cannot be 100% platform independent.
     However it seems that all platforms support the full path and
     searching in default os directories if you provide only the file name.
+    Please refer to your operating system guide for precise information about the directories
+    where the operating system searches for dynamic link libraries.
+
+    #Example
+
+    '''no_run
+    mod dynlib;
+    use dynlib::raw::RawLib;
+
+    fn main() {
+        //use full path
+        let lib = DynLib::open("/lib/i386-linux-gnu/libm.so.6").unwrap();
+        //use only file name
+        let lib = DynLib::open("libm.so.6").unwrap();
+    }
+    ```
     */
-    pub  fn open<S>(name: S) -> Result<DynLib, Error> where S: AsRef<OsStr> {
+    pub  fn open<S>(name: S) -> Result<RawLib, Error> where S: AsRef<OsStr> {
 ;
         Ok(Self {
             handle: unsafe{open_lib(name.as_ref())}?
@@ -53,11 +74,11 @@ impl DynLib {
     If your code does require obtaining symbols with null value, please do something like this:
     ```no_run
     extern crate dynlib;
-    use dynlib::lowlevel::DynLib;
+    use dynlib::raw::RawLib;
     use dynlib::Error;
     use std::ptr::null;
     fn main(){
-        let lib = DynLib::open("libyourlib.so").unwrap();
+        let lib = RawLib::open("libyourlib.so").unwrap();
         let ptr_or_null: * const i32 = match lib.symbol("symbolname") {
             Ok(val) => val,
             Err(err) => match err {
@@ -78,7 +99,7 @@ impl DynLib {
         //TODO: convert it to some kind of static assertion (not yet supported in Rust)
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut ()>() {
-            panic!("The type passed to dlopen::DynLib::symbol() function has a different size than a pointer - cannot transmute");
+            panic!("The type passed to dlopen::RawLib::symbol() function has a different size than a pointer - cannot transmute");
         }
         let raw = get_sym(self.handle, name)?;
         if raw.is_null() {
@@ -89,11 +110,11 @@ impl DynLib {
     }
 }
 
-impl Drop for DynLib {
+impl Drop for RawLib {
     fn drop(&mut self) {
         self.handle = close_lib(self.handle);
     }
 }
 
-unsafe impl Sync for DynLib {}
-unsafe impl Send for DynLib {}
+unsafe impl Sync for RawLib {}
+unsafe impl Send for RawLib {}

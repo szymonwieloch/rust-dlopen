@@ -2,14 +2,14 @@ use std::ffi::{CStr};
 use super::symbol::Symbol;
 use super::ptr_or_null::PtrOrNull;
 use super::ptr_or_null_mut::PtrOrNullMut;
-use super::super::lowlevel::DynLib;
+use super::super::raw::RawLib;
 use std::ffi::{OsStr, CString};
 use std::ptr::{null, null_mut};
 
 use super::super::err::{Error};
 
 /**
-A safer wrapper around `DynLib`. Contrary to the original API this one has methods
+A safer wrapper around `RawLib`. Contrary to the original API this one has methods
 that return safe wrappers around obtained symbols.
 
 **Note:**: It is recommended that you use certain methods in certain situations:
@@ -22,14 +22,14 @@ that return safe wrappers around obtained symbols.
     (in 99% of cases you should rather use previously mentioned methods).
 */
 pub struct Library {
-    lib: DynLib
+    lib: RawLib
 }
 
 impl Library {
     ///Open the library using provided file name or path.
     pub fn open<S>(name: S) -> Result<Library, Error>  where S: AsRef<OsStr> {
         Ok(Library{
-            lib: DynLib::open(name)?
+            lib: RawLib::open(name)?
         })
     }
 

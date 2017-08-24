@@ -1,5 +1,5 @@
 use super::super::err::Error;
-use super::super::lowlevel::DynLib;
+use super::super::raw::RawLib;
 
 /**
 Trait for defining library API.
@@ -35,7 +35,7 @@ extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
 use dynlib::wrapper::{WrapperApi};
-use dynlib::lowlevel::DynLib;
+use dynlib::raw::RawLib;
 use libc::{c_char};
 use std::ffi::CStr;
 
@@ -55,7 +55,7 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-let lib = unsafe { DynLib::open("libexample.dynlib")}.unwrap();
+let lib = unsafe { RawLib::open("libexample.dynlib")}.unwrap();
 let api = Example::load(&lib).unwrap();
 api.do_something();
 let _result = unsafe { api.add_one(5) };
@@ -73,5 +73,5 @@ drop(lib);
 */
 pub trait WrapperApi where Self: Sized {
     ///Load symbols from provided library.
-    unsafe fn load(lib: & DynLib ) -> Result<Self, Error>;
+    unsafe fn load(lib: & RawLib ) -> Result<Self, Error>;
 }
