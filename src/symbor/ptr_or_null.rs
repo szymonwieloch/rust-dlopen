@@ -3,9 +3,9 @@ use std::ops::Deref;
 use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 
-///Const version of a pointer obtained from`Library`.
+///Safe wrapper around const pointer.
 ///
-/// It is recommended only for obtaining pointers that can have null value.
+///It is recommended only for obtaining pointers that can have null value.
 #[derive(Debug, Clone, Copy)]
 pub struct PtrOrNull<'lib, T: 'lib> {
     pointer: * const T,

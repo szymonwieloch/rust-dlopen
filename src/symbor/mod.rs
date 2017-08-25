@@ -18,6 +18,8 @@ fn main(){
     //drop(lib);
 }
 ```
+**Note:** All kind of objects from the `symbor` module implement the Deref or DerefMut trait.
+This means that you can use them as if you would use primitive types that they wrap.
 
 It also allows automatic loading of symbols into a structure.
 This is especially handy if you have a huge API with multiple symbols:
@@ -35,6 +37,7 @@ use dynlib::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi};
     pub fun: Symbol<'a, unsafe extern "C" fn(i32) -> i32>,
     pub glob_i32: Ref<'a, i32>,
     pub maybe_c_str: PtrOrNull<'a, u8>,
+    pub opt_fun: Option<Symbol<'a, fn()>>
  }
 
 fn main(){
@@ -43,11 +46,21 @@ fn main(){
     println!("fun(4)={}", unsafe{(api.fun)(4)});
     println!("glob_i32={}", *api.glob_i32);
     println!("The pointer is null={}", api.maybe_c_str.is_null());
+    match api.opt_fun {
+        Some(fun) => fun(),
+        None => println!("Optional function not found in the library")
+    }
 
     //this would not compile:
     //drop(lib);
 }
 ```
+
+**Note:** You can obtain optional symbols (`Option<Symbol<T>>`).
+This is very useful when you are dealing with
+    different versions of libraries and the newer versions support more functions.
+    If it is not possible to obtain the given symbol, the option is set to `None',
+    otherwise it contains the obtained symbol.
 
 Unfortunately in Rust it is not possible to create an API for dynamic link libraries that would
 be 100% safe. This API aims to be 99% safe by providing zero cost wrappers around raw symbols.

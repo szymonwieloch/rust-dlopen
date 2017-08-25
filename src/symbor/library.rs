@@ -9,13 +9,15 @@ use std::ptr::{null, null_mut};
 use super::super::err::{Error};
 
 /**
-Safer wrapper around [`Library`](../raw/struct.Library.html). Contrary to the original API this one has methods
-that return safe wrappers around obtained symbols.
+Safe wrapper around dynamic link library handle.
+
+Methods of `Library` return only types that make the library borrowed. Therefore the problem with
+dangling symbols is prevented.
 
 **Note:**: It is recommended that you use certain methods in certain situations:
 
-* `symbol()` - for obtaining functions and pointers but only if you can't use references
-    instead of pointers and you do not accept null value of a pointer.
+* `symbol()` - for obtaining functions and pointers (but only if you can't use references
+    instead of pointers and you do not accept null value of a pointer).
 * `reference()` and `reference_mut()` - for obtaining access to
     statically allocated objects - either constant or mutable.
 * `ptr_or_null()` and `ptr_or_null_mut()` - for obtaining pointers if you accept null values of pointers
@@ -60,7 +62,7 @@ impl Library {
         Ok(Symbol::new(self.lib.symbol(name)?))
     }
 
-    ///Equivalent of the `symbol` method but takes `CStr` as a argument.
+    ///Equivalent of the `symbol()` method but takes `CStr` as a argument.
     pub unsafe fn symbol_cstr<T>(&self, name: &CStr) -> Result<Symbol<T> , Error> {
         Ok(Symbol::new(self.lib.symbol_cstr(name)?))
     }
@@ -75,7 +77,7 @@ impl Library {
         self.ptr_or_null_cstr(cname.as_ref())
     }
 
-    ///Equivalent of the `pointer` method but takes `CStr` as a argument.
+    ///Equivalent of the `pointer()` method but takes `CStr` as a argument.
     pub unsafe fn ptr_or_null_cstr<T>(&self, name: &CStr) -> Result<PtrOrNull<T> , Error> {
         let raw_ptr = match self.lib.symbol_cstr(name) {
             Ok(val) => val,
@@ -97,7 +99,7 @@ impl Library {
         self.ptr_or_null_mut_cstr(cname.as_ref())
     }
 
-    ///Equivalent of the `pointer_mut` method but takes `CStr` as a argument.
+    ///Equivalent of the `pointer_mut()` method but takes `CStr` as a argument.
     pub unsafe fn ptr_or_null_mut_cstr<T>(&self, name: &CStr) -> Result<PtrOrNullMut<T> , Error> {
         let raw_ptr = match self.lib.symbol_cstr(name) {
             Ok(val) => val,
@@ -114,7 +116,7 @@ impl Library {
         self.lib.symbol(name)
     }
 
-    ///Equivalent of the `reference` method but takes `CStr` as a argument.
+    ///Equivalent of the `reference()` method but takes `CStr` as a argument.
     pub unsafe fn reference_cstr<T>(&self, name: &CStr) -> Result<&T, Error> {
         self.lib.symbol_cstr(name)
     }
@@ -124,7 +126,7 @@ impl Library {
         self.lib.symbol(name)
     }
 
-    ///Equivalent of the `reference_mut` method but takes `CStr` as a argument.
+    ///Equivalent of the `reference_mut()` method but takes `CStr` as a argument.
     pub unsafe fn reference_mut_cstr<T>(&self, name: &CStr) -> Result<&mut T, Error> {
         self.lib.symbol_cstr(name)
     }

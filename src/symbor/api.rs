@@ -3,9 +3,9 @@ use super::super::err::Error;
 /**
 Trait for automatic loading of symbols from library.
 
-This trait is indended to be used together with the `derive` macro.
+This trait is intended to be used together with the `derive` macro.
 To use it you need to define a structure, create several fields that
-implement the `FromRawResult` trait and the simply use the automatically
+implement the `FromRawResult` trait and then simply use the automatically
 generated `load(&Library)` function to load all symbols from previously opened library.
 
 ```no_run
@@ -52,7 +52,7 @@ Please notice several supported features:
 
 * By default `SymBorApi` uses the field name to obtain a symbol from the library.
     You can override the symbol name using the `dynlib_name` attribute.
-* All kind of objects from the `symbor` module import the Deref or DerefMut trait.
+* All kind of objects from the `symbor` module implement the Deref or DerefMut trait.
     This means that you can use them as if you would use primitive types that they wrap.
 * You can obtain optional symbols. This is very useful when you are dealing with
     different versions of libraries and the new versions support more functions.

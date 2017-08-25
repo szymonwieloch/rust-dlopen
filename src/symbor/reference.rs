@@ -3,7 +3,7 @@ use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
 use std::mem::transmute;
 
-///Const reference obtained from `Library`.
+///Safe wrapper around cont reference.
 ///
 /// This type is intended to be used only inside structures implementing `SymBorApi` trait.
 /// In other cases you can as well use normal Rust reference.

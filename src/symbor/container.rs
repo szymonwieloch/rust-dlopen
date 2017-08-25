@@ -5,6 +5,37 @@ use std::ops::{Deref, DerefMut};
 use std::ffi::OsStr;
 use super::super::Error;
 
+/**
+Container for both dynamic link library handle and its API.
+
+This structure solves an important issue: object oriented programming where the given
+structure has two objects and one of the objects has a reference to the second one.
+Normally you can't put `Library` and a structure that implements `SymBorApi` into one structure.
+This structure allows you to do it.
+
+#Example
+
+```no_run
+#[macro_use]
+extern crate dynlib_derive;
+extern crate dynlib;
+use dynlib::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
+
+ #[derive(SymBorApi)]
+ struct ExampleApi<'a> {
+    pub fun: Symbol<'a, unsafe extern "C" fn(i32) -> i32>,
+    pub glob_i32: Ref<'a, i32>,
+    pub maybe_c_str: PtrOrNull<'a, u8>,
+ }
+
+fn main(){
+    let cont: Container<ExampleApi> = unsafe{Container::load("libexample.so")}.expect("Could not load library or symbols");
+    println!("fun(4)={}", unsafe{(cont.fun)(4)});
+    println!("glob_i32={}", *cont.glob_i32);
+    println!("The pointer is null={}", cont.maybe_c_str.is_null());
+}
+```
+*/
 pub struct Container<T> where T: SymBorApi<'static> {
     #[allow(dead_code)]
     lib: Library,
@@ -12,6 +43,7 @@ pub struct Container<T> where T: SymBorApi<'static> {
 }
 
 impl <T> Container<T> where T: SymBorApi<'static> {
+    ///Open dynamic link library and load symbols.
     pub unsafe fn load<S>(name: S) -> Result<Self, Error>  where S: AsRef<OsStr> {
         let lib = Library::open(name)?;
         //this is cheating of course
