@@ -10,9 +10,9 @@ approach to loading dynamic link libraries.
 # Example
 ```no_run
 extern crate dynlib;
-use dynlib::raw::RawLib;
+use dynlib::raw::Library;
 fn main(){
-    let lib = RawLib::open("libexample.so").unwrap();
+    let lib = Library::open("libexample.so").unwrap();
     let fun_add_one: unsafe extern "C" fn(i32)->i32 = unsafe{lib.symbol("add_one")}.unwrap();
     println!("1+1= {}", unsafe{fun_add_one(1)});
 
@@ -34,4 +34,4 @@ mod windows;
 #[cfg(test)]
 mod tests;
 
-pub use self::common::RawLib;
+pub use self::common::Library;

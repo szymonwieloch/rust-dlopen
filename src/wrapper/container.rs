@@ -1,4 +1,4 @@
-use super::super::raw::RawLib;
+use super::super::raw::Library;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
@@ -18,7 +18,7 @@ easy to use Wrapper inside structures.
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::wrapper::{Wrapper, WrapperApi};
+use dynlib::wrapper::{Container, WrapperApi};
 use libc::{c_char};
 use std::ffi::CStr;
 
@@ -38,24 +38,24 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-let mut wrapper: Wrapper<Example> = unsafe { Wrapper::open("libexample.dynlib")}.unwrap();
-wrapper.do_something();
-let _result = unsafe { wrapper.add_one(5) };
-*wrapper.global_count_mut() += 1;
-println!("C string: {}", wrapper.c_string().to_str().unwrap())
+let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
+container.do_something();
+let _result = unsafe { container.add_one(5) };
+*container.global_count_mut() += 1;
+println!("C string: {}", container.c_string().to_str().unwrap())
 }
 ```
 */
-pub struct Wrapper<T> where T: WrapperApi {
+pub struct Container<T> where T: WrapperApi {
     #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
-    lib: RawLib,
+    lib: Library,
     api: T
 }
 
-impl<T> Wrapper<T> where T: WrapperApi {
+impl<T> Container<T> where T: WrapperApi {
     ///Open the library using provided file name or path and load all symbols.
-    pub unsafe fn open<S>(name: S) -> Result<Wrapper<T>, Error>  where S: AsRef<OsStr> {
-        let lib = RawLib::open(name)?;
+    pub unsafe fn open<S>(name: S) -> Result<Container<T>, Error>  where S: AsRef<OsStr> {
+        let lib = Library::open(name)?;
         let api = T::load(&lib)?;
         Ok(Self{
             lib: lib,
@@ -64,14 +64,14 @@ impl<T> Wrapper<T> where T: WrapperApi {
     }
 }
 
-impl<T> Deref for Wrapper<T> where T: WrapperApi{
+impl<T> Deref for Container<T> where T: WrapperApi{
     type Target = T;
     fn deref(&self) -> &T {
         &self.api
     }
 }
 
-impl<T> DerefMut for Wrapper<T> where T: WrapperApi{
+impl<T> DerefMut for Container<T> where T: WrapperApi{
     fn deref_mut(&mut self) -> &mut T {
         &mut self.api
     }

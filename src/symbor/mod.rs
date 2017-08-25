@@ -2,25 +2,19 @@
 High-level and safe API for opening and getting symbols from dynamic libraries.
 It is based on symbol borrowing mechanism and supports automatic loading of symbols into structures.
 
-This API uses Rust borrowing mechanism to prevent problem with dangling symbols
+This API uses Rust borrowing mechanism to prevent problems with dangling symbols
 that take place when the library gets closed but the symbols still exist and are used.
 
 #Example of a dangling symbol prevention
-```
+```no_run
 extern crate dynlib;
-extern crate libc;
-use dynlib::symbor::{SymBorLib, Symbol};
- use libc::{c_double};
+use dynlib::symbor::Library;
 fn main(){
-    //This is a Linux specific example because existing libraries depend on OS.
-    //But you should get an idea how it works on other platforms.
-    #[cfg(not(target_os="linux"))]
-    return;
-    let lib = SymBorLib::open("libm.so.6").unwrap();
-    let cos = unsafe{lib.symbol::<unsafe extern "C" fn(c_double)->c_double>("cos")}.unwrap();
-    println!("cos(1) = {}", unsafe{cos(1.0)});
+    let lib = Library::open("libexample.dylib").unwrap();
+    let fun = unsafe{lib.symbol::<unsafe extern "C" fn(f64)->f64>("some_symbol_name")}.unwrap();
+    println!("fun(1.0) = {}", unsafe{fun(1.0)});
 
-    //this would not compile:
+    //this would not compile because fun is a symbol borrowed from lib
     //drop(lib);
 }
 ```
@@ -28,41 +22,56 @@ fn main(){
 It also allows automatic loading of symbols into a structure.
 This is especially handy if you have a huge API with multiple symbols:
 
-# Example of automatic symbol loading:
-```
+# Example of automatic symbol loading
+
+```no_run
 #[macro_use]
 extern crate dynlib_derive;
 extern crate dynlib;
-extern crate libc;
-use dynlib::symbor::{SymBorLib, Symbol, LibraryApi};
- use libc::{c_double};
+use dynlib::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi};
 
- #[derive(LibraryApi)]
- struct LibM<'a> {
-    pub cos: Symbol<'a, unsafe extern "C" fn(c_double)->c_double>
+ #[derive(SymBorApi)]
+ struct ExampleApi<'a> {
+    pub fun: Symbol<'a, unsafe extern "C" fn(i32) -> i32>,
+    pub glob_i32: Ref<'a, i32>,
+    pub maybe_c_str: PtrOrNull<'a, u8>,
  }
 
 fn main(){
-    //This is a Linux specific example because existing libraries depend on OS.
-    //But you should get an idea how it works on other platforms.
-    #[cfg(not(target_os="linux"))]
-    return;
-    let libm = SymBorLib::open("libm.so.6").expect("Could not open library");
-    let api = unsafe{LibM::load(&libm)}.expect("Could not load symbols");
-    println!("cos(1) = {}", unsafe{(api.cos)(1.0)});
+    let lib = Library::open("example.dll").expect("Could not open library");
+    let api = unsafe{ExampleApi::load(&lib)}.expect("Could not load symbols");
+    println!("fun(4)={}", unsafe{(api.fun)(4)});
+    println!("glob_i32={}", *api.glob_i32);
+    println!("The pointer is null={}", api.maybe_c_str.is_null());
 
     //this would not compile:
     //drop(lib);
 }
 ```
+
+Unfortunately in Rust it is not possible to create an API for dynamic link libraries that would
+be 100% safe. This API aims to be 99% safe by providing zero cost wrappers around raw symbols.
+However it is possible to make a mistake if you dereference safe wrappers into raw symbols.
+
+#Example of a mistake - dangling symbol
+
+```no_run
+extern crate dynlib;
+use dynlib::symbor::Library;
+fn main(){
+    let raw_fun = {
+        let lib = Library::open("libexample.dylib").unwrap();
+        let safe_fun = unsafe{lib.symbol::<unsafe extern "C" fn(f64)->f64>("some_symbol_name")}.unwrap();
+        *safe_fun
+    };
+
+    //raw_fun is now a dangling symbol
+}
+```
+
 Original idea for this solution comes from Simonas Kazlauskas and his crate
 [libloading](https://github.com/nagisa/rust_libloading).
-Many improvements were added to solve several issues. This API has two kinds of known problems:
-
-* It is still possible to convert wrappers of symbols into primitive types and therefore it
-    is still possible to have a dangling symbol. But it is **much** harder to make this mistake.
-* It doesn't go well with object-oriented programming because Rust disallows
-    stuctures to have fields with references between them.
+Many improvements were added to solve several issues.
 
 */
 
@@ -75,15 +84,15 @@ mod option;
 mod reference;
 mod reference_mut;
 mod api;
-mod wrapper;
+mod container;
 
-pub use self::library::SymBorLib;
+pub use self::library::Library;
 pub use self::symbol::Symbol;
-pub use self::api::LibraryApi;
+pub use self::api::SymBorApi;
 pub use self::ptr_or_null::PtrOrNull;
 pub use self::ptr_or_null_mut::PtrOrNullMut;
 pub use self::reference::Ref;
 pub use self::reference_mut::RefMut;
 pub use self::from_raw::FromRawResult;
-pub use self::wrapper::Wrapper;
+pub use self::container::Container;
 

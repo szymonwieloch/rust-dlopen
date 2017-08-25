@@ -3,7 +3,7 @@ extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
 use libc::{c_double, c_char, c_int};
-use dynlib::wrapper::{Wrapper, WrapperApi};
+use dynlib::wrapper::{Container, WrapperApi};
 use dynlib::utils::platform_file_name;
 use std::ffi::CStr;
 use std::env;
@@ -52,7 +52,7 @@ fn main(){
     println!("Library path: {}", lib_path.to_str().unwrap());
 
     //her actually sart the example
-    let mut wrapper: Wrapper<Example> = unsafe { Wrapper::open(lib_path)}.expect("Could not open library");
+    let mut wrapper: Container<Example> = unsafe { Container::open(lib_path)}.expect("Could not open library");
     wrapper.rust_fun_print_something();
     wrapper.c_fun_print_something_else();
     println!("rust_i32_mut={}", unsafe {wrapper.rust_i32_mut()});

@@ -1,4 +1,4 @@
-use super::super::raw::RawLib;
+use super::super::raw::Library;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
@@ -19,7 +19,7 @@ several optional APIs) - you need to write a custom wrapper on your own.
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::wrapper::{WrapperOptional, WrapperApi};
+use dynlib::wrapper::{OptionalContainer, WrapperApi};
 use libc::{c_char};
 use std::ffi::CStr;
 
@@ -43,11 +43,11 @@ impl<'a> Optional {
 }
 
 fn main () {
-    let mut wrapper: WrapperOptional<Obligatory, Optional> = unsafe { WrapperOptional::open("libexample.dynlib")}.unwrap();
-    wrapper.do_something();
+    let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::open("libexample.dynlib")}.unwrap();
+    container.do_something();
 
-    *wrapper.global_count_mut() += 1;
-    match wrapper.optional(){
+    *container.global_count_mut() += 1;
+    match container.optional(){
         &Some(ref opt) => {
             let _result = unsafe { opt.add_one(5) };
             println!("C string: {}", opt.c_string().to_str().unwrap())
@@ -57,17 +57,17 @@ fn main () {
 }
 ```
 */
-pub struct WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
+pub struct OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
-    lib: RawLib,
+    lib: Library,
     api: Api,
     optional: Option<Optional>
 }
 
-impl<Api, Optional> WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
+impl<Api, Optional> OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     ///Opens the library using provided file name or path and loads all symbols (including optional if it is possible).
-    pub unsafe fn open<S>(name: S) -> Result<WrapperOptional<Api, Optional>, Error>  where S: AsRef<OsStr> {
-        let lib = RawLib::open(name)?;
+    pub unsafe fn open<S>(name: S) -> Result<OptionalContainer<Api, Optional>, Error>  where S: AsRef<OsStr> {
+        let lib = Library::open(name)?;
         let api = Api::load(&lib)?;
         let optional = match Optional::load(&lib) {
             Ok(val) => Some(val),
@@ -90,14 +90,14 @@ impl<Api, Optional> WrapperOptional<Api, Optional> where Api: WrapperApi, Option
     }
 }
 
-impl<Api, Optional> Deref for WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
+impl<Api, Optional> Deref for OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
     type Target = Api;
     fn deref(&self) -> &Api {
         &self.api
     }
 }
 
-impl<Api, Optional> DerefMut for WrapperOptional<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
+impl<Api, Optional> DerefMut for OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
     fn deref_mut(&mut self) -> &mut Api {
         &mut self.api
     }

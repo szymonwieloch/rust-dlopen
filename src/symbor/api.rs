@@ -1,4 +1,4 @@
-use super::library::SymBorLib;
+use super::library::Library;
 use super::super::err::Error;
 /**
 Trait for automatic loading of symbols from library.
@@ -13,10 +13,10 @@ generated `load(&Library)` function to load all symbols from previously opened l
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::symbor::{SymBorLib, Symbol, LibraryApi, PtrOrNull, RefMut, PtrOrNullMut};
+use dynlib::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
 use libc::{c_double, c_char};
 
-#[derive(LibraryApi)]
+#[derive(SymBorApi)]
 struct Example<'a> {
     pub simple_fun: Symbol<'a, unsafe extern "C" fn()>,
     pub complex_fun: Symbol<'a, unsafe extern "C" fn(c_double)->c_double>,
@@ -29,7 +29,7 @@ struct Example<'a> {
 }
 
 fn main(){
-    let lib = SymBorLib::open("example.dll").expect("Could not open library");
+    let lib = Library::open("example.dll").expect("Could not open library");
     let mut api = unsafe{Example::load(&lib)}.expect("Could not load symbols");
     unsafe{(api.simple_fun)()};
     let _ = unsafe{(api.complex_fun)(1.0)};
@@ -50,7 +50,7 @@ fn main(){
 
 Please notice several supported features:
 
-* By default `LibraryApi` uses the field name to obtain a symbol from the library.
+* By default `SymBorApi` uses the field name to obtain a symbol from the library.
     You can override the symbol name using the `dynlib_name` attribute.
 * All kind of objects from the `symbor` module import the Deref or DerefMut trait.
     This means that you can use them as if you would use primitive types that they wrap.
@@ -63,9 +63,9 @@ Please notice several supported features:
     less dereferences to access the final value.
     Actually they behave like a normal reference does, it just that they implement the
     `FromRawResult` interface that allows them to be used inside structures that implement
-    the `LibraryApi` trait.
+    the `SymBorApi` trait.
 
 */
-pub trait LibraryApi<'a> where Self:Sized {
-    unsafe fn load(lib: &'a SymBorLib) -> Result<Self, Error>;
+pub trait SymBorApi<'a> where Self:Sized {
+    unsafe fn load(lib: &'a Library) -> Result<Self, Error>;
 }

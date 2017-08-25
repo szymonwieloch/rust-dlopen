@@ -2,14 +2,14 @@ use std::ffi::{CStr};
 use super::symbol::Symbol;
 use super::ptr_or_null::PtrOrNull;
 use super::ptr_or_null_mut::PtrOrNullMut;
-use super::super::raw::RawLib;
+use super::super::raw::Library as RawLib;
 use std::ffi::{OsStr, CString};
 use std::ptr::{null, null_mut};
 
 use super::super::err::{Error};
 
 /**
-Safer wrapper around [`RawLib`](../raw/struct.RawLib.html). Contrary to the original API this one has methods
+Safer wrapper around [`Library`](../raw/struct.Library.html). Contrary to the original API this one has methods
 that return safe wrappers around obtained symbols.
 
 **Note:**: It is recommended that you use certain methods in certain situations:
@@ -25,10 +25,10 @@ that return safe wrappers around obtained symbols.
 
 ```no_run
 extern crate dynlib;
-use dynlib::symbor::SymBorLib;
+use dynlib::symbor::Library;
 
 fn main(){
-    let lib = SymBorLib::open("libexample.dylib").unwrap();
+    let lib = Library::open("libexample.dylib").unwrap();
     let fun = unsafe{lib.symbol::<unsafe extern "C" fn()>("function")}.unwrap();
     unsafe{fun()};
     let glob_val: &mut u32 = unsafe{lib.reference_mut("glob_val")}.unwrap();
@@ -38,14 +38,14 @@ fn main(){
 }
 ```
 */
-pub struct SymBorLib {
+pub struct Library {
     lib: RawLib
 }
 
-impl SymBorLib {
+impl Library {
     ///Open dynamic link library using provided file name or path.
-    pub fn open<S>(name: S) -> Result<SymBorLib, Error>  where S: AsRef<OsStr> {
-        Ok(SymBorLib {
+    pub fn open<S>(name: S) -> Result<Library, Error>  where S: AsRef<OsStr> {
+        Ok(Library {
             lib: RawLib::open(name)?
         })
     }
@@ -130,5 +130,5 @@ impl SymBorLib {
     }
 }
 
-unsafe impl Send for SymBorLib {}
-unsafe impl Sync for SymBorLib {}
+unsafe impl Send for Library {}
+unsafe impl Sync for Library {}

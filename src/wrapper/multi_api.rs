@@ -20,7 +20,7 @@ To prevent dangling symbols it is recommended that you use this trait together w
 #[macro_use]
 extern crate dynlib_derive;
 extern crate dynlib;
-use dynlib::wrapper::{Wrapper, WrapperApi, WrapperMultiApi};
+use dynlib::wrapper::{Container, WrapperApi, WrapperMultiApi};
 
 //Define 3 APIs:
 
@@ -51,18 +51,18 @@ struct Api<'a>{
 }
 
 fn main(){
-    let mut wrapper: Wrapper<Api> = unsafe { Wrapper::open("libexample.so")}.expect("Could not open library");
+    let mut container: Container<Api> = unsafe { Container::open("libexample.so")}.expect("Could not open library");
 
     //use obligatory API:
-    unsafe{wrapper.obligatory.some_fun()};
+    unsafe{container.obligatory.some_fun()};
 
     //use first optional API:
-    if let Some(ref opt) = wrapper.optional1{
+    if let Some(ref opt) = container.optional1{
         let _val = *opt.static_val();
     }
 
     //use second optional API:
-    if let Some(ref opt) = wrapper.optional2{
+    if let Some(ref opt) = container.optional2{
         unsafe {opt.another_fun()};
     }
 }

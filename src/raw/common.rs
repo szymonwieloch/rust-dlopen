@@ -14,7 +14,7 @@ use std::mem::{transmute_copy, size_of};
 
     **Note:** Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
     actually use C-strings. If you pass [`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
-    as an argument, RawLib doesn't need to perform additional conversion from Rust string to
+    as an argument, Library doesn't need to perform additional conversion from Rust string to
     C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
     It is recommended that you use
     [const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated C-strings.
@@ -24,11 +24,11 @@ use std::mem::{transmute_copy, size_of};
     obtained from the library become dangling symbols.
 */
 #[derive(Debug)]
-pub struct RawLib {
+pub struct Library {
     handle: Handle
 }
 
-impl RawLib {
+impl Library {
     /**
     Open a dynamic library.
 
@@ -43,17 +43,17 @@ impl RawLib {
 
     ```no_run
     extern crate dynlib;
-    use dynlib::raw::RawLib;
+    use dynlib::raw::Library;
 
     fn main() {
         //use full path
-        let lib = RawLib::open("/lib/i386-linux-gnu/libm.so.6").unwrap();
+        let lib = Library::open("/lib/i386-linux-gnu/libm.so.6").unwrap();
         //use only file name
-        let lib = RawLib::open("libm.so.6").unwrap();
+        let lib = Library::open("libm.so.6").unwrap();
     }
     ```
     */
-    pub  fn open<S>(name: S) -> Result<RawLib, Error> where S: AsRef<OsStr> {
+    pub  fn open<S>(name: S) -> Result<Library, Error> where S: AsRef<OsStr> {
 ;
         Ok(Self {
             handle: unsafe{open_lib(name.as_ref())}?
@@ -77,11 +77,11 @@ impl RawLib {
 
     ```no_run
     extern crate dynlib;
-    use dynlib::raw::RawLib;
+    use dynlib::raw::Library;
     use dynlib::Error;
     use std::ptr::null;
     fn main(){
-        let lib = RawLib::open("libyourlib.so").unwrap();
+        let lib = Library::open("libyourlib.so").unwrap();
         let ptr_or_null: * const i32 = match unsafe{ lib.symbol("symbolname") } {
             Ok(val) => val,
             Err(err) => match err {
@@ -102,7 +102,7 @@ impl RawLib {
         //TODO: convert it to some kind of static assertion (not yet supported in Rust)
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut ()>() {
-            panic!("The type passed to dlopen::RawLib::symbol() function has a different size than a pointer - cannot transmute");
+            panic!("The type passed to dlopen::Library::symbol() function has a different size than a pointer - cannot transmute");
         }
         let raw = get_sym(self.handle, name)?;
         if raw.is_null() {
@@ -113,11 +113,11 @@ impl RawLib {
     }
 }
 
-impl Drop for RawLib {
+impl Drop for Library {
     fn drop(&mut self) {
         self.handle = close_lib(self.handle);
     }
 }
 
-unsafe impl Sync for RawLib {}
-unsafe impl Send for RawLib {}
+unsafe impl Sync for Library {}
+unsafe impl Send for Library {}

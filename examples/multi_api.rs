@@ -3,7 +3,7 @@ extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
 use libc::{c_double, c_char, c_int};
-use dynlib::wrapper::{Wrapper, WrapperApi, WrapperMultiApi};
+use dynlib::wrapper::{Container, WrapperApi, WrapperMultiApi};
 use dynlib::utils::platform_file_name;
 use std::ffi::CStr;
 use std::env;
@@ -57,7 +57,7 @@ fn main(){
     println!("Library path: {}", lib_path.to_str().unwrap());
 
     //here we actually start the example
-    let mut api: Wrapper<Api> = unsafe { Wrapper::open(lib_path)}.expect("Could not open library");
+    let mut api: Container<Api> = unsafe { Container::open(lib_path)}.expect("Could not open library");
     //use obligatory API:
     api.obligatory.rust_fun_print_something();
     println!("4+2={}", unsafe{api.obligatory.c_fun_add_two(4)});

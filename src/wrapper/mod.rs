@@ -16,7 +16,7 @@ structure without external lifetimes (so you can safely move the wrapper or make
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::wrapper::{Wrapper, WrapperApi};
+use dynlib::wrapper::{Container, WrapperApi};
 use libc::{c_char};
 use std::ffi::CStr;
 
@@ -36,21 +36,21 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-let mut wrapper: Wrapper<Example> = unsafe { Wrapper::open("libexample.dynlib")}.unwrap();
-wrapper.do_something();
-let _result = unsafe { wrapper.add_one(5) };
-*wrapper.global_count_mut() += 1;
-println!("C string: {}", wrapper.c_string().to_str().unwrap())
+let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
+container.do_something();
+let _result = unsafe { container.add_one(5) };
+*container.global_count_mut() += 1;
+println!("C string: {}", container.c_string().to_str().unwrap())
 }
 ```
 */
 
 mod api;
 mod multi_api;
-mod wrapper;
+mod container;
 mod optional;
 mod option;
 pub use self::api::WrapperApi;
 pub use self::multi_api::WrapperMultiApi;
-pub use self::wrapper::Wrapper;
-pub use self::optional::WrapperOptional;
+pub use self::container::Container;
+pub use self::optional::OptionalContainer;

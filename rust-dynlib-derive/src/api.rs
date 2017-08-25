@@ -5,12 +5,12 @@ use super::common::{get_fields, symbol_name};
 
 pub fn impl_library_api(ast: &DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
-    let fields = get_fields(ast, "LibraryApi");
+    let fields = get_fields(ast, "SymBorApi");
 
     let tok_iter = fields.iter().map(field_to_tokens);
     let q = quote! {
-        impl<'a> LibraryApi<'a> for #name<'a> {
-            unsafe fn load(lib: &'a ::dynlib::symbor::SymBorLib) -> Result<#name<'a>,::dynlib::Error> {
+        impl<'a> SymBorApi<'a> for #name<'a> {
+            unsafe fn load(lib: &'a ::dynlib::symbor::Library) -> Result<#name<'a>,::dynlib::Error> {
                 Ok(#name {
                 #(#tok_iter),*
                 })

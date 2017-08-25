@@ -15,7 +15,7 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> quote::Tokens {
         impl #generics WrapperMultiApi for #name #generics{}
 
          impl #generics ::dynlib::wrapper::WrapperApi for # name #generics{
-            unsafe fn load(lib: & ::dynlib::raw::RawLib) -> Result<Self,::dynlib::Error> {
+            unsafe fn load(lib: & ::dynlib::raw::Library) -> Result<Self,::dynlib::Error> {
                 Ok(#name {
                 #(#tok_iter),*
                 })

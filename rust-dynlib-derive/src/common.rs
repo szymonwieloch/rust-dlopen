@@ -44,11 +44,11 @@ pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
 
 pub fn get_fields<'a>(ast: &'a DeriveInput, trait_name: &str) -> &'a Vec<Field> {
     let vd = match ast.body {
-        Body::Enum(_) => panic ! ("LibraryApi can be only implemented for structures"),
+        Body::Enum(_) => panic ! ("SymBorApi can be only implemented for structures"),
         Body::Struct( ref val) => val
     };
     match vd {
         & VariantData::Struct( ref f) => f,
-        & VariantData::Tuple(_) | &VariantData::Unit => panic ! ("LibraryApi can be only implemented for structures")
+        & VariantData::Tuple(_) | &VariantData::Unit => panic ! ("SymBorApi can be only implemented for structures")
     }
 }

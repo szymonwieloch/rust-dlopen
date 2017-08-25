@@ -5,7 +5,7 @@ use std::mem::transmute;
 
 ///Mutable reference obtained from `Library`.
 ///
-/// This type is intended to be used only inside structures implementing `LibraryApi` trait.
+/// This type is intended to be used only inside structures implementing `SymBorApi` trait.
 /// In other cases you can as well use normal Rust reference.
 #[derive(Debug)]
 pub struct RefMut<'lib, T: 'lib> {

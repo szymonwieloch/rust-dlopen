@@ -25,7 +25,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
     let wrapper_iter = fields.iter().filter_map(field_to_wrapper);
     let q = quote! {
         impl #generics WrapperApi for #struct_name #generics {
-            unsafe fn load(lib: & ::dynlib::raw::RawLib ) -> Result<Self, ::dynlib::Error> {
+            unsafe fn load(lib: & ::dynlib::raw::Library ) -> Result<Self, ::dynlib::Error> {
                 Ok(Self{
                     #(#field_iter),*
                 })

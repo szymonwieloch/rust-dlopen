@@ -2,7 +2,7 @@ extern crate dynlib;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::raw::{RawLib};
+use dynlib::raw::{Library};
 use dynlib::utils::platform_file_name;
 use libc::{c_int, c_char};
 use std::env;
@@ -23,7 +23,7 @@ fn main() {
     println!("Library path: {}", lib_path.to_str().unwrap());
 
     //open library
-    let lib = RawLib::open(lib_path).expect("Could not open library");
+    let lib = Library::open(lib_path).expect("Could not open library");
     println!("library opened");
 
     //get several symbols and play around
