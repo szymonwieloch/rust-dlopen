@@ -1,20 +1,19 @@
 use super::api::WrapperApi;
 
 /**
-Allows creattion of complex, optional APIs.
+Allows creation of complex, optional APIs.
 
-Real life dynamic link libraries often come in multiple version. Sometimes additional functions
+Real life dynamic link libraries often come in multiple versions. Sometimes additional functions
 are added for the specific operating system, sometimes the library gets extended and new versions
-can export more symbols. If you have only one optional part of the API, it is recommended to use `WrapperOptional`.
-For more complex cases this is the API that is the most suitable.
+export more symbols. Often the API can have multiple versions. This trait helps creating
+library APIs with multiple optional parts.
 
-`WrapperMultiApi` is inteded to be used together with the derive macro. You should create a new
+`WrapperMultiApi` is intended to be used together with the derive macro. You should create a new
 structure where all fields implement the `WrapperApi` trait (this includes `Option<T>` where `T` implements `WrapperApi`).
-The derive macro will generate required methods.
+The derive macro will generate required implementation.
 
-**WARNING!!!** Because of Rust lifetimes and borrowing rules structures created by calling the
-`WrapperApi::load()` function won't have borrowed dependency on the library passed as an argument.
-To prevent dangling symbols it is recommended that you use this trait together with the `Wrapper` structure.
+**Note**: `WrapperMultiApi` should only be used together with `Container` structure, never to create
+a standalone object. API and library handle need to be kept together to prevent dangling symbols.
 
 ```no_run
 #[macro_use]
@@ -34,7 +33,6 @@ struct Optional1<'a>{
     static_val: &'a i32
 }
 
-//this one wont' work in the example
 #[derive(WrapperApi)]
 struct Optional2{
    another_fun: unsafe extern "C" fn()
@@ -68,7 +66,6 @@ fn main(){
 }
 ```
 */
-
 
 pub trait WrapperMultiApi: WrapperApi {
 

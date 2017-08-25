@@ -5,11 +5,11 @@ use super::api::WrapperApi;
 use std::ffi::{OsStr};
 
 /**
-Wraps a dynamic load library handle and its API into one single structure.
+Container for both a dynamic load library handle and its API.
 
-Wrapping both library handle and symbols makes it safe to use it because symbols are released
-together with the library. Wrapper also doesn't have any external lifetimes - this makes it
-easy to use Wrapper inside structures.
+Keeping both library and its symbols together makes it safe to use it because symbols are released
+together with the library. `Container` also doesn't have any external lifetimes - this makes it
+easy to use `Container` inside structures.
 
 #Example
 
@@ -38,16 +38,16 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
-container.do_something();
-let _result = unsafe { container.add_one(5) };
-*container.global_count_mut() += 1;
-println!("C string: {}", container.c_string().to_str().unwrap())
+    let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
+    container.do_something();
+    let _result = unsafe { container.add_one(5) };
+    *container.global_count_mut() += 1;
+    println!("C string: {}", container.c_string().to_str().unwrap())
 }
 ```
 */
 pub struct Container<T> where T: WrapperApi {
-    #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
+    #[allow(dead_code)] //this is not dead code because destructor of Library deallocates the library
     lib: Library,
     api: T
 }

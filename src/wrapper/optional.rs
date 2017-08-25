@@ -5,12 +5,12 @@ use super::api::WrapperApi;
 use std::ffi::{OsStr};
 
 /**
-Wraps a library handle and both obligatory and optional API inside one structure.
+Container for a library handle and both obligatory and optional APIs inside one structure.
 
-A common problem with dynamic load libraries is that they often have different versions and some
+A common problem with dynamic link libraries is that they often have different versions and some
 of those versions have broader API than others. This structure allows you to use two APIs at the
-same time - an obligatory one and an optional one. This library does not cover more cases (such as
-several optional APIs) - you need to write a custom wrapper on your own.
+same time - one obligatory and one optional. If symbols of the optional API are found in the
+library, the optional API gets loaded. Otherwise the `optional()` method will return `None`.
 
 #Example
 
@@ -18,10 +18,7 @@ several optional APIs) - you need to write a custom wrapper on your own.
 #[macro_use]
 extern crate dynlib_derive;
 extern crate dynlib;
-extern crate libc;
 use dynlib::wrapper::{OptionalContainer, WrapperApi};
-use libc::{c_char};
-use std::ffi::CStr;
 
 #[derive(WrapperApi)]
 struct Obligatory<'a> {
@@ -32,30 +29,26 @@ struct Obligatory<'a> {
 #[derive(WrapperApi)]
 struct Optional{
     add_one: unsafe extern "C" fn (arg: i32) -> i32,
-    c_string: * const c_char
-}
-
-//wrapper for c_string won't be generated, implement it here
-impl<'a> Optional {
-    pub fn c_string(&self) -> &CStr {
-        unsafe {CStr::from_ptr(self.c_string)}
-    }
+    c_string: * const u8
 }
 
 fn main () {
     let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::open("libexample.dynlib")}.unwrap();
     container.do_something();
-
     *container.global_count_mut() += 1;
+
     match container.optional(){
         &Some(ref opt) => {
             let _result = unsafe { opt.add_one(5) };
-            println!("C string: {}", opt.c_string().to_str().unwrap())
+            println!("First byte of C string is {}", unsafe{*opt.c_string});
         },
         &None => println!("The optional API was not loaded!")
     }
 }
 ```
+
+**Note:** For more complex cases (multiple versions of API) you can use
+[`WrapperMultiApi`](./trait.WrapperMultiApi.html).
 */
 pub struct OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library

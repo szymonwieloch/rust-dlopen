@@ -7,18 +7,19 @@ Trait for defining library API.
 This trait is intended to be used with `#[derive(WrapperApi)]` macro defined in the
 `dynlib_derive` crate. It forces several restrictions on types that implement it:
 
-* Only sructures can implement this trait.
+* Only structures can implement this trait.
 * All fields need to be private.
 * Only functions, references and pointers are allowed.
 * You can't define a type using `type Fun =fn();` and use it in the structure. This is a limitation
-    of Rut reflections mechanism. Only raw functions, references and functions are allowed.
+    of the Rust reflection mechanism. Only raw functions, references and pointers are allowed.
 * All arguments of functions need to be named.
 
 
 The `derive` macro not only generates implementation of `load()` function, but it also generates
-safe accessors or wrappers to the loaded symbols. These functions are named exactly like the field that
-they wrap. Functions have the same arguments like original symbols and references are
-just simple accessors in the form of `<field_name>(self)->&FieldType` or `<field_name>_mut(&mut self) -> &mut FieldType`.
+safe wrappers around the loaded symbols. These wrappers are named exactly like the field that
+they wrap. Wrappers of functions have the same arguments like original functions and wrappers of
+references are just simple accessors in the form of `<field_name>(&self) -> &FieldType` or
+`<field_name>_mut(&mut self) -> &mut FieldType`.
 Wrappers are not generated only for:
 
 * Pointers - there is no safe way of preventing dangling symbols if a user has a direct access to pointers.
@@ -29,22 +30,24 @@ Wrappers are not generated only for:
 
 #Example
 
-'''no_run
+```no_run
 #[macro_use]
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
-use dynlib::wrapper::{WrapperApi};
-use dynlib::raw::Library;
+use dynlib::wrapper::{WrapperApi, Container};
 use libc::{c_char};
 use std::ffi::CStr;
 
 #[derive(WrapperApi)]
 struct Example<'a> {
+    #[dynlib_name="function"]
     do_something: extern "C" fn(),
     add_one: unsafe extern "C" fn (arg: i32) -> i32,
     global_count: &'a mut u32,
-    c_string: * const c_char
+    c_string: * const c_char,
+    #[dynlib_allow_null]
+    maybe_null_ptr: * const (),
 }
 
 //wrapper for c_string won't be generated, implement it here
@@ -55,21 +58,25 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-let lib = unsafe { Library::open("libexample.dynlib")}.unwrap();
-let api = Example::load(&lib).unwrap();
-api.do_something();
-let _result = unsafe { api.add_one(5) };
-*api.global_count_mut() += 1;
-println!("C string: {}", api.c_string().to_str().unwrap())
-
-//please notice that this compiles because api does not have any reference to the library.
-//This is why direct use of API may be unsafe. The recommended way to handle this problem is by using the Wrapper structure.
-drop(lib);
-
-
+    let cont:Container<Example> = Container::load("libexample.dynlib").unwrap();
+    cont.do_something();
+    let _result = unsafe { cont.add_one(5) };
+    *cont.global_count_mut() += 1;
+    println!("C string: {}", cont.c_string().to_str().unwrap())
 }
-'''
+```
 
+**Note**: `WrapperApi` should only be used together with `Container` structure, never to create
+a standalone object. API and library handle need to be kept together to prevent dangling symbols.
+
+**Note:** By default obtained symbol name is the field name. You can change this by
+assigning the "dynlib_name" attribute to the given field.
+
+**Note:** By default `Error::NullSymbol` is returned if the loaded symbol name has a null value.
+While null is a valid value of a exported symbol, it is usually not expected by users of libraries.
+If in your scenario null is an acceptable value, you should assign
+"dynlib_allow_null" attribute to the given field. Of course this makes sense only if the field
+is of pointer type.
 */
 pub trait WrapperApi where Self: Sized {
     ///Load symbols from provided library.
