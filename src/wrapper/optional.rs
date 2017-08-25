@@ -33,7 +33,7 @@ struct Optional{
 }
 
 fn main () {
-    let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::open("libexample.dynlib")}.unwrap();
+    let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::load("libexample.dynlib")}.unwrap();
     container.do_something();
     *container.global_count_mut() += 1;
 
@@ -59,7 +59,7 @@ pub struct OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: Wra
 
 impl<Api, Optional> OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
     ///Opens the library using provided file name or path and loads all symbols (including optional if it is possible).
-    pub unsafe fn open<S>(name: S) -> Result<OptionalContainer<Api, Optional>, Error>  where S: AsRef<OsStr> {
+    pub unsafe fn load<S>(name: S) -> Result<OptionalContainer<Api, Optional>, Error>  where S: AsRef<OsStr> {
         let lib = Library::open(name)?;
         let api = Api::load(&lib)?;
         let optional = match Optional::load(&lib) {

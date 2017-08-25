@@ -49,7 +49,7 @@ struct Api<'a>{
 }
 
 fn main(){
-    let mut container: Container<Api> = unsafe { Container::open("libexample.so")}.expect("Could not open library");
+    let mut container: Container<Api> = unsafe { Container::load("libexample.so")}.expect("Could not open library or load symbols");
 
     //use obligatory API:
     unsafe{container.obligatory.some_fun()};

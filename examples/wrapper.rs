@@ -52,7 +52,7 @@ fn main(){
     println!("Library path: {}", lib_path.to_str().unwrap());
 
     //her actually sart the example
-    let mut wrapper: Container<Example> = unsafe { Container::open(lib_path)}.expect("Could not open library");
+    let mut wrapper: Container<Example> = unsafe { Container::load(lib_path)}.expect("Could not open library");
     wrapper.rust_fun_print_something();
     wrapper.c_fun_print_something_else();
     println!("rust_i32_mut={}", unsafe {wrapper.rust_i32_mut()});

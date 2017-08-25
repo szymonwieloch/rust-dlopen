@@ -58,7 +58,7 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-    let cont:Container<Example> = Container::load("libexample.dynlib").unwrap();
+    let mut cont: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
     cont.do_something();
     let _result = unsafe { cont.add_one(5) };
     *cont.global_count_mut() += 1;

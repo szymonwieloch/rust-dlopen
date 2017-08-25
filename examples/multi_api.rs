@@ -57,7 +57,7 @@ fn main(){
     println!("Library path: {}", lib_path.to_str().unwrap());
 
     //here we actually start the example
-    let mut api: Container<Api> = unsafe { Container::open(lib_path)}.expect("Could not open library");
+    let mut api: Container<Api> = unsafe { Container::load(lib_path)}.expect("Could not open library");
     //use obligatory API:
     api.obligatory.rust_fun_print_something();
     println!("4+2={}", unsafe{api.obligatory.c_fun_add_two(4)});

@@ -24,7 +24,7 @@ struct Example<'a> {
 }
 
 fn main () {
-let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
+let mut container: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
 container.do_something();
 let _result = unsafe { container.add_one(5) };
 *container.global_count_mut() += 1;

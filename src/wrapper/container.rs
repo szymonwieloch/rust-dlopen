@@ -38,7 +38,7 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-    let mut container: Container<Example> = unsafe { Container::open("libexample.dynlib")}.unwrap();
+    let mut container: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
     container.do_something();
     let _result = unsafe { container.add_one(5) };
     *container.global_count_mut() += 1;
@@ -54,7 +54,7 @@ pub struct Container<T> where T: WrapperApi {
 
 impl<T> Container<T> where T: WrapperApi {
     ///Open the library using provided file name or path and load all symbols.
-    pub unsafe fn open<S>(name: S) -> Result<Container<T>, Error>  where S: AsRef<OsStr> {
+    pub unsafe fn load<S>(name: S) -> Result<Container<T>, Error>  where S: AsRef<OsStr> {
         let lib = Library::open(name)?;
         let api = T::load(&lib)?;
         Ok(Self{
