@@ -31,6 +31,7 @@ lazy_static = "0.2.8"
 const-cstr = "0.1"
 example_dylib = {path = "rust-example-dylib"}
 libc = "0.2.29"
+regex = "0.2"
 
 [[example]]
 name = "raw"

@@ -1,10 +1,14 @@
-use super::super::raw::{Library};
+extern crate dynlib;
+extern crate libc;
+#[macro_use]
+extern crate const_cstr;
+use dynlib::raw::Library;
 use libc::{c_int, c_char};
-
 use std::ffi::CStr;
-use super::{example_lib_path, SomeData};
 
 use std::io::Write;
+mod commons;
+use commons::{example_lib_path, SomeData};
 
 macro_rules! println_stderr(
     ($($arg:tt)*) => { {
@@ -15,7 +19,7 @@ macro_rules! println_stderr(
 
 //#[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]
-fn open_play_close(){
+fn open_play_close_raw(){
     let lib_path = example_lib_path();
     let lib = Library::open(lib_path).expect("Could not open library");
     let rust_fun_print_something: fn() = unsafe { lib.symbol_cstr(const_cstr!("rust_fun_print_something").as_cstr())}.unwrap();
@@ -66,6 +70,6 @@ fn open_play_close(){
     //please note that this ia a problem with the example library, not this library
     //maybe converting the example library into cdylib would help?
     //https://github.com/rust-lang/rust/issues/28794
-    #[cfg(any(target_os="macos", target_os="ios"))]
+    //#[cfg(any(target_os="macos", target_os="ios"))]
     ::std::mem::forget(lib);
 }
