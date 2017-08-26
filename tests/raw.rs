@@ -71,5 +71,5 @@ fn open_play_close_raw(){
     //maybe converting the example library into cdylib would help?
     //https://github.com/rust-lang/rust/issues/28794
     //#[cfg(any(target_os="macos", target_os="ios"))]
-    ::std::mem::forget(lib);
+    //::std::mem::forget(lib);
 }
