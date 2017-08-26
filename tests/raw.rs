@@ -67,9 +67,8 @@ fn open_play_close_raw(){
 
     //It turns out that there is a bug in rust.
     //On OSX calls to dynamic libraries written in Rust causes segmentation fault
-    //please note that this ia a problem with the example library, not this library
-    //maybe converting the example library into cdylib would help?
+    //please note that this ia a problem with the example library, not with dynlib
     //https://github.com/rust-lang/rust/issues/28794
-    //#[cfg(any(target_os="macos", target_os="ios"))]
-    //::std::mem::forget(lib);
+    #[cfg(any(target_os="macos", target_os="ios"))]
+    ::std::mem::forget(lib);
 }
