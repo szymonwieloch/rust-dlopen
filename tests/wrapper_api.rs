@@ -44,6 +44,11 @@ impl<'a> Api<'a> {
     }
 }
 
+//It turns out that there is a bug in rust.
+//On OSX calls to dynamic libraries written in Rust causes segmentation fault
+//please note that this ia a problem with the example library, not with dynlib
+//https://github.com/rust-lang/rust/issues/28794
+#[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]
 fn open_play_close_wrapper_api(){
     let lib_path = example_lib_path();
@@ -78,11 +83,4 @@ fn open_play_close_wrapper_api(){
     let converted = cont.c_const_str().to_str().unwrap();
     assert_eq!(converted, "Hi!");
     println_stderr!("obtaining C string OK");
-
-    //It turns out that there is a bug in rust.
-    //On OSX calls to dynamic libraries written in Rust causes segmentation fault
-    //please note that this ia a problem with the example library, not with dynlib
-    //https://github.com/rust-lang/rust/issues/28794
-    #[cfg(any(target_os="macos", target_os="ios"))]
-    ::std::mem::forget(cont);
 }
