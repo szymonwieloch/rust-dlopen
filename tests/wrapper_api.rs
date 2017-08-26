@@ -4,7 +4,7 @@ extern crate dynlib_derive;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::symbor::{Library, SymBorApi, Symbol, RefMut, Ref, PtrOrNull};
+use dynlib::wrapper::{Container, WrapperApi};
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
@@ -19,55 +19,64 @@ macro_rules! println_stderr(
     } }
 );
 
-#[derive(SymBorApi)]
+#[derive(WrapperApi)]
 struct Api<'a> {
-    pub rust_fun_print_something: Symbol<'a, fn()>,
-    pub rust_fun_add_one: Symbol<'a, fn(i32) -> i32>,
-    pub c_fun_print_something_else: Symbol<'a, unsafe extern "C" fn()>,
-    pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
-    pub rust_i32: Ref<'a, i32>,
-    pub rust_i32_mut: RefMut<'a, i32>,
+    rust_fun_print_something: fn(),
+    rust_fun_add_one: fn(arg: i32) -> i32,
+    c_fun_print_something_else: unsafe extern "C" fn(),
+    c_fun_add_two: unsafe extern "C" fn(arg: c_int) -> c_int,
+    rust_i32: &'a i32,
+    rust_i32_mut: &'a mut i32,
     #[dynlib_name="rust_i32_mut"]
-    pub rust_i32_ptr: Symbol<'a, * const i32>,
-    pub c_int: Ref<'a, c_int>,
-    pub c_struct: Ref<'a, SomeData>,
-    pub rust_str: Ref<'a, &'static str>,
-    pub c_const_char_ptr: PtrOrNull<'a, c_char>
+    rust_i32_ptr: * const i32,
+    c_int: &'a c_int,
+    c_struct: &'a SomeData,
+    rust_str: &'a &'static str,
+    c_const_char_ptr: * const c_char
+}
+
+//those methods won't be generated
+impl<'a> Api<'a> {
+    fn rust_i32_ptr(&self) -> * const i32 {self.rust_i32_ptr}
+
+    fn c_const_str(&self) -> &CStr {
+        unsafe {CStr::from_ptr(self.c_const_char_ptr)}
+    }
 }
 
 //#[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]
-fn open_play_close_symbor_api(){
+fn open_play_close_wrapper_api(){
     let lib_path = example_lib_path();
-    let lib = Library::open(lib_path).expect("Could not open library");
-    let mut api = unsafe{Api::load(&lib)}.expect("Could not load symbols");
-    (api.rust_fun_print_something)(); //should not crash
-    assert_eq!((api.rust_fun_add_one)(5), 6);
-    unsafe{ (api.c_fun_print_something_else)()}; //should not crash
+    let mut cont: Container<Api> = unsafe{ Container::load(lib_path)}.expect("Could not open library or load symbols");
+
+    cont.rust_fun_print_something(); //should not crash
+    assert_eq!(cont.rust_fun_add_one(5), 6);
+    unsafe{ cont.c_fun_print_something_else()}; //should not crash
     println_stderr!("something else call OK");
-    assert_eq!(unsafe{(api.c_fun_add_two)(2)}, 4);
+    assert_eq!(unsafe{cont.c_fun_add_two(2)}, 4);
     println_stderr!("add_two called OK");
-    assert_eq!(43, *api.rust_i32);
+    assert_eq!(43, *cont.rust_i32());
     println_stderr!("obtaining const data OK");
-    assert_eq!(42, *api.rust_i32_mut);
+    assert_eq!(42, *cont.rust_i32_mut_mut());
     println_stderr!("obtaining mutable data OK");
-    *api.rust_i32_mut = 55; //should not crash
+    *cont.rust_i32_mut_mut() = 55; //should not crash
     println_stderr!("assigning mutable data OK");
-    assert_eq!(55, unsafe{**api.rust_i32_ptr});
+    assert_eq!(55, unsafe{*cont.rust_i32_ptr()});
     println_stderr!("obtaining pointer OK");
     //the same with C
-    assert_eq!(45, *api.c_int);
+    assert_eq!(45, *cont.c_int());
     println_stderr!("obtaining C data OK");
     //now static c struct
 
-    assert_eq!(1, api.c_struct.first);
-    assert_eq!(2, api.c_struct.second);
+    assert_eq!(1, cont.c_struct().first);
+    assert_eq!(2, cont.c_struct().second);
     println_stderr!("obtaining C structure OK");
     //let's play with strings
 
-    assert_eq!("Hello!", *api.rust_str);
+    assert_eq!("Hello!", *cont.rust_str());
     println_stderr!("obtaining str OK");
-    let converted = unsafe{CStr::from_ptr(*api.c_const_char_ptr)}.to_str().unwrap();
+    let converted = cont.c_const_str().to_str().unwrap();
     assert_eq!(converted, "Hi!");
     println_stderr!("obtaining C string OK");
 
