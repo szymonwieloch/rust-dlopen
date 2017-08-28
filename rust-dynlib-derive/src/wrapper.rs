@@ -1,5 +1,4 @@
-use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput, Visibility, BareFnTy, BareFnArg, FunctionRetTy, MutTy, Mutability};
-use proc_macro::TokenStream;
+use syn::{Field, Ty, DeriveInput, Visibility, BareFnArg, FunctionRetTy, MutTy, Mutability};
 use quote;
 use super::common::{get_fields, symbol_name, has_marker_attr};
 

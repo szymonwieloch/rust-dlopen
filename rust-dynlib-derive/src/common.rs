@@ -17,7 +17,7 @@ pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<&'a st
             MetaItem::NameValue(ref ident, ref it) => {
                 if ident.as_ref() == attr_name {
                     return match it {
-                        &Lit::Str(ref val, ref style) => {
+                        &Lit::Str(ref val, ..) => {
                             Some(val.as_ref())
                         },
                         _ => panic!("{} attribute must be a string", attr_name)
@@ -44,11 +44,11 @@ pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
 
 pub fn get_fields<'a>(ast: &'a DeriveInput, trait_name: &str) -> &'a Vec<Field> {
     let vd = match ast.body {
-        Body::Enum(_) => panic ! ("SymBorApi can be only implemented for structures"),
+        Body::Enum(_) => panic ! ("{} can be only implemented for structures", trait_name),
         Body::Struct( ref val) => val
     };
     match vd {
         & VariantData::Struct( ref f) => f,
-        & VariantData::Tuple(_) | &VariantData::Unit => panic ! ("SymBorApi can be only implemented for structures")
+        & VariantData::Tuple(_) | &VariantData::Unit => panic ! ("{} can be only implemented for structures", trait_name)
     }
 }

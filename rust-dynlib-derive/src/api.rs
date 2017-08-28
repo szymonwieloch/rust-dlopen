@@ -1,5 +1,4 @@
-use syn::{Body, VariantData, Field, Ty, MetaItem, Lit, DeriveInput};
-use proc_macro::TokenStream;
+use syn::{Field, DeriveInput};
 use quote;
 use super::common::{get_fields, symbol_name};
 

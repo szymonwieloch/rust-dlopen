@@ -30,6 +30,7 @@ pub extern "C" fn c_fun_add_two(arg: c_int) -> c_int {
     arg + 2
 }
 
+#[allow(unused_variables)]
 #[no_mangle]
 pub extern "C" fn c_fun_variadic(txt: * const c_char) {
     //pretend to be variadic - impossible to do in Rust code
