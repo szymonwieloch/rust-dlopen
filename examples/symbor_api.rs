@@ -5,41 +5,64 @@ extern crate dynlib;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
+
+mod commons;
+use commons::{SomeData, example_lib_path};
 use dynlib::symbor::{Library, PtrOrNull, PtrOrNullMut, Ref, RefMut, Symbol, SymBorApi};
-use dynlib::utils::platform_file_name;
-use libc::{c_char};
-use std::env;
-use std::path::PathBuf;
+use libc::{c_char, c_int};
+use std::ffi::CStr;
+
 
 #[derive(SymBorApi)]
-struct ExampleApi<'a>{
+struct Api<'a> {
     pub rust_fun_print_something: Symbol<'a, fn()>,
+    pub rust_fun_add_one: Symbol<'a, fn(i32) -> i32>,
+    pub c_fun_print_something_else: Symbol<'a, unsafe extern "C" fn()>,
+    pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
+    pub rust_i32: Ref<'a, i32>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    pub c_const_char_ptr: PtrOrNull<'a, * const c_char>,
-    pub optional_function: Option<Symbol<'a, fn()->i32>>,
-    #[dynlib_name="rust_fun_add_one"]
-    pub i_want_other_name: Symbol<'a, fn(i32)->i32>,
+    #[dynlib_name="rust_i32_mut"]
+    pub rust_i32_ptr: Symbol<'a, * const i32>,
+    pub c_int: Ref<'a, c_int>,
+    pub c_struct: Ref<'a, SomeData>,
+    pub rust_str: Ref<'a, &'static str>,
+    pub c_const_char_ptr: PtrOrNull<'a, c_char>
 }
 
 fn main() {
-    //build path to the example library that covers most cases
-    let mut lib_path = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    lib_path.extend(["target", "debug", "deps"].iter());
-    lib_path.push(platform_file_name("example"));
-    println!("Library path: {}", lib_path.to_str().unwrap());
+    let lib_path = example_lib_path();
+    let lib = Library::open(lib_path).expect("Could not open library");
+    let mut api = unsafe {Api::load(&lib)}.expect("Could not load the API");
+
+    let lib_path = example_lib_path();
     let lib = Library::open(lib_path).expect("Could not open library");
 
-    //mut is needed because we want to use rust_i32_mut
-    let mut api = unsafe {ExampleApi::load(&lib)}.expect("Could not load the API");
-
-    //now we can play:
-
-    //brackets are used in Rust to distinguish between field and method.
     (api.rust_fun_print_something)();
-    *api.rust_i32_mut += 12;
-    assert!(!api.c_const_char_ptr.is_null());
-    if let Some(fun) = api.optional_function {
-        let _result = fun();
-    }
-    assert_eq!((api.i_want_other_name)(5), 6);
+
+    println!(" 5+1={}", (api.rust_fun_add_one)(5));
+
+   unsafe{ (api.c_fun_print_something_else)()};
+
+    println!("2+2={}", unsafe{(api.c_fun_add_two)(2)});
+
+    println!("const rust i32 value: {}", *api.rust_i32);
+
+    println!("mutable rust i32 value: {}", *api.rust_i32_mut);
+
+    *api.rust_i32_mut = 55;
+
+    //for a change use pointer to obtain its value
+    println!("after change: {}", unsafe{**api.rust_i32_ptr});
+
+    //the same with C
+    println!("c_int={}", *api.c_int);
+
+    //now static c struct
+    println!("c struct first: {}, second:{}", api.c_struct.first, api.c_struct.second);
+
+    //let's play with strings
+    println!("Rust says: {}", *api.rust_str);
+
+    let converted = unsafe{CStr::from_ptr(*api.c_const_char_ptr)}.to_str().unwrap();
+    println!("And now C says: {}", converted);
 }

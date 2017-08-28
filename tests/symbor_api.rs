@@ -12,13 +12,6 @@ use std::io::Write;
 mod commons;
 use commons::{example_lib_path, SomeData};
 
-macro_rules! println_stderr(
-    ($($arg:tt)*) => { {
-        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
-        r.expect("failed printing to stderr");
-    } }
-);
-
 #[derive(SymBorApi)]
 struct Api<'a> {
     pub rust_fun_print_something: Symbol<'a, fn()>,
@@ -48,30 +41,20 @@ fn open_play_close_symbor_api(){
     (api.rust_fun_print_something)(); //should not crash
     assert_eq!((api.rust_fun_add_one)(5), 6);
     unsafe{ (api.c_fun_print_something_else)()}; //should not crash
-    println_stderr!("something else call OK");
     assert_eq!(unsafe{(api.c_fun_add_two)(2)}, 4);
-    println_stderr!("add_two called OK");
     assert_eq!(43, *api.rust_i32);
-    println_stderr!("obtaining const data OK");
     assert_eq!(42, *api.rust_i32_mut);
-    println_stderr!("obtaining mutable data OK");
     *api.rust_i32_mut = 55; //should not crash
-    println_stderr!("assigning mutable data OK");
     assert_eq!(55, unsafe{**api.rust_i32_ptr});
-    println_stderr!("obtaining pointer OK");
     //the same with C
     assert_eq!(45, *api.c_int);
-    println_stderr!("obtaining C data OK");
     //now static c struct
 
     assert_eq!(1, api.c_struct.first);
     assert_eq!(2, api.c_struct.second);
-    println_stderr!("obtaining C structure OK");
     //let's play with strings
 
     assert_eq!("Hello!", *api.rust_str);
-    println_stderr!("obtaining str OK");
     let converted = unsafe{CStr::from_ptr(*api.c_const_char_ptr)}.to_str().unwrap();
     assert_eq!(converted, "Hi!");
-    println_stderr!("obtaining C string OK");
 }

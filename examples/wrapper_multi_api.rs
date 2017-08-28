@@ -2,18 +2,13 @@
 extern crate dynlib_derive;
 extern crate dynlib;
 extern crate libc;
+mod commons;
+use commons::{example_lib_path, SomeData};
 use libc::{c_double, c_char, c_int};
 use dynlib::wrapper::{Container, WrapperApi, WrapperMultiApi};
 use dynlib::utils::platform_file_name;
 use std::ffi::CStr;
-use std::env;
-use std::path::PathBuf;
 
-#[repr(C)]
-pub struct SomeData {
-    first: c_int,
-    second: c_int
-}
 
 //Define 3 APIs:
 
@@ -50,13 +45,7 @@ struct Api<'a>{
 }
 
 fn main(){
-    //build path to the example library that covers most cases
-    let mut lib_path = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    lib_path.extend(["target", "debug", "deps"].iter());
-    lib_path.push(platform_file_name("example"));
-    println!("Library path: {}", lib_path.to_str().unwrap());
-
-    //here we actually start the example
+    let lib_path = example_lib_path();
     let mut api: Container<Api> = unsafe { Container::load(lib_path)}.expect("Could not open library");
     //use obligatory API:
     api.obligatory.rust_fun_print_something();

@@ -37,33 +37,26 @@ impl<'a> Api<'a> {
     }
 }
 
-//It turns out that there is a bug in rust.
-//On OSX calls to dynamic libraries written in Rust causes segmentation fault
-//please note that this ia a problem with the example library, not with dynlib
-//https://github.com/rust-lang/rust/issues/28794
-#[cfg(not(any(target_os="macos", target_os="ios")))]
-#[test]
-fn open_play_close_wrapper_api(){
+fn main(){
     let lib_path = example_lib_path();
     let mut cont: Container<Api> = unsafe{ Container::load(lib_path)}.expect("Could not open library or load symbols");
 
-    cont.rust_fun_print_something(); //should not crash
-    assert_eq!(cont.rust_fun_add_one(5), 6);
-    unsafe{ cont.c_fun_print_something_else()}; //should not crash
-    assert_eq!(unsafe{cont.c_fun_add_two(2)}, 4);
-    assert_eq!(43, *cont.rust_i32());
-    assert_eq!(42, *cont.rust_i32_mut_mut());
-    *cont.rust_i32_mut_mut() = 55; //should not crash
-    assert_eq!(55, unsafe{*cont.rust_i32_ptr()});
+    cont.rust_fun_print_something();
+    println!(" 5+1={}", cont.rust_fun_add_one(5));
+    unsafe{ cont.c_fun_print_something_else()};
+    println!("2+2={}", unsafe{cont.c_fun_add_two(2)});
+    println!("const rust i32 value: {}", *cont.rust_i32());
+    println!("mutable rust i32 value: {}", *cont.rust_i32_mut());
+    *cont.rust_i32_mut_mut() = 55;
+    println!("after change: {}", unsafe{*cont.rust_i32_ptr()});
     //the same with C
-    assert_eq!(45, *cont.c_int());
+    println!("c_int={}", *cont.c_int());
     //now static c struct
 
-    assert_eq!(1, cont.c_struct().first);
-    assert_eq!(2, cont.c_struct().second);
+    println!("c struct first: {}, second:{}", cont.c_struct().first, cont.c_struct().second);
     //let's play with strings
 
-    assert_eq!("Hello!", *cont.rust_str());
+    println!("Rust says: {}", *cont.rust_str());
     let converted = cont.c_const_str().to_str().unwrap();
-    assert_eq!(converted, "Hi!");
+    println!("And now C says: {}", converted);
 }

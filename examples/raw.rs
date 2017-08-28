@@ -2,29 +2,17 @@ extern crate dynlib;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
+
+mod commons;
+
+use commons::{SomeData, example_lib_path};
 use dynlib::raw::{Library};
-use dynlib::utils::platform_file_name;
 use libc::{c_int, c_char};
-use std::env;
-use std::path::PathBuf;
 use std::ffi::CStr;
 
-#[repr(C)]
-pub struct SomeData {
-    first: c_int,
-    second: c_int
-}
-
 fn main() {
-    //build path to the example library that covers most cases
-    let mut lib_path = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    lib_path.extend(["target", "debug", "deps"].iter());
-    lib_path.push(platform_file_name("example"));
-    println!("Library path: {}", lib_path.to_str().unwrap());
-
-    //open library
+    let lib_path = example_lib_path();
     let lib = Library::open(lib_path).expect("Could not open library");
-    println!("library opened");
 
     //get several symbols and play around
     let rust_fun_print_something: fn() = unsafe { lib.symbol_cstr(const_cstr!("rust_fun_print_something").as_cstr())}.unwrap();
@@ -70,13 +58,4 @@ fn main() {
     let c_const_char_ptr: * const c_char = unsafe { lib.symbol_cstr(const_cstr!("c_const_char_ptr").as_cstr())}.unwrap();
     let converted = unsafe{CStr::from_ptr(c_const_char_ptr)}.to_str().unwrap();
     println!("And now C says: {}", converted);
-
-
-
-
-
-
-
-
-
 }
