@@ -15,9 +15,9 @@ keywords = [
 license = "MIT"
 repository = "https://github.com/szymonwieloch/rust-dynlib"
 
-[dependencies]
-
-dynlib_derive = {path = "rust-dynlib-derive"}
+[dependencies.dynlib_derive]
+path = "rust-dynlib-derive"
+version = "0.1.0"
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.2"
@@ -27,9 +27,13 @@ kernel32-sys = "0.2"
 libc = "0.2.29"
 lazy_static = "0.2.8"
 
+
+[dev-dependencies.example_dylib]
+path = "rust-example-dylib"
+version = "0.1.0"
+
 [dev-dependencies]
 const-cstr = "0.1"
-example_dylib = {path = "rust-example-dylib"}
 libc = "0.2.29"
 regex = "0.2"
 
