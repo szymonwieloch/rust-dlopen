@@ -2,6 +2,8 @@
 name = "dynlib_derive"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
+description = "Derive macros for the dynlib crate."
+license = "MIT"
 
 [lib]
 proc-macro = true
