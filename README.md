@@ -1,11 +1,11 @@
-# rust-dynlib
+# rust-dlopen
 
 [![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci]
 
-[tcii]: https://travis-ci.org/szymonwieloch/rust-dynlib.svg?branch=master
-[tci]: https://travis-ci.org/szymonwieloch/rust-dynlib
-[acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dynlib?svg=true
-[aci]: https://ci.appveyor.com/project/szymonwieloch/rust-dynlib
+[tcii]: https://travis-ci.org/szymonwieloch/rust-dlopen.svg?branch=master
+[tci]: https://travis-ci.org/szymonwieloch/rust-dlopen
+[acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dlopen?svg=true
+[aci]: https://ci.appveyor.com/project/szymonwieloch/rust-dlopen
 
 A long time ago in a dirty basement far, far away a programmer was trying to dynamically load a library using standard C API (because he didnt know Rust yet):
 
@@ -63,7 +63,7 @@ loading libraries requires transmutation of obtained pointers).
 Cargo.toml:
 ```toml
 [dependencies]
-dynlib = "0.1"
+dlopen = "0.1"
 ```
 # License
 This code is licensed under [MIT](./LICENSE) license.

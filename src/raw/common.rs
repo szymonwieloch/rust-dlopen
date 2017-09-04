@@ -42,8 +42,8 @@ impl Library {
     #Example
 
     ```no_run
-    extern crate dynlib;
-    use dynlib::raw::Library;
+    extern crate dlopen;
+    use dlopen::raw::Library;
 
     fn main() {
         //use full path
@@ -76,9 +76,9 @@ impl Library {
     #Example
 
     ```no_run
-    extern crate dynlib;
-    use dynlib::raw::Library;
-    use dynlib::Error;
+    extern crate dlopen;
+    use dlopen::raw::Library;
+    use dlopen::Error;
     use std::ptr::null;
     fn main(){
         let lib = Library::open("libyourlib.so").unwrap();

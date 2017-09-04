@@ -12,9 +12,9 @@ symbols get released at the same time.
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::wrapper::{Container, WrapperApi};
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Example<'a> {
@@ -24,7 +24,7 @@ struct Example<'a> {
 }
 
 fn main () {
-let mut container: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
+let mut container: Container<Example> = unsafe { Container::load("libexample.dylib")}.unwrap();
 container.do_something();
 let _result = unsafe { container.add_one(5) };
 *container.global_count_mut() += 1;
@@ -43,10 +43,10 @@ However it is possible to make a mistake if you create API as a standalone objec
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::wrapper::{Container, WrapperApi};
-use dynlib::raw::Library;
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::wrapper::{Container, WrapperApi};
+use dlopen::raw::Library;
 
 #[derive(WrapperApi)]
 struct Example<'a> {
@@ -56,7 +56,7 @@ struct Example<'a> {
 }
 
 fn main () {
-let lib = Library::open("libexample.dynlib").unwrap();
+let lib = Library::open("libexample.dylib").unwrap();
 let mut api = unsafe{Example::load(&lib)};
 drop(lib);
 

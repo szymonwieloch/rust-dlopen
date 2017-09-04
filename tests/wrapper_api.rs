@@ -1,10 +1,10 @@
-extern crate dynlib;
+extern crate dlopen;
 #[macro_use]
-extern crate dynlib_derive;
+extern crate dlopen_derive;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::wrapper::{Container, WrapperApi};
+use dlopen::wrapper::{Container, WrapperApi};
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
@@ -20,7 +20,7 @@ struct Api<'a> {
     c_fun_add_two: unsafe extern "C" fn(arg: c_int) -> c_int,
     rust_i32: &'a i32,
     rust_i32_mut: &'a mut i32,
-    #[dynlib_name="rust_i32_mut"]
+    #[dlopen_name="rust_i32_mut"]
     rust_i32_ptr: * const i32,
     c_int: &'a c_int,
     c_struct: &'a SomeData,
@@ -39,7 +39,7 @@ impl<'a> Api<'a> {
 
 //It turns out that there is a bug in rust.
 //On OSX calls to dynamic libraries written in Rust causes segmentation fault
-//please note that this ia a problem with the example library, not with dynlib
+//please note that this ia a problem with the example library, not with dlopen
 //https://github.com/rust-lang/rust/issues/28794
 #[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]

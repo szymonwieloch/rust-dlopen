@@ -9,8 +9,8 @@ approach to loading dynamic link libraries.
 
 # Example
 ```no_run
-extern crate dynlib;
-use dynlib::raw::Library;
+extern crate dlopen;
+use dlopen::raw::Library;
 fn main(){
     let lib = Library::open("libexample.so").unwrap();
     let fun_add_one: unsafe extern "C" fn(i32)->i32 = unsafe{lib.symbol("add_one")}.unwrap();

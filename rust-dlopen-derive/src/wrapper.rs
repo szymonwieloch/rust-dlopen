@@ -2,7 +2,7 @@ use syn::{Field, Ty, DeriveInput, Visibility, BareFnArg, FunctionRetTy, MutTy, M
 use quote;
 use super::common::{get_fields, symbol_name, has_marker_attr};
 
-const ALLOW_NULL: &str = "dynlib_allow_null";
+const ALLOW_NULL: &str = "dlopen_allow_null";
 const TRAIT_NAME: &str = "WrapperApi";
 
 pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
@@ -24,7 +24,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
     let wrapper_iter = fields.iter().filter_map(field_to_wrapper);
     let q = quote! {
         impl #generics WrapperApi for #struct_name #generics {
-            unsafe fn load(lib: & ::dynlib::raw::Library ) -> Result<Self, ::dynlib::Error> {
+            unsafe fn load(lib: & ::dlopen::raw::Library ) -> Result<Self, ::dlopen::Error> {
                 Ok(Self{
                     #(#field_iter),*
                 })
@@ -83,7 +83,7 @@ fn allow_null_field(field: &Field, ptr: &Box<MutTy>) -> quote::Tokens {
         ) {
         Ok(val) => val,
         Err(err) => match err {
-                ::dynlib::Error::NullSymbol => ::std::ptr:: #null_fun (),
+                ::dlopen::Error::NullSymbol => ::std::ptr:: #null_fun (),
                 _ => return Err(err)
             }
         }

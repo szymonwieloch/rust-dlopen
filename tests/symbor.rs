@@ -1,8 +1,8 @@
-extern crate dynlib;
+extern crate dlopen;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::symbor::Library;
+use dlopen::symbor::Library;
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
@@ -12,7 +12,7 @@ use commons::{example_lib_path, SomeData};
 
 //It turns out that there is a bug in rust.
 //On OSX calls to dynamic libraries written in Rust causes segmentation fault
-//please note that this ia a problem with the example library, not with dynlib
+//please note that this ia a problem with the example library, not with dlopen
 //https://github.com/rust-lang/rust/issues/28794
 #[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]

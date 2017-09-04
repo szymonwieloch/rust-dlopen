@@ -1,10 +1,10 @@
-extern crate dynlib;
+extern crate dlopen;
 #[macro_use]
-extern crate dynlib_derive;
+extern crate dlopen_derive;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
-use dynlib::wrapper::{Container, WrapperApi};
+use dlopen::wrapper::{Container, WrapperApi};
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
@@ -20,7 +20,7 @@ struct Api<'a> {
     c_fun_add_two: unsafe extern "C" fn(arg: c_int) -> c_int,
     rust_i32: &'a i32,
     rust_i32_mut: &'a mut i32,
-    #[dynlib_name="rust_i32_mut"]
+    #[dlopen_name="rust_i32_mut"]
     rust_i32_ptr: * const i32,
     c_int: &'a c_int,
     c_struct: &'a SomeData,

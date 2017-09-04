@@ -10,10 +10,10 @@ generated `load(&Library)` function to load all symbols from previously opened l
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
+extern crate dlopen_derive;
+extern crate dlopen;
 extern crate libc;
-use dynlib::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
+use dlopen::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
 use libc::{c_double, c_char};
 
 #[derive(SymBorApi)]
@@ -23,7 +23,7 @@ struct Example<'a> {
     pub optional_fun: Option<Symbol<'a, unsafe extern "C" fn()>>,
     pub nullable_ptr: PtrOrNullMut<'a, c_char>,
     pub mut_ref_i32: Symbol<'a, &'a mut i32>,
-    #[dynlib_name="mut_ref_i32"]
+    #[dlopen_name="mut_ref_i32"]
     pub the_same_mut_ref_i32: RefMut<'a, i32>,
     pub not_nullable_ptr: Symbol<'a, * mut c_double>
 }
@@ -51,7 +51,7 @@ fn main(){
 Please notice several supported features:
 
 * By default `SymBorApi` uses the field name to obtain a symbol from the library.
-    You can override the symbol name using the `dynlib_name` attribute.
+    You can override the symbol name using the `dlopen_name` attribute.
 * All kind of objects from the `symbor` module implement the Deref or DerefMut trait.
     This means that you can use them as if you would use primitive types that they wrap.
 * You can obtain optional symbols. This is very useful when you are dealing with

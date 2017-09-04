@@ -17,9 +17,9 @@ This structure allows you to do it.
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
 
  #[derive(SymBorApi)]
  struct ExampleApi<'a> {

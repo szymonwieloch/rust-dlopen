@@ -13,8 +13,8 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> quote::Tokens {
     let q = quote! {
         impl #generics WrapperMultiApi for #name #generics{}
 
-         impl #generics ::dynlib::wrapper::WrapperApi for # name #generics{
-            unsafe fn load(lib: & ::dynlib::raw::Library) -> Result<Self,::dynlib::Error> {
+         impl #generics ::dlopen::wrapper::WrapperApi for # name #generics{
+            unsafe fn load(lib: & ::dlopen::raw::Library) -> Result<Self,::dlopen::Error> {
                 Ok(#name {
                 #(#tok_iter),*
                 })
@@ -34,7 +34,7 @@ fn field_to_tokens(field: &Field) -> quote::Tokens {
     //panic!("type_name = {}, {:?}", field_type_name, field);
 
     quote! {
-        #field_name: ::dynlib::wrapper::WrapperApi::load(&lib)?
+        #field_name: ::dlopen::wrapper::WrapperApi::load(&lib)?
     }
 
 }

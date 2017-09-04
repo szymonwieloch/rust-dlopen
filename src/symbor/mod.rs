@@ -7,8 +7,8 @@ that take place when the library gets closed but the symbols still exist and are
 
 #Example of a dangling symbol prevention
 ```no_run
-extern crate dynlib;
-use dynlib::symbor::Library;
+extern crate dlopen;
+use dlopen::symbor::Library;
 fn main(){
     let lib = Library::open("libexample.dylib").unwrap();
     let fun = unsafe{lib.symbol::<unsafe extern "C" fn(f64)->f64>("some_symbol_name")}.unwrap();
@@ -28,9 +28,9 @@ This is especially handy if you have a huge API with multiple symbols:
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi};
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi};
 
  #[derive(SymBorApi)]
  struct ExampleApi<'a> {
@@ -69,8 +69,8 @@ However it is possible to make a mistake if you dereference safe wrappers into r
 #Example of a mistake - dangling symbol
 
 ```no_run
-extern crate dynlib;
-use dynlib::symbor::Library;
+extern crate dlopen;
+use dlopen::symbor::Library;
 fn main(){
     let raw_fun = {
         let lib = Library::open("libexample.dylib").unwrap();

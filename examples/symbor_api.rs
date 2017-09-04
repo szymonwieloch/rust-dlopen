@@ -1,14 +1,14 @@
 #[macro_use]
-extern crate dynlib_derive;
+extern crate dlopen_derive;
 #[macro_use]
-extern crate dynlib;
+extern crate dlopen;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
 
 mod commons;
 use commons::{SomeData, example_lib_path};
-use dynlib::symbor::{Library, PtrOrNull, PtrOrNullMut, Ref, RefMut, Symbol, SymBorApi};
+use dlopen::symbor::{Library, PtrOrNull, PtrOrNullMut, Ref, RefMut, Symbol, SymBorApi};
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 
@@ -21,7 +21,7 @@ struct Api<'a> {
     pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
     pub rust_i32: Ref<'a, i32>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    #[dynlib_name="rust_i32_mut"]
+    #[dlopen_name="rust_i32_mut"]
     pub rust_i32_ptr: Symbol<'a, * const i32>,
     pub c_int: Ref<'a, c_int>,
     pub c_struct: Ref<'a, SomeData>,

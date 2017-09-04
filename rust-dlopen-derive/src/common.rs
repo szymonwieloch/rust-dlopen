@@ -1,7 +1,7 @@
 use syn::{Field, DeriveInput, Body, VariantData, Lit, MetaItem};
 
 pub fn symbol_name(field: &Field) -> &str {
-    match find_str_attr_val(field, "dynlib_name") {
+    match find_str_attr_val(field, "dlopen_name") {
         Some(val) => val,
         None => //not found, so use field name
             match field.ident {

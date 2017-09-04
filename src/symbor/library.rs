@@ -26,8 +26,8 @@ dangling symbols is prevented.
 #Example
 
 ```no_run
-extern crate dynlib;
-use dynlib::symbor::Library;
+extern crate dlopen;
+use dlopen::symbor::Library;
 
 fn main(){
     let lib = Library::open("libexample.dylib").unwrap();

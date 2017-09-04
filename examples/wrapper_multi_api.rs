@@ -1,12 +1,12 @@
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
+extern crate dlopen_derive;
+extern crate dlopen;
 extern crate libc;
 mod commons;
 use commons::{example_lib_path, SomeData};
 use libc::{c_double, c_char, c_int};
-use dynlib::wrapper::{Container, WrapperApi, WrapperMultiApi};
-use dynlib::utils::platform_file_name;
+use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
+use dlopen::utils::platform_file_name;
 use std::ffi::CStr;
 
 

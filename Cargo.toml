@@ -1,5 +1,5 @@
 [package]
-name = "dynlib"
+name = "dlopen"
 version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 description = "A library for opening and operating on dynamically loadable libraries."
@@ -7,10 +7,10 @@ keywords = [
     #common functions
     "dlopen", "dll", "so", "dylib", "shared"]
 license = "MIT"
-repository = "https://github.com/szymonwieloch/rust-dynlib"
+repository = "https://github.com/szymonwieloch/rust-dlopen"
 
-[dependencies.dynlib_derive]
-path = "rust-dynlib-derive"
+[dependencies.dlopen_derive]
+path = "rust-dlopen-derive"
 version = "0.1.0"
 
 [target.'cfg(windows)'.dependencies]

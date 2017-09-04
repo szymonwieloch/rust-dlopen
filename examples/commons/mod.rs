@@ -1,7 +1,7 @@
 extern crate libc;
-extern crate dynlib;
+extern crate dlopen;
 extern crate regex;
-use dynlib::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
+use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
 use std::env;
 use std::path::{PathBuf};
 use libc::{c_int};

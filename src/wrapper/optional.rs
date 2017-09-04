@@ -16,9 +16,9 @@ library, the optional API gets loaded. Otherwise the `optional()` method will re
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::wrapper::{OptionalContainer, WrapperApi};
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::wrapper::{OptionalContainer, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Obligatory<'a> {
@@ -33,7 +33,7 @@ struct Optional{
 }
 
 fn main () {
-    let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::load("libexample.dynlib")}.unwrap();
+    let mut container: OptionalContainer<Obligatory, Optional> = unsafe { OptionalContainer::load("libexample.dylib")}.unwrap();
     container.do_something();
     *container.global_count_mut() += 1;
 
@@ -51,7 +51,7 @@ fn main () {
 [`WrapperMultiApi`](./trait.WrapperMultiApi.html).
 */
 pub struct OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
-    #[allow(dead_code)] //this is not dead code because destructor of DynLib deallocates the library
+    #[allow(dead_code)] //this is not dead code because destructor of Library deallocates the library
     lib: Library,
     api: Api,
     optional: Option<Optional>

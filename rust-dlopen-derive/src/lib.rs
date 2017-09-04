@@ -17,7 +17,7 @@ use api::impl_library_api;
 use wrapper::impl_wrapper_api;
 use multi_api::impl_wrapper_multi_api;
 
-#[proc_macro_derive(WrapperApi, attributes(dynlib_name, dynlib_allow_null))]
+#[proc_macro_derive(WrapperApi, attributes(dlopen_name, dlopen_allow_null))]
 pub fn wrapper_api(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();
@@ -47,7 +47,7 @@ pub fn wrapper_multi_api(input: TokenStream) -> TokenStream {
     gen.parse().unwrap()
 }
 
-#[proc_macro_derive(SymBorApi, attributes(dynlib_name))]
+#[proc_macro_derive(SymBorApi, attributes(dlopen_name))]
 pub fn library_api(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();

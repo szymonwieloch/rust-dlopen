@@ -17,9 +17,9 @@ a standalone object. API and library handle need to be kept together to prevent 
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
-use dynlib::wrapper::{Container, WrapperApi, WrapperMultiApi};
+extern crate dlopen_derive;
+extern crate dlopen;
+use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
 
 //Define 3 APIs:
 

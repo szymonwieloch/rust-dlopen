@@ -1,4 +1,4 @@
-extern crate dynlib;
+extern crate dlopen;
 extern crate libc;
 #[macro_use]
 extern crate const_cstr;
@@ -6,7 +6,7 @@ extern crate const_cstr;
 mod commons;
 
 use commons::{SomeData, example_lib_path};
-use dynlib::raw::{Library};
+use dlopen::raw::{Library};
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 

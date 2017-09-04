@@ -15,10 +15,10 @@ easy to use `Container` inside structures.
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
+extern crate dlopen_derive;
+extern crate dlopen;
 extern crate libc;
-use dynlib::wrapper::{Container, WrapperApi};
+use dlopen::wrapper::{Container, WrapperApi};
 use libc::{c_char};
 use std::ffi::CStr;
 
@@ -38,7 +38,7 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-    let mut container: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
+    let mut container: Container<Example> = unsafe { Container::load("libexample.dylib")}.unwrap();
     container.do_something();
     let _result = unsafe { container.add_one(5) };
     *container.global_count_mut() += 1;

@@ -5,7 +5,7 @@ use super::super::raw::Library;
 Trait for defining library API.
 
 This trait is intended to be used with `#[derive(WrapperApi)]` macro defined in the
-`dynlib_derive` crate. It forces several restrictions on types that implement it:
+`dlopen_derive` crate. It forces several restrictions on types that implement it:
 
 * Only structures can implement this trait.
 * All fields need to be private.
@@ -32,21 +32,21 @@ Wrappers are not generated only for:
 
 ```no_run
 #[macro_use]
-extern crate dynlib_derive;
-extern crate dynlib;
+extern crate dlopen_derive;
+extern crate dlopen;
 extern crate libc;
-use dynlib::wrapper::{WrapperApi, Container};
+use dlopen::wrapper::{WrapperApi, Container};
 use libc::{c_char};
 use std::ffi::CStr;
 
 #[derive(WrapperApi)]
 struct Example<'a> {
-    #[dynlib_name="function"]
+    #[dlopen_name="function"]
     do_something: extern "C" fn(),
     add_one: unsafe extern "C" fn (arg: i32) -> i32,
     global_count: &'a mut u32,
     c_string: * const c_char,
-    #[dynlib_allow_null]
+    #[dlopen_allow_null]
     maybe_null_ptr: * const (),
 }
 
@@ -58,7 +58,7 @@ impl<'a> Example<'a> {
 }
 
 fn main () {
-    let mut cont: Container<Example> = unsafe { Container::load("libexample.dynlib")}.unwrap();
+    let mut cont: Container<Example> = unsafe { Container::load("libexample.dylib")}.unwrap();
     cont.do_something();
     let _result = unsafe { cont.add_one(5) };
     *cont.global_count_mut() += 1;
@@ -70,12 +70,12 @@ fn main () {
 a standalone object. API and library handle need to be kept together to prevent dangling symbols.
 
 **Note:** By default obtained symbol name is the field name. You can change this by
-assigning the "dynlib_name" attribute to the given field.
+assigning the "dlopen_name" attribute to the given field.
 
 **Note:** By default `Error::NullSymbol` is returned if the loaded symbol name has a null value.
 While null is a valid value of a exported symbol, it is usually not expected by users of libraries.
 If in your scenario null is an acceptable value, you should assign
-"dynlib_allow_null" attribute to the given field. Of course this makes sense only if the field
+"dlopen_allow_null" attribute to the given field. Of course this makes sense only if the field
 is of pointer type.
 */
 pub trait WrapperApi where Self: Sized {
