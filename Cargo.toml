@@ -5,13 +5,7 @@ authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 description = "A library for opening and operating on dynamically loadable libraries."
 keywords = [
     #common functions
-    "dlopen", "loadlibrary", "loadlibraryw",
-    #common names
-    "shared object", "dynamic link library",
-    #other libraries that somebody may be searching for
-    "dynlib", "libloading", "rust_libloading", "dynamic_reload",
-    #common extensions
-    "dll", "so", "dylib"]
+    "dlopen", "dll", "so", "dylib", "shared"]
 license = "MIT"
 repository = "https://github.com/szymonwieloch/rust-dynlib"
 
