@@ -13,7 +13,7 @@ keywords = [
     #common extensions
     "dll", "so", "dylib"]
 license = "MIT"
-repository = "https://github.com/nagisa/rust_libloading/"
+repository = "https://github.com/szymonwieloch/rust-dynlib"
 
 [dependencies]
 
