@@ -31,6 +31,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
             }
         }
 
+        #[allow(dead_code)]
         impl #generics #struct_name #generics {
             #(#wrapper_iter)*
         }

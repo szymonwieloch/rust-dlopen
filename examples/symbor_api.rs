@@ -1,14 +1,11 @@
 #[macro_use]
 extern crate dlopen_derive;
-#[macro_use]
 extern crate dlopen;
 extern crate libc;
-#[macro_use]
-extern crate const_cstr;
 
 mod commons;
 use commons::{SomeData, example_lib_path};
-use dlopen::symbor::{Library, PtrOrNull, PtrOrNullMut, Ref, RefMut, Symbol, SymBorApi};
+use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, Symbol, SymBorApi};
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 
@@ -33,9 +30,6 @@ fn main() {
     let lib_path = example_lib_path();
     let lib = Library::open(lib_path).expect("Could not open library");
     let mut api = unsafe {Api::load(&lib)}.expect("Could not load the API");
-
-    let lib_path = example_lib_path();
-    let lib = Library::open(lib_path).expect("Could not open library");
 
     (api.rust_fun_print_something)();
 

@@ -28,6 +28,7 @@ pub fn example_lib_path() -> PathBuf {
     lib_path
 }
 
+#[allow(dead_code)] //not all examples use this and this generates warnings
 #[repr(C)]
 pub struct SomeData {
     pub first: c_int,

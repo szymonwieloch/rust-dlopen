@@ -6,7 +6,6 @@ use dlopen::raw::Library;
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
-use std::io::Write;
 mod commons;
 use commons::{example_lib_path, SomeData};
 

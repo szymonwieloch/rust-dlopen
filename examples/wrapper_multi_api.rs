@@ -3,11 +3,9 @@ extern crate dlopen_derive;
 extern crate dlopen;
 extern crate libc;
 mod commons;
-use commons::{example_lib_path, SomeData};
-use libc::{c_double, c_char, c_int};
+use commons::{example_lib_path};
+use libc::{c_int};
 use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
-use dlopen::utils::platform_file_name;
-use std::ffi::CStr;
 
 
 //Define 3 APIs:
@@ -46,7 +44,7 @@ struct Api<'a>{
 
 fn main(){
     let lib_path = example_lib_path();
-    let mut api: Container<Api> = unsafe { Container::load(lib_path)}.expect("Could not open library");
+    let api: Container<Api> = unsafe { Container::load(lib_path)}.expect("Could not open library");
     //use obligatory API:
     api.obligatory.rust_fun_print_something();
     println!("4+2={}", unsafe{api.obligatory.c_fun_add_two(4)});

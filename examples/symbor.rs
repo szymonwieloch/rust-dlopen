@@ -7,7 +7,6 @@ mod commons;
 
 use commons::{SomeData, example_lib_path};
 use dlopen::symbor::{Library};
-use dlopen::utils::platform_file_name;
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 

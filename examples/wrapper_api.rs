@@ -2,13 +2,10 @@ extern crate dlopen;
 #[macro_use]
 extern crate dlopen_derive;
 extern crate libc;
-#[macro_use]
-extern crate const_cstr;
 use dlopen::wrapper::{Container, WrapperApi};
 use libc::{c_int, c_char};
 use std::ffi::CStr;
 
-use std::io::Write;
 mod commons;
 use commons::{example_lib_path, SomeData};
 

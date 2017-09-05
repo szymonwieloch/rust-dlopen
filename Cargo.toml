@@ -11,7 +11,7 @@ repository = "https://github.com/szymonwieloch/rust-dlopen"
 
 [dependencies.dlopen_derive]
 path = "rust-dlopen-derive"
-version = "0.1.0"
+version = "0.1.1"
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.2"
