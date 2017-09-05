@@ -1,8 +1,8 @@
 [package]
 name = "dlopen"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
-description = "A library for opening and operating on dynamically loadable libraries."
+description = "Library for opening and operating on dynamic link libraries (also known as shared objects or shared libraries)."
 keywords = [
     #common functions
     "dlopen", "dll", "so", "dylib", "shared"]

@@ -1,11 +1,13 @@
 # rust-dlopen
 
-[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci]
+[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci] [![Crates CI][ccii]][cci]  
 
 [tcii]: https://travis-ci.org/szymonwieloch/rust-dlopen.svg?branch=master
 [tci]: https://travis-ci.org/szymonwieloch/rust-dlopen
 [acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dlopen?svg=true
 [aci]: https://ci.appveyor.com/project/szymonwieloch/rust-dlopen
+[ccii]: https://img.shields.io/crates/v/dlopen.svg
+[cci]: https://crates.io/crates/dlopen
 
 A long time ago in a dirty basement far, far away a programmer was trying to dynamically load a library using standard C API (because he didnt know Rust yet):
 
@@ -65,5 +67,12 @@ Cargo.toml:
 [dependencies]
 dlopen = "0.1"
 ```
+
+# Documentation
+    
+[Cargo documentation](https://docs.rs/dlopen).
+    
+You can also take a look at provided [examples](https://github.com/szymonwieloch/rust-dlopen/tree/master/examples) in the source code.
+    
 # License
 This code is licensed under [MIT](./LICENSE) license.
