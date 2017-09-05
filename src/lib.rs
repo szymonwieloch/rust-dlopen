@@ -82,15 +82,15 @@ At the moment none seems to have any reasonable advantage over the other.
 */
 
 
-#[cfg(any(unix, test))]
-extern crate libc;
-#[cfg(windows)]
-extern crate winapi;
 #[cfg(windows)]
 extern crate kernel32;
 #[cfg(unix)]
 #[macro_use]
 extern crate lazy_static;
+#[cfg(any(unix, test))]
+extern crate libc;
+#[cfg(windows)]
+extern crate winapi;
 
 #[cfg(test)]
 #[macro_use]

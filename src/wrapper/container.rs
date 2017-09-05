@@ -2,7 +2,7 @@ use super::super::raw::Library;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
-use std::ffi::{OsStr};
+use std::ffi::OsStr;
 
 /**
 Container for both a dynamic load library handle and its API.
@@ -46,32 +46,45 @@ fn main () {
 }
 ```
 */
-pub struct Container<T> where T: WrapperApi {
-    #[allow(dead_code)] //this is not dead code because destructor of Library deallocates the library
+pub struct Container<T>
+where
+    T: WrapperApi,
+{
+    #[allow(dead_code)]
+    //this is not dead code because destructor of Library deallocates the library
     lib: Library,
-    api: T
+    api: T,
 }
 
-impl<T> Container<T> where T: WrapperApi {
+impl<T> Container<T>
+where
+    T: WrapperApi,
+{
     ///Open the library using provided file name or path and load all symbols.
-    pub unsafe fn load<S>(name: S) -> Result<Container<T>, Error>  where S: AsRef<OsStr> {
+    pub unsafe fn load<S>(name: S) -> Result<Container<T>, Error>
+    where
+        S: AsRef<OsStr>,
+    {
         let lib = Library::open(name)?;
         let api = T::load(&lib)?;
-        Ok(Self{
-            lib: lib,
-            api: api
-        })
+        Ok(Self { lib: lib, api: api })
     }
 }
 
-impl<T> Deref for Container<T> where T: WrapperApi{
+impl<T> Deref for Container<T>
+where
+    T: WrapperApi,
+{
     type Target = T;
     fn deref(&self) -> &T {
         &self.api
     }
 }
 
-impl<T> DerefMut for Container<T> where T: WrapperApi{
+impl<T> DerefMut for Container<T>
+where
+    T: WrapperApi,
+{
     fn deref_mut(&mut self) -> &mut T {
         &mut self.api
     }

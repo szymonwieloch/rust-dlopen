@@ -26,10 +26,10 @@ pub const PLATFORM_FILE_PREFIX: &str = "lib";
 pub const PLATFORM_FILE_PREFIX: &str = "";
 
 ///Dynamic link library file extension specific to the platform.
-#[cfg(any(target_os="macos", target_os="ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 pub const PLATFORM_FILE_EXTENSION: &str = "dylib";
 ///Dynamic link library file extension specific to the platform.
-#[cfg(all(unix, not(any(target_os="macos", target_os="ios"))))]
+#[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
 pub const PLATFORM_FILE_EXTENSION: &str = "so";
 ///Dynamic link library file extension specific to the platform.
 #[cfg(windows)]
@@ -38,14 +38,18 @@ pub const PLATFORM_FILE_EXTENSION: &str = "dll";
 ///Crates a platform-specific file name from provided core file name.
 ///
 /// For example on Ubuntu it converts "example" argument into "libexample.so".
-pub fn platform_file_name<S>(core_name: S) -> OsString where S: AsRef<OsStr>  {
+pub fn platform_file_name<S>(core_name: S) -> OsString
+where
+    S: AsRef<OsStr>,
+{
     //here we operate on OStr and OsString and there are no formatting functions for them - sad
     let mut result = OsString::new();
-    result.reserve_exact(core_name.as_ref().len() + PLATFORM_FILE_EXTENSION.len() + PLATFORM_FILE_PREFIX.len() +1);
+    result.reserve_exact(
+        core_name.as_ref().len() + PLATFORM_FILE_EXTENSION.len() + PLATFORM_FILE_PREFIX.len() + 1,
+    );
     result.push(PLATFORM_FILE_PREFIX);
     result.push(core_name);
     result.push(".");
     result.push(PLATFORM_FILE_EXTENSION);
     result
 }
-

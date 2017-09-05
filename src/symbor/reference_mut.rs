@@ -14,7 +14,7 @@ pub struct RefMut<'lib, T: 'lib> {
 
 impl<'lib, T> RefMut<'lib, T> {
     pub fn new(reference: &'lib mut T) -> RefMut<'lib, T> {
-        RefMut{
+        RefMut {
             reference: reference,
         }
     }
@@ -26,25 +26,25 @@ impl<'lib, T> FromRawResult for RefMut<'lib, T> {
             Ok(ptr) => if ptr.is_null() {
                 Err(Error::NullSymbol)
             } else {
-                Ok(RefMut{
+                Ok(RefMut {
                     reference: transmute(*ptr),
                 })
             },
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 }
 
 impl<'lib, T> Deref for RefMut<'lib, T> {
     type Target = T;
-    fn deref(&self) -> & T {
+    fn deref(&self) -> &T {
         self.reference
     }
 }
 
 impl<'lib, T> DerefMut for RefMut<'lib, T> {
     //type Target = T;
-    fn deref_mut(&mut self) -> & mut T {
+    fn deref_mut(&mut self) -> &mut T {
         self.reference
     }
 }

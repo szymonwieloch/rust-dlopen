@@ -108,4 +108,3 @@ pub use self::reference::Ref;
 pub use self::reference_mut::RefMut;
 pub use self::from_raw::FromRawResult;
 pub use self::container::Container;
-

@@ -1,14 +1,14 @@
 use super::super::err::Error;
 #[cfg(unix)]
-use super::unix::{get_sym, open_lib, close_lib};
+use super::unix::{close_lib, get_sym, open_lib};
 #[cfg(windows)]
-use super::windows::{get_sym, open_lib, close_lib};
+use super::windows::{close_lib, get_sym, open_lib};
 
 #[cfg(windows)]
 const EXISTING_LIB: &str = "kernel32.dll";
-#[cfg(all(unix, not(any(target_os="macos", target_os="ios"))))]
+#[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
 const EXISTING_LIB: &str = "libm.so.6";
-#[cfg(any(target_os="macos", target_os="ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 const EXISTING_LIB: &str = "libm.dylib";
 const NOT_EXISTING_LIB: &str = "notexisting.ext";
 #[cfg(windows)]
@@ -35,10 +35,10 @@ fn open_err() {
     unsafe {
         match open_lib(NOT_EXISTING_LIB.as_ref()) {
             Ok(_) => panic!("Library should not get opened"),
-            Err(err) => match err{
+            Err(err) => match err {
                 Error::OpeningLibraryError(_) => (),
-                _ => panic!("Invalid error kind")
-            }
+                _ => panic!("Invalid error kind"),
+            },
         }
     }
 }
@@ -47,12 +47,12 @@ fn open_err() {
 fn get_err() {
     unsafe {
         let handle = open_lib(EXISTING_LIB.as_ref()).expect("Could not open library");
-        match get_sym(handle, NOT_EXISTING_SYM.as_cstr()){
+        match get_sym(handle, NOT_EXISTING_SYM.as_cstr()) {
             Ok(_) => panic!("Should not get the symbol"),
             Err(err) => match err {
                 Error::SymbolGettingError(_) => (),
-                _=> panic!("Invalid error kind")
-            }
+                _ => panic!("Invalid error kind"),
+            },
         }
         assert!(close_lib(handle).is_null());
     }

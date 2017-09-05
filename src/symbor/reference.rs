@@ -9,12 +9,12 @@ use std::mem::transmute;
 /// In other cases you can as well use normal Rust reference.
 #[derive(Debug, Clone, Copy)]
 pub struct Ref<'lib, T: 'lib> {
-    reference: &'lib T
+    reference: &'lib T,
 }
 
 impl<'lib, T> Ref<'lib, T> {
     pub fn new(reference: &'lib T) -> Ref<'lib, T> {
-        Ref{
+        Ref {
             reference: reference,
         }
     }
@@ -23,21 +23,21 @@ impl<'lib, T> Ref<'lib, T> {
 impl<'lib, T> FromRawResult for Ref<'lib, T> {
     unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
         match raw_result {
-            Ok(ptr) => if ptr.is_null(){
+            Ok(ptr) => if ptr.is_null() {
                 Err(Error::NullSymbol)
             } else {
-                Ok(Ref{
+                Ok(Ref {
                     reference: transmute(*ptr),
                 })
             },
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 }
 
 impl<'lib, T> Deref for Ref<'lib, T> {
     type Target = T;
-    fn deref(&self) -> & T {
+    fn deref(&self) -> &T {
         self.reference
     }
 }

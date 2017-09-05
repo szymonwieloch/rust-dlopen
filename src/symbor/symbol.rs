@@ -12,14 +12,14 @@ use super::super::err::Error;
 #[derive(Debug, Clone, Copy)]
 pub struct Symbol<'lib, T: 'lib> {
     symbol: T,
-    pd: PhantomData<&'lib T>
+    pd: PhantomData<&'lib T>,
 }
 
 impl<'lib, T> Symbol<'lib, T> {
     pub fn new(symbol: T) -> Symbol<'lib, T> {
-        Symbol{
+        Symbol {
             symbol: symbol,
-            pd: PhantomData
+            pd: PhantomData,
         }
     }
 }
@@ -27,32 +27,31 @@ impl<'lib, T> Symbol<'lib, T> {
 impl<'lib, T> FromRawResult for Symbol<'lib, T> {
     unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
         match raw_result {
-            Ok(ptr) => if ptr.is_null(){
+            Ok(ptr) => if ptr.is_null() {
                 Err(Error::NullSymbol)
             } else {
-                let raw: * const () = *ptr;
+                let raw: *const () = *ptr;
                 Ok(Symbol {
                     symbol: transmute_copy(&raw),
-                    pd: PhantomData
+                    pd: PhantomData,
                 })
             },
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
-
     }
 }
 
 impl<'lib, T> Deref for Symbol<'lib, T> {
-    type Target =  T;
-    fn deref(&self) -> & T {
-        return &self.symbol
+    type Target = T;
+    fn deref(&self) -> &T {
+        return &self.symbol;
     }
 }
 
 impl<'lib, T> DerefMut for Symbol<'lib, T> {
     //type Target =  T;
     fn deref_mut(&mut self) -> &mut T {
-        return &mut self.symbol
+        return &mut self.symbol;
     }
 }
 

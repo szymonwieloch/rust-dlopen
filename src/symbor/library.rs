@@ -1,12 +1,12 @@
-use std::ffi::{CStr};
+use std::ffi::CStr;
 use super::symbol::Symbol;
 use super::ptr_or_null::PtrOrNull;
 use super::ptr_or_null_mut::PtrOrNullMut;
 use super::super::raw::Library as RawLib;
-use std::ffi::{OsStr, CString};
+use std::ffi::{CString, OsStr};
 use std::ptr::{null, null_mut};
 
-use super::super::err::{Error};
+use super::super::err::Error;
 
 /**
 Safe wrapper around dynamic link library handle.
@@ -41,14 +41,17 @@ fn main(){
 ```
 */
 pub struct Library {
-    lib: RawLib
+    lib: RawLib,
 }
 
 impl Library {
     ///Open dynamic link library using provided file name or path.
-    pub fn open<S>(name: S) -> Result<Library, Error>  where S: AsRef<OsStr> {
+    pub fn open<S>(name: S) -> Result<Library, Error>
+    where
+        S: AsRef<OsStr>,
+    {
         Ok(Library {
-            lib: RawLib::open(name)?
+            lib: RawLib::open(name)?,
         })
     }
 
@@ -58,12 +61,12 @@ impl Library {
     /// that the value of the given symbol cannot be null (use `ptr_or_null()` for this case).
     /// However the `reference()` and `reference_mut()` methods return a native reference and they
     /// are more programmer friendly when you try accessing statically allocated data in the library.
-    pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T> , Error> {
+    pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T>, Error> {
         Ok(Symbol::new(self.lib.symbol(name)?))
     }
 
     ///Equivalent of the `symbol()` method but takes `CStr` as a argument.
-    pub unsafe fn symbol_cstr<T>(&self, name: &CStr) -> Result<Symbol<T> , Error> {
+    pub unsafe fn symbol_cstr<T>(&self, name: &CStr) -> Result<Symbol<T>, Error> {
         Ok(Symbol::new(self.lib.symbol_cstr(name)?))
     }
 
@@ -72,19 +75,19 @@ impl Library {
     /// **Note:** This method is only recommended for data
     /// that can't be accessed as a reference and that can have a null pointer value
     /// (so not in 99% of cases).
-    pub unsafe fn ptr_or_null<T>(&self, name: &str) -> Result<PtrOrNull<T> , Error> {
-       let cname = CString::new(name)?;
+    pub unsafe fn ptr_or_null<T>(&self, name: &str) -> Result<PtrOrNull<T>, Error> {
+        let cname = CString::new(name)?;
         self.ptr_or_null_cstr(cname.as_ref())
     }
 
     ///Equivalent of the `pointer()` method but takes `CStr` as a argument.
-    pub unsafe fn ptr_or_null_cstr<T>(&self, name: &CStr) -> Result<PtrOrNull<T> , Error> {
+    pub unsafe fn ptr_or_null_cstr<T>(&self, name: &CStr) -> Result<PtrOrNull<T>, Error> {
         let raw_ptr = match self.lib.symbol_cstr(name) {
             Ok(val) => val,
             Err(err) => match err {
                 Error::NullSymbol => null(),
-                _ => return Err(err)
-            }
+                _ => return Err(err),
+            },
         };
         Ok(PtrOrNull::new(raw_ptr))
     }
@@ -94,19 +97,19 @@ impl Library {
     /// **Note:** This method is only recommended for data
     /// that can't be accessed as a reference and that can have a null pointer value
     /// (so not in 99% of cases).
-    pub unsafe fn ptr_or_null_mut<T>(&self, name: &str) -> Result<PtrOrNullMut<T> , Error> {
+    pub unsafe fn ptr_or_null_mut<T>(&self, name: &str) -> Result<PtrOrNullMut<T>, Error> {
         let cname = CString::new(name)?;
         self.ptr_or_null_mut_cstr(cname.as_ref())
     }
 
     ///Equivalent of the `pointer_mut()` method but takes `CStr` as a argument.
-    pub unsafe fn ptr_or_null_mut_cstr<T>(&self, name: &CStr) -> Result<PtrOrNullMut<T> , Error> {
+    pub unsafe fn ptr_or_null_mut_cstr<T>(&self, name: &CStr) -> Result<PtrOrNullMut<T>, Error> {
         let raw_ptr = match self.lib.symbol_cstr(name) {
             Ok(val) => val,
             Err(err) => match err {
                 Error::NullSymbol => null_mut(),
-                _ => return Err(err)
-            }
+                _ => return Err(err),
+            },
         };
         Ok(PtrOrNullMut::new(raw_ptr))
     }

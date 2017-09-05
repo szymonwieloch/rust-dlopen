@@ -2,7 +2,7 @@ use super::super::raw::Library;
 use super::super::Error;
 use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
-use std::ffi::{OsStr};
+use std::ffi::OsStr;
 
 /**
 Container for a library handle and both obligatory and optional APIs inside one structure.
@@ -50,47 +50,67 @@ fn main () {
 **Note:** For more complex cases (multiple versions of API) you can use
 [`WrapperMultiApi`](./trait.WrapperMultiApi.html).
 */
-pub struct OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
-    #[allow(dead_code)] //this is not dead code because destructor of Library deallocates the library
+pub struct OptionalContainer<Api, Optional>
+where
+    Api: WrapperApi,
+    Optional: WrapperApi,
+{
+    #[allow(dead_code)]
+    //this is not dead code because destructor of Library deallocates the library
     lib: Library,
     api: Api,
-    optional: Option<Optional>
+    optional: Option<Optional>,
 }
 
-impl<Api, Optional> OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi {
+impl<Api, Optional> OptionalContainer<Api, Optional>
+where
+    Api: WrapperApi,
+    Optional: WrapperApi,
+{
     ///Opens the library using provided file name or path and loads all symbols (including optional if it is possible).
-    pub unsafe fn load<S>(name: S) -> Result<OptionalContainer<Api, Optional>, Error>  where S: AsRef<OsStr> {
+    pub unsafe fn load<S>(name: S) -> Result<OptionalContainer<Api, Optional>, Error>
+    where
+        S: AsRef<OsStr>,
+    {
         let lib = Library::open(name)?;
         let api = Api::load(&lib)?;
         let optional = match Optional::load(&lib) {
             Ok(val) => Some(val),
-            Err(_) => None
+            Err(_) => None,
         };
-        Ok(Self{
+        Ok(Self {
             lib: lib,
             api: api,
-            optional: optional
+            optional: optional,
         })
     }
     ///Gives access to the optional API - constant version.
     pub fn optional(&self) -> &Option<Optional> {
-        return &self.optional
+        return &self.optional;
     }
 
     ///Gives access to the optional API - constant version.
     pub fn optional_mut(&mut self) -> &Option<Optional> {
-        return &mut self.optional
+        return &mut self.optional;
     }
 }
 
-impl<Api, Optional> Deref for OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
+impl<Api, Optional> Deref for OptionalContainer<Api, Optional>
+where
+    Api: WrapperApi,
+    Optional: WrapperApi,
+{
     type Target = Api;
     fn deref(&self) -> &Api {
         &self.api
     }
 }
 
-impl<Api, Optional> DerefMut for OptionalContainer<Api, Optional> where Api: WrapperApi, Optional: WrapperApi{
+impl<Api, Optional> DerefMut for OptionalContainer<Api, Optional>
+where
+    Api: WrapperApi,
+    Optional: WrapperApi,
+{
     fn deref_mut(&mut self) -> &mut Api {
         &mut self.api
     }

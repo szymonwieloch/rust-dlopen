@@ -1,13 +1,13 @@
-use super::super::err::{Error};
-use std::ffi::{CString, CStr, OsStr};
+use super::super::err::Error;
+use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{open_lib, get_sym, close_lib, Handle};
+use super::unix::{close_lib, get_sym, open_lib, Handle};
 #[cfg(windows)]
-use super::windows::{open_lib, get_sym, close_lib, Handle};
+use super::windows::{close_lib, get_sym, open_lib, Handle};
 
-use std::mem::{transmute_copy, size_of};
+use std::mem::{size_of, transmute_copy};
 
 /**
     Main interface for opening and working with a dynamic link library.
@@ -25,7 +25,7 @@ use std::mem::{transmute_copy, size_of};
 */
 #[derive(Debug)]
 pub struct Library {
-    handle: Handle
+    handle: Handle,
 }
 
 impl Library {
@@ -53,10 +53,12 @@ impl Library {
     }
     ```
     */
-    pub  fn open<S>(name: S) -> Result<Library, Error> where S: AsRef<OsStr> {
-;
+    pub fn open<S>(name: S) -> Result<Library, Error>
+    where
+        S: AsRef<OsStr>,
+    {
         Ok(Self {
-            handle: unsafe{open_lib(name.as_ref())}?
+            handle: unsafe { open_lib(name.as_ref()) }?,
         })
     }
     /**
@@ -102,11 +104,13 @@ impl Library {
         //TODO: convert it to some kind of static assertion (not yet supported in Rust)
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut ()>() {
-            panic!("The type passed to dlopen::Library::symbol() function has a different size than a pointer - cannot transmute");
+            panic!(
+                "The type passed to dlopen::Library::symbol() function has a different size than a pointer - cannot transmute"
+            );
         }
         let raw = get_sym(self.handle, name)?;
         if raw.is_null() {
-            return Err(Error::NullSymbol)
+            return Err(Error::NullSymbol);
         } else {
             Ok(transmute_copy(&raw))
         }

@@ -78,7 +78,10 @@ If in your scenario null is an acceptable value, you should assign
 "dlopen_allow_null" attribute to the given field. Of course this makes sense only if the field
 is of pointer type.
 */
-pub trait WrapperApi where Self: Sized {
+pub trait WrapperApi
+where
+    Self: Sized,
+{
     ///Load symbols from provided library.
     unsafe fn load(lib: &Library) -> Result<Self, Error>;
 }

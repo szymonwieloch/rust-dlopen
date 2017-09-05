@@ -67,6 +67,4 @@ fn main(){
 ```
 */
 
-pub trait WrapperMultiApi: WrapperApi {
-
-}
+pub trait WrapperMultiApi: WrapperApi {}

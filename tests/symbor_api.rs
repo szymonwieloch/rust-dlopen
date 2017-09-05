@@ -2,8 +2,8 @@ extern crate dlopen;
 #[macro_use]
 extern crate dlopen_derive;
 extern crate libc;
-use dlopen::symbor::{Library, SymBorApi, Symbol, RefMut, Ref, PtrOrNull};
-use libc::{c_int, c_char};
+use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
+use libc::{c_char, c_int};
 use std::ffi::CStr;
 
 mod commons;
@@ -17,32 +17,31 @@ struct Api<'a> {
     pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
     pub rust_i32: Ref<'a, i32>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    #[dlopen_name="rust_i32_mut"]
-    pub rust_i32_ptr: Symbol<'a, * const i32>,
+    #[dlopen_name = "rust_i32_mut"] pub rust_i32_ptr: Symbol<'a, *const i32>,
     pub c_int: Ref<'a, c_int>,
     pub c_struct: Ref<'a, SomeData>,
     pub rust_str: Ref<'a, &'static str>,
-    pub c_const_char_ptr: PtrOrNull<'a, c_char>
+    pub c_const_char_ptr: PtrOrNull<'a, c_char>,
 }
 
 //It turns out that there is a bug in rust.
 //On OSX calls to dynamic libraries written in Rust causes segmentation fault
 //please note that this ia a problem with the example library, not with dlopen
 //https://github.com/rust-lang/rust/issues/28794
-#[cfg(not(any(target_os="macos", target_os="ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios")))]
 #[test]
-fn open_play_close_symbor_api(){
+fn open_play_close_symbor_api() {
     let lib_path = example_lib_path();
     let lib = Library::open(lib_path).expect("Could not open library");
-    let mut api = unsafe{Api::load(&lib)}.expect("Could not load symbols");
+    let mut api = unsafe { Api::load(&lib) }.expect("Could not load symbols");
     (api.rust_fun_print_something)(); //should not crash
     assert_eq!((api.rust_fun_add_one)(5), 6);
-    unsafe{ (api.c_fun_print_something_else)()}; //should not crash
-    assert_eq!(unsafe{(api.c_fun_add_two)(2)}, 4);
+    unsafe { (api.c_fun_print_something_else)() }; //should not crash
+    assert_eq!(unsafe { (api.c_fun_add_two)(2) }, 4);
     assert_eq!(43, *api.rust_i32);
     assert_eq!(42, *api.rust_i32_mut);
     *api.rust_i32_mut = 55; //should not crash
-    assert_eq!(55, unsafe{**api.rust_i32_ptr});
+    assert_eq!(55, unsafe { **api.rust_i32_ptr });
     //the same with C
     assert_eq!(45, *api.c_int);
     //now static c struct
@@ -52,6 +51,8 @@ fn open_play_close_symbor_api(){
     //let's play with strings
 
     assert_eq!("Hello!", *api.rust_str);
-    let converted = unsafe{CStr::from_ptr(*api.c_const_char_ptr)}.to_str().unwrap();
+    let converted = unsafe { CStr::from_ptr(*api.c_const_char_ptr) }
+        .to_str()
+        .unwrap();
     assert_eq!(converted, "Hi!");
 }

@@ -8,15 +8,15 @@ use super::super::err::Error;
 ///It is recommended only for obtaining pointers that can have null value.
 #[derive(Debug, Clone, Copy)]
 pub struct PtrOrNull<'lib, T: 'lib> {
-    pointer: * const T,
-    pd: PhantomData<&'lib T>
+    pointer: *const T,
+    pd: PhantomData<&'lib T>,
 }
 
 impl<'lib, T> PtrOrNull<'lib, T> {
-    pub fn new(pointer: * const T) -> PtrOrNull<'lib, T> {
+    pub fn new(pointer: *const T) -> PtrOrNull<'lib, T> {
         PtrOrNull {
             pointer: pointer,
-            pd: PhantomData
+            pd: PhantomData,
         }
     }
 }
@@ -25,17 +25,17 @@ impl<'lib, T> FromRawResult for PtrOrNull<'lib, T> {
     unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
         match raw_result {
             Ok(ptr) => Ok(PtrOrNull {
-                    pointer: *ptr as * const T,
-                    pd: PhantomData
-                }),
-            Err(err) => Err(err)
+                pointer: *ptr as *const T,
+                pd: PhantomData,
+            }),
+            Err(err) => Err(err),
         }
     }
 }
 
 impl<'lib, T> Deref for PtrOrNull<'lib, T> {
     type Target = *const T;
-    fn deref(&self) -> & * const T {
+    fn deref(&self) -> &*const T {
         &self.pointer
     }
 }

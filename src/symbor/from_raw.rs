@@ -13,6 +13,9 @@ pub type RawResult<'a> = Result<PtrOrNull<'a, ()>, Error>;
 /// the symbol is found, the variable contains `Some(symbol)`, otherwise `None`.
 ///
 /// **Note:** You probably won't need to use it directly.
-pub trait FromRawResult where Self: Sized {
+pub trait FromRawResult
+where
+    Self: Sized,
+{
     unsafe fn from_raw_result(raw: RawResult) -> Result<Self, Error>;
 }

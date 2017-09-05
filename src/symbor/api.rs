@@ -66,6 +66,9 @@ Please notice several supported features:
     the `SymBorApi` trait.
 
 */
-pub trait SymBorApi<'a> where Self:Sized {
+pub trait SymBorApi<'a>
+where
+    Self: Sized,
+{
     unsafe fn load(lib: &'a Library) -> Result<Self, Error>;
 }
