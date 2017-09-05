@@ -1,4 +1,4 @@
-#rust-dlopen examples
+# rust-dlopen examples
 
 Files in directory perform very similar operations
 but they use different APIs. You can compare these
@@ -20,6 +20,6 @@ library gets unloaded. Please notice that this
 bug is related to building dynamic link libraries
  (in this case the example library), not to loading
  libraries.
- If you userust-dlopen for working with correctly built
+ If you use rust-dlopen for working with correctly built
 dynamic link libraries, everything should work
 normally.
