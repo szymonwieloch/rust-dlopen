@@ -70,9 +70,11 @@ dlopen = "0.1"
 
 # Documentation
     
-[Cargo documentation](https://docs.rs/dlopen).
+[Cargo documentation](https://docs.rs/dlopen)
     
-You can also take a look at provided [examples](https://github.com/szymonwieloch/rust-dlopen/tree/master/examples) in the source code.
+[Examples](./examples)
+
+[Changelog](./CHANGELOG.md)
     
 # License
 This code is licensed under [MIT](./LICENSE) license.
