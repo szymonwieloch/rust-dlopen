@@ -12,12 +12,14 @@ use std::mem::{size_of, transmute_copy};
 /**
     Main interface for opening and working with a dynamic link library.
 
-    **Note:** Several methods have their "*_cstr" equivalents. This is because all native OS interfaces
-    actually use C-strings. If you pass [`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
+    **Note:** Several methods have their "*_cstr" equivalents. This is because all native OS
+    interfaces actually use C-strings. If you pass
+    [`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
     as an argument, Library doesn't need to perform additional conversion from Rust string to
     C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
     It is recommended that you use
-    [const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated C-strings.
+    [const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated
+    C-strings.
 
     **Note:** The handle to the library gets released when the library object gets dropped.
     Unless your application opened the library multiple times, this is the moment when symbols
@@ -105,7 +107,8 @@ impl Library {
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut ()>() {
             panic!(
-                "The type passed to dlopen::Library::symbol() function has a different size than a pointer - cannot transmute"
+                "The type passed to dlopen::Library::symbol() function has a different size than a \
+                 pointer - cannot transmute"
             );
         }
         let raw = get_sym(self.handle, name)?;

@@ -63,9 +63,6 @@ fn main() {
     let rust_str: &&str = unsafe { lib.symbol_cstr(const_cstr!("rust_str").as_cstr()) }.unwrap();
     println!("Rust says: {}", *rust_str);
 
-    //let rust_slice: &[u8] =  unsafe { lib.symbol_cstr(const_cstr!("rust_slice").as_cstr())}.unwrap();
-    //println!("String from slice: {}", String::from_utf8(rust_slice));
-
     let c_const_char_ptr: *const c_char =
         unsafe { lib.symbol_cstr(const_cstr!("c_const_char_ptr").as_cstr()) }.unwrap();
     let converted = unsafe { CStr::from_ptr(c_const_char_ptr) }

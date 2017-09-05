@@ -16,7 +16,7 @@ void main() {
     //Problem: no type safety
     void *mylib;
     int eret;
-    //Problem: dlopen() accepts int as a second argument, so you can accidentally pass here almost anything
+    //Problem: dlopen() accepts int as a second argument, you can accidentally pass here anything
     mylib = dlopen("libm.so", RTLD_LOCAL | RTLD_LAZY);
     //Problem: forgot to check returned value
 
@@ -43,21 +43,23 @@ and requires **a lot of coding** to perform even the simplest operations.
 
 # Purpose
 
-This library aims to simplify the process of developing APIs for dynamically loaded libraries in Rust
-language and to reduce number of mistakes (please note that you can't create any library that is 100% safe because
-loading libraries requires transmutation of obtained pointers).
+This library aims to simplify the process of developing APIs for dynamically loaded libraries in
+Rust language and to reduce number of mistakes (please note that you can't create any library that
+is 100% safe because loading libraries requires transmutation of obtained pointers).
 
 # Main features
 
 * Supports majority of platforms and is platform independent.
 * Is consistent with Rust error handling mechanism and makes making mistakes much more difficult.
-* Is very lightweight. It mostly uses zero cost wrappers to create safer abstractions over platform API.
+* Is very lightweight. It mostly uses zero cost wrappers to create safer abstractions over platform
+    API.
 * Is thread safe.
 * Is object-oriented programming friendly.
 * Has a low-level API that provides full flexibility of using libraries.
 * Has two high-level APIs that protect against dangling symbols - each in its own way.
 * High level APIs support automatic loading of symbols into structures. You only need to define a
-    structure that represents an API. The rest happens automatically and requires only minimal amount of code.
+    structure that represents an API. The rest happens automatically and requires only minimal
+    amount of code.
 
 # Comparison of APIs:
 
@@ -67,12 +69,14 @@ loading libraries requires transmutation of obtained pointers).
 
 * [**symbor**](./symbor/index.html) - a high-level API. It prevents dangling symbols by creating
     zero cost structural wrappers around symbols obtained from the library. These wrappers use
-    Rust borrowing mechanism to make sure that the library will never get released before obtained symbols.
+    Rust borrowing mechanism to make sure that the library will never get released before obtained
+    symbols.
 
 * [**wrapper**](./symbor/index.html) - a high-level API. It prevents dangling symbols by creating
     zero cost functional wrappers around symbols obtained from the library. These wrappers prevent
     accidental copying of raw symbols from library API. Dangling symbols are prevented by keeping
-    library and its API in one structure - this makes sure that symbols and library are released together.
+    library and its API in one structure - this makes sure that symbols and library are released
+    together.
 
 Additionally both high-level APIs provide a way to automatically load symbols into a structure using
 Rust reflection mechanism. Decision witch API should be used is a matter of taste - please check

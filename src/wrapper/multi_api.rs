@@ -9,8 +9,8 @@ export more symbols. Often the API can have multiple versions. This trait helps 
 library APIs with multiple optional parts.
 
 `WrapperMultiApi` is intended to be used together with the derive macro. You should create a new
-structure where all fields implement the `WrapperApi` trait (this includes `Option<T>` where `T` implements `WrapperApi`).
-The derive macro will generate required implementation.
+structure where all fields implement the `WrapperApi` trait (this includes `Option<T>` where
+`T` implements `WrapperApi`). The derive macro will generate required implementation.
 
 **Note**: `WrapperMultiApi` should only be used together with `Container` structure, never to create
 a standalone object. API and library handle need to be kept together to prevent dangling symbols.
@@ -49,7 +49,9 @@ struct Api<'a>{
 }
 
 fn main(){
-    let mut container: Container<Api> = unsafe { Container::load("libexample.so")}.expect("Could not open library or load symbols");
+    let mut container: Container<Api> = unsafe {
+        Container::load("libexample.so")
+    }.expect("Could not open library or load symbols");
 
     //use obligatory API:
     unsafe{container.obligatory.some_fun()};

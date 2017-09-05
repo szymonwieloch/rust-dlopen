@@ -29,7 +29,8 @@ use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
  }
 
 fn main(){
-    let cont: Container<ExampleApi> = unsafe{Container::load("libexample.so")}.expect("Could not load library or symbols");
+    let cont: Container<ExampleApi> = unsafe{Container::load("libexample.so")}
+        .expect("Could not load library or symbols");
     println!("fun(4)={}", unsafe{(cont.fun)(4)});
     println!("glob_i32={}", *cont.glob_i32);
     println!("The pointer is null={}", cont.maybe_c_str.is_null());

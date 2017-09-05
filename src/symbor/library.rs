@@ -20,8 +20,8 @@ dangling symbols is prevented.
     instead of pointers and you do not accept null value of a pointer).
 * `reference()` and `reference_mut()` - for obtaining access to
     statically allocated objects - either constant or mutable.
-* `ptr_or_null()` and `ptr_or_null_mut()` - for obtaining pointers if you accept null values of pointers
-    (in 99% of cases you should rather use previously mentioned methods).
+* `ptr_or_null()` and `ptr_or_null_mut()` - for obtaining pointers if you accept null values of
+pointers (in 99% of cases you should rather use previously mentioned methods).
 
 #Example
 
@@ -60,7 +60,8 @@ impl Library {
     /// This method is the most general one and allows obtaining basically everything assuming
     /// that the value of the given symbol cannot be null (use `ptr_or_null()` for this case).
     /// However the `reference()` and `reference_mut()` methods return a native reference and they
-    /// are more programmer friendly when you try accessing statically allocated data in the library.
+    /// are more programmer friendly when you try accessing statically allocated data in
+    /// the library.
     pub unsafe fn symbol<T>(&self, name: &str) -> Result<Symbol<T>, Error> {
         Ok(Symbol::new(self.lib.symbol(name)?))
     }

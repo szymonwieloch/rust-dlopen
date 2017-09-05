@@ -7,7 +7,8 @@ use std::io::Error as IoError;
 ///This is a library-specific error that is returned by all calls to all APIs.
 #[derive(Debug)]
 pub enum Error {
-    ///Provided string could not be coverted into `std::ffi::CString` because it contained null character.
+    ///Provided string could not be coverted into `std::ffi::CString` because it contained null
+    /// character.
     NullCharacter(NulError),
     ///The library could not be opened.
     OpeningLibraryError(IoError),

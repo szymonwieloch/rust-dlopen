@@ -5,8 +5,8 @@ and supports automatic loading of symbols into structures.
 
 This API solves the problem with dangling symbols by wrapping raw symbols with public functions.
 User of API does not have direct access to raw symbols and therefore symbols cannot be copied.
-Symbols and library handle are kept in one `Container` structure and therefore both the the library and
-symbols get released at the same time.
+Symbols and library handle are kept in one `Container` structure and therefore both the the library
+and symbols get released at the same time.
 
 #Example
 
@@ -36,8 +36,9 @@ drop(container);
 ```
 
 Unfortunately in Rust it is not possible to create an API for dynamic link libraries that would
-be 100% safe. This API aims to be 99% safe by providing zero cost functional wrappers around raw symbols.
-However it is possible to make a mistake if you create API as a standalone object (not in container):
+be 100% safe. This API aims to be 99% safe by providing zero cost functional wrappers around
+raw symbols. However it is possible to make a mistake if you create API as a standalone object
+(not in container):
 
 #Example of a mistake - dangling symbol
 
@@ -70,7 +71,10 @@ To prevent this mistake don't use structures implementing `WrapperApi` directly,
 
 **Note:** This API has a broad support for optional symbols (this solves the issue with multiple
 versions of one dynamic link library that have different sets of symbols). Please refer to the
-documentation of [`OptionalContainer`](./struct.OptionalContainer.html) and [`WrapperMultiApi`](./trait.WrapperMultiApi.html).
+documentation of
+[`OptionalContainer`](./struct.OptionalContainer.html)
+and
+[`WrapperMultiApi`](./trait.WrapperMultiApi.html).
 */
 
 mod api;

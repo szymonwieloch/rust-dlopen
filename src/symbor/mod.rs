@@ -74,7 +74,9 @@ use dlopen::symbor::Library;
 fn main(){
     let raw_fun = {
         let lib = Library::open("libexample.dylib").unwrap();
-        let safe_fun = unsafe{lib.symbol::<unsafe extern "C" fn(f64)->f64>("some_symbol_name")}.unwrap();
+        let safe_fun = unsafe{
+            lib.symbol::<unsafe extern "C" fn(f64)->f64>("some_symbol_name")
+        }.unwrap();
         *safe_fun
     };
 
