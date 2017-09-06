@@ -1,7 +1,7 @@
 use winapi;
 use kernel32;
 use std::os::windows::ffi::OsStrExt;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering, ATOMIC_BOOL_INIT, ATOMIC_USIZE_INIT};
+use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
 use std::ptr::null_mut;
@@ -88,8 +88,8 @@ impl ErrorModeGuard {
 impl Drop for ErrorModeGuard {
     fn drop(&mut self) {
         match self {
-            ErrorModeGuard::DoNothing => (),
-            ErrorModeGuard::Process => {
+            &mut ErrorModeGuard::DoNothing => (),
+            &mut ErrorModeGuard::Process => {
                 //poisoning should never happen
                 let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
                 lock.count -= 1;
@@ -97,8 +97,8 @@ impl Drop for ErrorModeGuard {
                     unsafe { kernel32::SetErrorMode(lock.previous) };
                 }
             }
-            ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
-                kernel32::SetThreadErrorMode(previous, null_mut())
+            &mut ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
+                kernel32::SetThreadErrorMode(previous, null_mut());
             },
         }
     }
