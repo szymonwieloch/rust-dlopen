@@ -9,6 +9,9 @@ keywords = [
 license = "MIT"
 repository = "https://github.com/szymonwieloch/rust-dlopen"
 
+[dependencies]
+lazy_static = "0.2.8"
+
 [dependencies.dlopen_derive]
 path = "rust-dlopen-derive"
 version = "0.1.1"
@@ -19,7 +22,6 @@ kernel32-sys = "0.2"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.29"
-lazy_static = "0.2.8"
 
 
 [dev-dependencies.example_dylib]

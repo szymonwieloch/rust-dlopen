@@ -88,7 +88,6 @@ At the moment none seems to have any reasonable advantage over the other.
 
 #[cfg(windows)]
 extern crate kernel32;
-#[cfg(unix)]
 #[macro_use]
 extern crate lazy_static;
 #[cfg(any(unix, test))]
