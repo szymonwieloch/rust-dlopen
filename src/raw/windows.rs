@@ -49,7 +49,7 @@ enum ErrorModeGuard {
 impl ErrorModeGuard {
     fn new() -> Result<ErrorModeGuard, IoError> {
         if !USE_ERRORMODE.load(Ordering::Acquire) {
-            let previous: winapi::DWORD;
+            let mut previous: winapi::DWORD = 0;
             if unsafe { kernel32::SetThreadErrorMode(ERROR_MODE, &mut previous) } == 0 {
                 //error. On some systems SetThreadErrorMode may not be implemented
                 let error = unsafe { kernel32::GetLastError() };
