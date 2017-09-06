@@ -129,7 +129,7 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
 #[inline]
 pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     let wide_name: Vec<u16> = name.encode_wide().chain(Some(0)).collect();
-    let _guard = ErrorModeGuard::new();
+    let _guard = ErrorModeGuard::new()?;
     let handle = kernel32::LoadLibraryW(wide_name.as_ptr());
     if handle.is_null() {
         Err(Error::OpeningLibraryError(get_win_error()))
