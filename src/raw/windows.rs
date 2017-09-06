@@ -131,7 +131,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     let wide_name: Vec<u16> = name.encode_wide().chain(Some(0)).collect();
     let _guard = match ErrorModeGuard::new() {
         Ok(val) => val,
-        Err(err) => return Error::OpeningLibraryError(err),
+        Err(err) => return Err(Error::OpeningLibraryError(err)),
     };
     let handle = kernel32::LoadLibraryW(wide_name.as_ptr());
     if handle.is_null() {
