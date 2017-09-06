@@ -8,3 +8,7 @@
 
 - Removed warning during compilation in some rare cases
 - Fixed code formatting using rustfmt
+
+## 0.1.2
+
+- Fixed synchronization issues on Windows
