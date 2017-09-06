@@ -1,45 +1,105 @@
 use winapi;
 use kernel32;
 use std::os::windows::ffi::OsStrExt;
-use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering, ATOMIC_BOOL_INIT, ATOMIC_USIZE_INIT};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
 use std::ptr::null_mut;
 use std::ffi::{CStr, OsStr};
+use std::sync::Mutex;
 
 static USE_ERRORMODE: AtomicBool = ATOMIC_BOOL_INIT;
 
+struct SetErrorModeData {
+    pub count: u32,
+    pub previous: winapi::DWORD,
+}
+
+lazy_static! {
+    static ref SET_ERR_MODE_DATA: Mutex<SetErrorModeData> = Mutex::new( SetErrorModeData{
+    count: 0,
+    previous: 0
+    });
+}
+
+
 pub type Handle = winapi::HMODULE;
 
-struct ErrorModeGuard(winapi::DWORD);
+/*
+Windows has an ugly feature: by default not finding the given library opens a window
+and passes control to the user.
+To fix this wee need to change thread/process error mode for the moment when the function is called
+and then revert it to the previous value.
+
+Since Windows 7 the SetThreadErrorMode function is supported. It sets error mode for the given
+thread. Older systems require calling SetErrorMode. This function sets error mode for the whole
+process.
+
+https://msdn.microsoft.com/pl-pl/library/windows/desktop/dd553630(v=vs.85).aspx
+*/
+
+const ERROR_MODE: winapi::DWORD = 1; //app handles everything
+
+enum ErrorModeGuard {
+    ThreadPreviousValue(winapi::DWORD),
+    DoNothing,
+    Process,
+}
 
 impl ErrorModeGuard {
-    fn new() -> ErrorModeGuard {
-        let mut ret = ErrorModeGuard(0);
-
+    fn new() -> Result<ErrorModeGuard, IoError> {
         if !USE_ERRORMODE.load(Ordering::Acquire) {
-            if unsafe {
-                kernel32::SetThreadErrorMode(1, &mut ret.0) == 0 &&
-                    kernel32::GetLastError() == winapi::ERROR_CALL_NOT_IMPLEMENTED
-            } {
-                USE_ERRORMODE.store(true, Ordering::Release);
+            let previous: winapi::DWORD;
+            if unsafe { kernel32::SetThreadErrorMode(ERROR_MODE, &mut previous) } == 0 {
+                //error. On some systems SetThreadErrorMode may not be implemented
+                let error = unsafe { kernel32::GetLastError() };
+                if error == winapi::ERROR_CALL_NOT_IMPLEMENTED {
+                    USE_ERRORMODE.store(true, Ordering::Release);
+                } else {
+                    //this is an actual error
+                    //SetErrorMode never fails. Shouldn't we use it now?
+                    return Err(IoError::from_raw_os_error(error as i32));
+                }
             } else {
-                return ret;
+                return Ok(if previous == ERROR_MODE {
+                    ErrorModeGuard::DoNothing
+                } else {
+                    ErrorModeGuard::ThreadPreviousValue(previous)
+                });
             }
         }
-        ret.0 = unsafe { kernel32::SetErrorMode(1) };
-        ret
+        //several threads may be opening libraries at the same time.
+        //we need to make sure that only the first one sets the erro mode
+        //and only the last reverts it to the original value
+
+        //poisoning should never happen
+        let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
+        if lock.count == 0 {
+            lock.previous = unsafe { kernel32::SetErrorMode(ERROR_MODE) };
+            if lock.previous == ERROR_MODE {
+                return Ok(ErrorModeGuard::DoNothing);
+            }
+        }
+        lock.count += 1;
+        Ok(ErrorModeGuard::Process)
     }
 }
 
 impl Drop for ErrorModeGuard {
     fn drop(&mut self) {
-        unsafe {
-            if !USE_ERRORMODE.load(Ordering::Relaxed) {
-                kernel32::SetThreadErrorMode(self.0, null_mut());
-            } else {
-                kernel32::SetErrorMode(self.0);
+        match self {
+            ErrorModeGuard::DoNothing => (),
+            ErrorModeGuard::Process => {
+                //poisoning should never happen
+                let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
+                lock.count -= 1;
+                if lock.count == 0 {
+                    unsafe { kernel32::SetErrorMode(lock.previous) };
+                }
             }
+            ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
+                kernel32::SetThreadErrorMode(previous, null_mut())
+            },
         }
     }
 }
