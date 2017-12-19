@@ -12,3 +12,7 @@
 ## 0.1.2
 
 - Fixed synchronization issues on Windows
+
+## 0.1.3
+
+- Updated documentation - it is easier for users to understand the value of the library.
