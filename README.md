@@ -28,6 +28,7 @@ I hope that this library will help you to quickly get what you need and avoid er
 * Has two high-level APIs that protect against dangling symbols - each in its own way.
 * High level APIs support automatic loading of symbols into structures. You only need to define a
     structure that represents an API. The rest happens automatically and requires only minimal amount of code.
+* Automatic loading of symbols helps you to follow the DRY paradigm.
 
 ## Compare with other libraries
 
@@ -49,7 +50,9 @@ Also the nature of dynamic link libraries requires casting obtained pointers int
 Having said that I still think that this library provides the best approach and greatest safety possible in Rust.
 
 # Usage:
+
 Cargo.toml:
+
 ```toml
 [dependencies]
 dlopen = "0.1"
@@ -59,12 +62,8 @@ dlopen = "0.1"
     
 [Cargo documentation](https://docs.rs/dlopen)
     
-[Examples](./examples)
-
-[Changelog](./CHANGELOG.md)
-    
 # License
-This code is licensed under [MIT](./LICENSE) license.
+This code is licensed under MIT license.
 
 # Acknowledgement
 
