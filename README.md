@@ -9,47 +9,15 @@
 [ccii]: https://img.shields.io/crates/v/dlopen.svg
 [cci]: https://crates.io/crates/dlopen
 
-A long time ago in a dirty basement far, far away a programmer was trying to dynamically load a library using standard C API (because he didnt know Rust yet):
+# Overview
 
-```c
-/* Open a dynamic library, get function, use it and then close the library ... */
-//Problem: this is Unix API, won't work on Windows
-#include <dlfcn.h>
-#include <stdio.h>
-void main() {
-    //Problem: no type safety
-    void *mylib;
-    int eret;
-    //Problem: dlopen() accepts int as a second argument, so you can accidentally pass here almost anything
-    mylib = dlopen("libm.so", RTLD_LOCAL | RTLD_LAZY);
-    //Problem: forgot to check returned value
+This library is my effort to make use of dynamic link libraries in Rust simple.
+Previously existing solutions were either unsafe, provided huge overhead of required writing too much code to achieve simple things.
+I hope that this library will help you to quickly get what you need and avoid errors.
 
-    void (*cos)(double);
+# Features
 
-    //Problem: no way to actually check symbol type
-    //Second problem: no error checking
-    //Third problme: NULL is a legal value of a pointer exported by the library.
-    //You always need to check it before converting into a function.
-    *(void**)(&my_function) = dlsym(handle,"something");
-
-    printf("cos(1.0)=%f", cos(1.0));
-
-    //Problem: returned value not checked
-    dlclose(mylib);
-
-    //Problem: now the library is closed, but the function cos still exists.
-    //This is a dangling symbol problem and may result in crashes
-}
-```
-
-Basically use of dynamic link libraries is **extremely prone to errors**
-and requires **a lot of coding** to perform even the simplest operations.
-
-This library aims to simplify the process of developing APIs for dynamically loaded libraries in Rust
-language and to reduce number of mistakes (please note that you can't create any library that is 100% safe because
-loading libraries requires transmutation of obtained pointers).
-
-# Main features
+## Main features
 
 * Supports majority of platforms and is platform independent.
 * Is consistent with Rust error handling mechanism and makes making mistakes much more difficult.
@@ -60,9 +28,31 @@ loading libraries requires transmutation of obtained pointers).
 * Has two high-level APIs that protect against dangling symbols - each in its own way.
 * High level APIs support automatic loading of symbols into structures. You only need to define a
     structure that represents an API. The rest happens automatically and requires only minimal amount of code.
+* Automatic loading of symbols helps you to follow the DRY paradigm.
+
+## Compare with other libraries
+
+|Feature                             | dlopen     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
+|------------------------------------|------------|---------------------------------------------------------|-------------------------------------------------|
+| Basic functionality                | Yes        | Yes        | Yes       |
+| Multiplatform                      | Yes        | Yes        | Yes       |
+|Dangling symbol prevention          | Yes        | Yes        | Yes       |
+| Thread safety                      | Yes        | **Potential problem with SetErrorMode() on older Windows platforms** | **No support for SetErrorMode (library may block the application on Windows)**|
+| Loading of symbols into structures | Yes        | **No**     | **No**     
+| Overhead                           | Minimal    | Minimal    | **Some overhead** |
+| Low-level, unsafe API              | Yes        | Yes        | Yes       |
+| Object-oriented friendly           | Yes        | **No**       | Yes     | 
+
+## Safety
+	
+Please note that while Rust aims at being 100% safe language, it does not yet provide mechanisms that would allow me to create a 100% safe library, so I had to settle on 99%.
+Also the nature of dynamic link libraries requires casting obtained pointers into types that are defined on the application side. And this cannot be safe. 
+Having said that I still think that this library provides the best approach and greatest safety possible in Rust.
 
 # Usage:
+
 Cargo.toml:
+
 ```toml
 [dependencies]
 dlopen = "0.1"
@@ -72,9 +62,9 @@ dlopen = "0.1"
     
 [Cargo documentation](https://docs.rs/dlopen)
     
-[Examples](./examples)
-
-[Changelog](./CHANGELOG.md)
-    
 # License
-This code is licensed under [MIT](./LICENSE) license.
+This code is licensed under MIT license.
+
+# Acknowledgement
+
+Special thanks to [Simonas Kazlauskas](https://github.com/nagisa) whose [libloading](https://github.com/nagisa/rust_libloading) became code base for my project.
