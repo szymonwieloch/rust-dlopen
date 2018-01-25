@@ -40,7 +40,9 @@ branch = "master"
 [badges.appveyor]
 repository = "szymonwieloch/rust-dlopen"
 branch = "master"
- 
+
+[badges.is-it-maintained-open-issues]
+repository = "szymonwieloch/rust-dlopen"
 
 [[example]]
 name = "raw"
