@@ -9,8 +9,8 @@ pub fn impl_library_api(ast: &DeriveInput) -> quote::Tokens {
     let tok_iter = fields.iter().map(field_to_tokens);
     let q = quote! {
         impl<'a> SymBorApi<'a> for #name<'a> {
-            unsafe fn load(lib: &'a ::dlopen::symbor::Library) -> Result<#name<'a>,::dlopen::Error> {
-                Ok(#name {
+            unsafe fn load(lib: &'a ::dlopen::symbor::Library) -> ::std::result::Result<#name<'a>,::dlopen::Error> {
+                ::std::result::Result::Ok(#name {
                 #(#tok_iter),*
                 })
             }

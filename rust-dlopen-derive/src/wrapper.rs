@@ -1,7 +1,6 @@
 use syn::{Field, Ty, DeriveInput, Visibility, BareFnArg, FunctionRetTy, MutTy, Mutability};
 use quote;
 use super::common::{get_fields, symbol_name, has_marker_attr};
-
 const ALLOW_NULL: &str = "dlopen_allow_null";
 const TRAIT_NAME: &str = "WrapperApi";
 
@@ -10,7 +9,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
     let fields = get_fields(ast, TRAIT_NAME);
     let generics = &ast.generics;
     //make sure that all fields are private - panic otherwise
-    //make sure that all fields are identificable - panic otherwise
+    //make sure that all fields are identifiable - panic otherwise
     for field in fields.iter(){
         let _ = field.ident.as_ref().expect("All fields of structures deriving WrapperAPI need to be identificable");
         match field.vis {
@@ -24,7 +23,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> quote::Tokens {
     let wrapper_iter = fields.iter().filter_map(field_to_wrapper);
     let q = quote! {
         impl #generics WrapperApi for #struct_name #generics {
-            unsafe fn load(lib: & ::dlopen::raw::Library ) -> Result<Self, ::dlopen::Error> {
+            unsafe fn load(lib: & ::dlopen::raw::Library ) -> ::std::result::Result<Self, ::dlopen::Error> {
                 Ok(Self{
                     #(#field_iter),*
                 })
@@ -82,10 +81,10 @@ fn allow_null_field(field: &Field, ptr: &Box<MutTy>) -> quote::Tokens {
         #field_name : match lib.symbol_cstr(
         ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
         ) {
-        Ok(val) => val,
-        Err(err) => match err {
+        ::std::result::Result::Ok(val) => val,
+        ::std::result::Result::Err(err) => match err {
                 ::dlopen::Error::NullSymbol => ::std::ptr:: #null_fun (),
-                _ => return Err(err)
+                _ => return ::std::result::Result::Err(err)
             }
         }
     }
@@ -105,8 +104,8 @@ fn field_to_wrapper(field: &Field) -> Option<quote::Tokens> {
                 let unsafety = &fun.unsafety;
                 let arg_iter = fun.inputs.iter().map(|a| fun_arg_to_tokens(a, ident.as_ref().unwrap().as_ref()));
                 let arg_names = fun.inputs.iter().map(|a| match a.name {
-                    Some(ref val) => val,
-                    None => panic!("This should never happen")
+                    ::std::option::Option::Some(ref val) => val,
+                    ::std::option::Option::None => panic!("This should never happen")
                 });
                 Some(quote! {
                     pub #unsafety fn #ident (&self, #(#arg_iter),* ) #ret_ty {

@@ -6,7 +6,7 @@ pub fn symbol_name(field: &Field) -> &str {
         None => //not found, so use field name
             match field.ident {
                 Some(ref val) => val.as_ref(),
-                None => panic!("All structure fields need to be identificable")
+                None => panic!("All structure fields need to be identifiable")
             }
     }
 }

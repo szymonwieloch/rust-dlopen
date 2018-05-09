@@ -14,8 +14,8 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> quote::Tokens {
         impl #generics WrapperMultiApi for #name #generics{}
 
          impl #generics ::dlopen::wrapper::WrapperApi for # name #generics{
-            unsafe fn load(lib: & ::dlopen::raw::Library) -> Result<Self,::dlopen::Error> {
-                Ok(#name {
+            unsafe fn load(lib: & ::dlopen::raw::Library) -> ::std::result::Result<Self,::dlopen::Error> {
+                ::std::result::Result::Ok(#name {
                 #(#tok_iter),*
                 })
             }

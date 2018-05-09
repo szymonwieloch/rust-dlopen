@@ -1,6 +1,6 @@
 [package]
 name = "dlopen_derive"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 description = "Derive macros for the dlopen crate."
 license = "MIT"

@@ -14,7 +14,7 @@ lazy_static = "0.2.8"
 
 [dependencies.dlopen_derive]
 path = "rust-dlopen-derive"
-version = "0.1.1"
+version = "0.1.2"
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.2"
@@ -63,4 +63,3 @@ crate-type = ["bin"]
 [[example]]
 name = "wrapper_multi_api"
 crate-type = ["bin"]
-
