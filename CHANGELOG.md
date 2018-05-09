@@ -16,3 +16,10 @@
 ## 0.1.3
 
 - Updated documentation - it is easier for users to understand the value of the library.
+
+## 0.1.4
+
+- Added badges showing the library quality.
+- Fixed collision of the "Result" name. 
+    Other possible sources of collisions removed too.
+- Fixed small typos in error messages.
