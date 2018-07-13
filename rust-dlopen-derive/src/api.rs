@@ -33,7 +33,7 @@ fn field_to_tokens(field: &Field) -> quote::Tokens {
             let raw_result = lib.ptr_or_null_cstr::<()>(
                 ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
             );
-            dlopen::symbor::FromRawResult::from_raw_result(raw_result)?
+            ::dlopen::symbor::FromRawResult::from_raw_result(raw_result)?
         }
     }
 
