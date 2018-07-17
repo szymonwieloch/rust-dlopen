@@ -23,3 +23,7 @@
 - Fixed collision of the "Result" name. 
     Other possible sources of collisions removed too.
 - Fixed small typos in error messages.
+
+## 0.1.5
+
+- Fixed possible name collision in generated code- big thanks to kzys for finding it!
