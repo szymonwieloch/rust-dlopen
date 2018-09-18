@@ -84,7 +84,7 @@ Special thanks to [Simonas Kazlauskas](https://github.com/nagisa) whose [libload
     together.
 
 Additionally both high-level APIs provide a way to automatically load symbols into a structure using
-Rust reflection mechanism. Decision witch API should be used is a matter of taste - please check
+Rust reflection mechanism. Decision which API should be used is a matter of taste - please check
 documentation of both of them and use the one that you prefer.
 At the moment none seems to have any reasonable advantage over the other.
 
