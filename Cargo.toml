@@ -44,6 +44,11 @@ branch = "master"
 [badges.is-it-maintained-open-issues]
 repository = "szymonwieloch/rust-dlopen"
 
+[badges.codecov]
+repository = "szymonwieloch/rust-dlopen"
+branch = "master"
+service = "github"
+
 [[example]]
 name = "raw"
 crate-type = ["bin"]
