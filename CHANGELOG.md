@@ -27,3 +27,11 @@
 ## 0.1.5
 
 - Fixed possible name collision in generated code- big thanks to kzys for finding it!
+
+
+## 0.1.6
+- Fixed typo in "which" (docs)
+- Fixed build that stopped working for rust 1.18.0
+- Added code coverage (codedov.io), added badge
+- Fixed tests on certain MAC OS platforms - added recursive search
+    for a built test library.
