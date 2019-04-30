@@ -77,7 +77,7 @@ Special thanks to [Simonas Kazlauskas](https://github.com/nagisa) whose [libload
     Rust borrowing mechanism to make sure that the library will never get released before obtained
     symbols.
 
-* [**wrapper**](./symbor/index.html) - a high-level API. It prevents dangling symbols by creating
+* [**wrapper**](./wrapper/index.html) - a high-level API. It prevents dangling symbols by creating
     zero cost functional wrappers around symbols obtained from the library. These wrappers prevent
     accidental copying of raw symbols from library API. Dangling symbols are prevented by keeping
     library and its API in one structure - this makes sure that symbols and library are released
