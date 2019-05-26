@@ -1,4 +1,5 @@
 use syn::{Field, DeriveInput};
+use syn;
 use super::common::{get_fields, symbol_name};
 
 pub fn impl_library_api(ast: &DeriveInput) -> syn::export::TokenStream2 {

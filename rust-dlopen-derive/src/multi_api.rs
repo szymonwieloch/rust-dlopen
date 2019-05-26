@@ -1,4 +1,5 @@
 use syn::{Field, DeriveInput};
+use syn;
 use super::common::{get_fields};
 
 const TRATIT_NAME: &str = "WrapperMultiApi";

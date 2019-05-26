@@ -143,8 +143,8 @@ fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
 }
 
 fn fun_arg_to_tokens(arg: &BareFnArg, function_name: &str) -> syn::export::TokenStream2 {
-    let (arg_name, _) = match arg.name {
-        Some(ref val) => val,
+    let arg_name = match arg.name {
+        Some(ref val) => &val.0,
         None => panic!("Function {} has an unnamed argument.", function_name)
     };
     let ty = &arg.ty;
