@@ -9,11 +9,6 @@ use std::ffi::CStr;
 mod commons;
 use commons::{example_lib_path, SomeData};
 
-//It turns out that there is a bug in rust.
-//On OSX calls to dynamic libraries written in Rust causes segmentation fault
-//please note that this ia a problem with the example library, not with dlopen
-//https://github.com/rust-lang/rust/issues/28794
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
 #[test]
 fn open_play_close_symbor() {
     let lib_path = example_lib_path();
