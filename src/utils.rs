@@ -53,3 +53,19 @@ where
     result.push(PLATFORM_FILE_EXTENSION);
     result
 }
+
+///Gives the platform specific file name prefix for dynamic libraries.
+pub fn platform_file_name_prefix() -> OsString {
+    let mut result = OsString::new();
+    result.reserve_exact(PLATFORM_FILE_PREFIX.len());
+    result.push(PLATFORM_FILE_PREFIX);
+    result
+}
+
+///Gives the platform specific file name extension for dynamic libraries.
+pub fn platform_file_name_extension() -> OsString {
+    let mut result = OsString::new();
+    result.reserve_exact(PLATFORM_FILE_EXTENSION.len());
+    result.push(PLATFORM_FILE_EXTENSION);
+    result
+}
