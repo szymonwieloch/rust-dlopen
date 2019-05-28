@@ -24,11 +24,6 @@ struct Api<'a> {
     pub c_const_char_ptr: PtrOrNull<'a, c_char>,
 }
 
-//It turns out that there is a bug in rust.
-//On OSX calls to dynamic libraries written in Rust causes segmentation fault
-//please note that this ia a problem with the example library, not with dlopen
-//https://github.com/rust-lang/rust/issues/28794
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
 #[test]
 fn open_play_close_symbor_api() {
     let lib_path = example_lib_path();

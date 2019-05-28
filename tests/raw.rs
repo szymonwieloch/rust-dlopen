@@ -9,7 +9,6 @@ use std::ffi::CStr;
 mod commons;
 use commons::{example_lib_path, SomeData};
 
-//#[cfg(not(any(target_os="macos", target_os="ios")))]
 #[test]
 fn open_play_close_raw() {
     let lib_path = example_lib_path();
@@ -56,10 +55,5 @@ fn open_play_close_raw() {
         .unwrap();
     assert_eq!(converted, "Hi!");
 
-    //It turns out that there is a bug in rust.
-    //On OSX calls to dynamic libraries written in Rust causes segmentation fault
-    //please note that this ia a problem with the example library, not with dlopen
-    //https://github.com/rust-lang/rust/issues/28794
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
     ::std::mem::forget(lib);
 }
