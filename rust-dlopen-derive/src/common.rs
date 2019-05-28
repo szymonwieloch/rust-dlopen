@@ -1,24 +1,24 @@
-use syn::{Field, DeriveInput, Body, VariantData, Lit, MetaItem};
+use syn::{Field, DeriveInput, Data, Lit, Meta, Fields, FieldsNamed};
 
-pub fn symbol_name(field: &Field) -> &str {
+pub fn symbol_name(field: &Field) -> String {
     match find_str_attr_val(field, "dlopen_name") {
         Some(val) => val,
         None => //not found, so use field name
             match field.ident {
-                Some(ref val) => val.as_ref(),
+                Some(ref val) => val.to_string(),
                 None => panic!("All structure fields need to be identifiable")
             }
     }
 }
 
-pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<&'a str> {
+pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<String> {
     for attr in field.attrs.iter() {
-        match attr.value {
-            MetaItem::NameValue(ref ident, ref it) => {
-                if ident.as_ref() == attr_name {
-                    return match it {
+        match attr.parse_meta() {
+            Ok(Meta::NameValue(ref meta)) => {
+                if meta.ident == attr_name {
+                    return match &meta.lit {
                         &Lit::Str(ref val, ..) => {
-                            Some(val.as_ref())
+                            Some(val.value())
                         },
                         _ => panic!("{} attribute must be a string", attr_name)
                     }
@@ -32,8 +32,8 @@ pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<&'a st
 
 pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
     for attr in field.attrs.iter() {
-        match attr.value {
-            MetaItem::Word(ref val) => if val == attr_name{
+        match attr.parse_meta() {
+            Ok(Meta::Word(ref val)) => if val == attr_name{
               return true;
             },
             _ => continue
@@ -42,13 +42,13 @@ pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
     false
 }
 
-pub fn get_fields<'a>(ast: &'a DeriveInput, trait_name: &str) -> &'a Vec<Field> {
-    let vd = match ast.body {
-        Body::Enum(_) => panic ! ("{} can be only implemented for structures", trait_name),
-        Body::Struct( ref val) => val
+pub fn get_fields<'a>(ast: &'a DeriveInput, trait_name: &str) -> &'a FieldsNamed {
+    let vd = match ast.data {
+        Data::Enum(_) | Data::Union(_) => panic ! ("{} can be only implemented for structures", trait_name),
+        Data::Struct( ref val) => val
     };
-    match vd {
-        & VariantData::Struct( ref f) => f,
-        & VariantData::Tuple(_) | &VariantData::Unit => panic ! ("{} can be only implemented for structures", trait_name)
+    match &vd.fields {
+        & Fields::Named( ref f) => f,
+        & Fields::Unnamed(_) | &Fields::Unit => panic ! ("{} can be only implemented for structures", trait_name)
     }
 }

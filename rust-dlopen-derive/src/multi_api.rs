@@ -1,15 +1,15 @@
 use syn::{Field, DeriveInput};
-use quote;
+use syn;
 use super::common::{get_fields};
 
 const TRATIT_NAME: &str = "WrapperMultiApi";
 
-pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> quote::Tokens {
+pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
     let name = &ast.ident;
     let generics = &ast.generics;
     let fields = get_fields(ast, TRATIT_NAME);
 
-    let tok_iter = fields.iter().map(field_to_tokens);
+    let tok_iter = fields.named.iter().map(field_to_tokens);
     let q = quote! {
         impl #generics WrapperMultiApi for #name #generics{}
 
@@ -28,7 +28,7 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> quote::Tokens {
 }
 
 
-fn field_to_tokens(field: &Field) -> quote::Tokens {
+fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
     let field_name = &field.ident;
 
     //panic!("type_name = {}, {:?}", field_type_name, field);
