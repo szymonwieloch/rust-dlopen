@@ -3,9 +3,9 @@ use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_lib, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_lib, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -61,6 +61,17 @@ impl Library {
     {
         Ok(Self {
             handle: unsafe { open_lib(name.as_ref()) }?,
+        })
+    }
+    /**
+    Open the main program itself as a library.
+
+    This allows a shared library to load symbols of the program it was loaded
+    into.
+    */
+    pub fn open_self() -> Result<Library, Error> {
+        Ok(Self {
+            handle: unsafe { open_self() }?,
         })
     }
     /**

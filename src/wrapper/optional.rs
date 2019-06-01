@@ -77,16 +77,22 @@ where
     {
         let lib = Library::open(name)?;
         let api = Api::load(&lib)?;
-        let optional = match Optional::load(&lib) {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        };
-        Ok(Self {
-            lib: lib,
-            api: api,
-            optional: optional,
-        })
+        let optional = Optional::load(&lib).ok();
+        Ok(Self { lib, api, optional })
     }
+
+    ///Load all symbols (including optional if it is possible) from the
+    ///program itself.
+    ///
+    /// This allows a shared library to load symbols of the program it was
+    /// loaded into.
+    pub unsafe fn load_self() -> Result<OptionalContainer<Api, Optional>, Error> {
+        let lib = Library::open_self()?;
+        let api = Api::load(&lib)?;
+        let optional = Optional::load(&lib).ok();
+        Ok(Self { lib, api, optional })
+    }
+
     ///Gives access to the optional API - constant version.
     pub fn optional(&self) -> &Option<Optional> {
         return &self.optional;

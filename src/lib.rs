@@ -35,6 +35,7 @@ I hope that this library will help you to quickly get what you need and avoid er
 | Overhead                           | Minimal    | Minimal    | **Some overhead** |
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |
 | Object-oriented friendly           | Yes        | **No**       | Yes     |
+| Load from the program itself       | Yes        | **No**       | **No**  |
 
 ## Safety
 

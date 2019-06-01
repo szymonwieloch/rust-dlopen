@@ -69,6 +69,15 @@ where
         let api = T::load(&lib)?;
         Ok(Self { lib: lib, api: api })
     }
+    ///Load all symbols from the program itself.
+    ///
+    /// This allows a shared library to load symbols of the program it was
+    /// loaded into.
+    pub unsafe fn load_self() -> Result<Container<T>, Error> {
+        let lib = Library::open_self()?;
+        let api = T::load(&lib)?;
+        Ok(Self { lib: lib, api: api })
+    }
 }
 
 impl<T> Deref for Container<T>
