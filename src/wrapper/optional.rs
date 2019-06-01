@@ -77,15 +77,8 @@ where
     {
         let lib = Library::open(name)?;
         let api = Api::load(&lib)?;
-        let optional = match Optional::load(&lib) {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        };
-        Ok(Self {
-            lib: lib,
-            api: api,
-            optional: optional,
-        })
+        let optional = Optional::load(&lib).ok();
+        Ok(Self { lib, api, optional })
     }
     ///Gives access to the optional API - constant version.
     pub fn optional(&self) -> &Option<Optional> {
