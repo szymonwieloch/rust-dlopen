@@ -4,7 +4,7 @@ use std::os::windows::ffi::OsStrExt;
 use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
-use std::ptr::null_mut;
+use std::ptr::{null, null_mut};
 use std::ffi::{CStr, OsStr};
 use std::sync::Mutex;
 
@@ -123,6 +123,16 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
         Err(Error::SymbolGettingError(get_win_error()))
     } else {
         Ok(symbol as *mut ())
+    }
+}
+
+#[inline]
+pub unsafe fn open_self() -> Result<Handle, Error> {
+    let mut handle: Handle = null_mut();
+    if kernel32::GetModuleHandleExW(0, null(), &mut handle) == 0 {
+        Err(Error::OpeningLibraryError(get_win_error()))
+    } else {
+        Ok(handle)
     }
 }
 

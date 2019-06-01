@@ -1,7 +1,7 @@
 use super::super::err::Error;
 use std::ffi::{CStr, OsStr};
 use libc::{c_int, c_void, dlclose, dlerror, dlopen, dlsym, RTLD_LAZY, RTLD_LOCAL};
-use std::ptr::null_mut;
+use std::ptr::{null, null_mut};
 use std::os::unix::ffi::OsStrExt;
 use std::io::{Error as IoError, ErrorKind};
 
@@ -34,6 +34,20 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
         }
     }
     Ok(symbol as *mut ())
+}
+
+#[inline]
+pub unsafe fn open_self() -> Result<Handle, Error> {
+    let _lock = DLERROR_MUTEX.lock();
+    let handle = dlopen(null(), DEFAULT_FLAGS);
+    if handle.is_null() {
+        Err(Error::OpeningLibraryError(IoError::new(
+            ErrorKind::Other,
+            CStr::from_ptr(dlerror()).to_string_lossy().to_string(),
+        )))
+    } else {
+        Ok(handle)
+    }
 }
 
 #[inline]

@@ -62,6 +62,19 @@ where
         let api = T::load(static_ref)?;
         Ok(Self { api: api, lib: lib })
     }
+    ///Load all symbols from the program itself.
+    ///
+    /// This allows a shared library to load symbols of the program it was
+    /// loaded into.
+    pub unsafe fn load_self() -> Result<Self, Error> {
+        let lib = Library::open_self()?;
+        //this is cheating of course
+        //but it is safe because Library and api is placed in the same structure
+        //and therefore it is released at the same time.
+        let static_ref: &'static Library = transmute(&lib);
+        let api = T::load(static_ref)?;
+        Ok(Self { api: api, lib: lib })
+    }
 }
 
 impl<T> Deref for Container<T>

@@ -55,6 +55,16 @@ impl Library {
         })
     }
 
+    /// Open the program itself as library.
+    ///
+    /// This allows a shared library to load symbols of the program it was
+    /// loaded into.
+    pub fn open_self() -> Result<Library, Error> {
+        Ok(Library {
+            lib: RawLib::open_self()?,
+        })
+    }
+
     /// Obtain a symbol from library.
     ///
     /// This method is the most general one and allows obtaining basically everything assuming
