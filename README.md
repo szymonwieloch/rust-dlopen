@@ -65,7 +65,11 @@ dlopen = "0.1"
 [Cargo documentation](https://docs.rs/dlopen)
     
 # License
-This code is licensed under MIT license.
+This code is licensed under [MIT](./LICENSE) license.
+
+# Changelog
+
+[GitHub changelog](https://github.com/szymonwieloch/rust-dlopen/releases)
 
 # Acknowledgement
 

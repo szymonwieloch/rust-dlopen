@@ -58,7 +58,7 @@ dlopen = "0.1"
 
 [Examples](../examples)
 
-[Changelog](../CHANGELOG.md)
+[Changelog](https://github.com/szymonwieloch/rust-dlopen/releases)
 
 # License
 This code is licensed under [MIT](../LICENSE) license.
