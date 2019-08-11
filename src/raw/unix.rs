@@ -1,9 +1,11 @@
 use super::super::err::Error;
 use std::ffi::{CStr, OsStr};
-use libc::{c_int, c_void, dlclose, dlerror, dlopen, dlsym, RTLD_LAZY, RTLD_LOCAL};
+use libc::{c_int, c_void, dlclose, dlerror, dlopen, dlsym, dladdr, Dl_info, RTLD_LAZY, RTLD_LOCAL};
 use std::ptr::{null, null_mut};
 use std::os::unix::ffi::OsStrExt;
 use std::io::{Error as IoError, ErrorKind};
+use std::mem::uninitialized;
+use super::common::AddressInfo;
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 
@@ -73,6 +75,23 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     } else {
         Ok(handle)
     }
+}
+
+#[inline]
+pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
+    let mut dlinfo: Dl_info = unsafe{uninitialized()};
+    let result = unsafe {dladdr(addr as * const c_void, & mut dlinfo)};
+    if result == 0 {
+        Err(Error::AddrNotMatchingDll)
+    } else {
+        Ok(AddressInfo{
+            dll_path: unsafe{CStr::from_ptr(dlinfo.dli_fname)}.to_string_lossy().into_owned(),
+            dll_base_addr: dlinfo.dli_fbase as * const (),
+            overlapping_symbol_addr: if dlinfo.dli_saddr.is_null() {None} else {Some(dlinfo.dli_saddr as * const ())},
+            overlapping_symbol_name: if dlinfo.dli_sname.is_null() {None} else {Some(unsafe{CStr::from_ptr(dlinfo.dli_sname)}.to_string_lossy().into_owned())}
+        })
+    }
+
 }
 
 #[inline]

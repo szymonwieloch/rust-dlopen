@@ -1,14 +1,22 @@
 use winapi;
 use kernel32;
-use std::os::windows::ffi::OsStrExt;
+use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
 use std::ptr::{null, null_mut};
-use std::ffi::{CStr, OsStr};
+use std::ffi::{CStr, OsStr, OsString};
 use std::sync::Mutex;
+use super::common::AddressInfo;
+use winapi::winint::WCHAR;
+use std::mem::uninitialized;
+use kernel32::dbghelp::SymGetModuleBase64;
+
 
 static USE_ERRORMODE: AtomicBool = ATOMIC_BOOL_INIT;
+
+const PATH_MAX: usize = 256;
+
 
 struct SetErrorModeData {
     pub count: u32,
@@ -149,6 +157,28 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     } else {
         Ok(handle)
     }
+}
+
+#[inline]
+pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
+    let process_handle = unsafe{kernel32::GetCurrentProcess()};
+    let module_base = SymGetModuleBase(process_handle, addr);
+    let mut buffer: [WCHAR; kernel32::PATH_MAX] = unsafe{uninitialized()};
+
+    let path_len = unsafe{kernel32::GetModuleFileNameW(null(), buffer.as_mut_ptr(), PATH_MAX)};
+    if path_len == 0 {
+        return Err(Error::AddrNotMatchingDll);
+    }
+
+    Ok({
+        AddressInfo{
+            dll_path: OsString::from_wide(buffer[0..path_len])..to_string_lossy().into_owned(),
+            dll_base_addr: module_base,
+            overlapping_symbol_name: None,
+            overlapping_symbol_addr: None
+        }
+    })
+
 }
 
 #[inline]

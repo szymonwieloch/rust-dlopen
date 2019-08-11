@@ -16,22 +16,27 @@ pub enum Error {
     SymbolGettingError(IoError),
     ///Value of the symbol was null.
     NullSymbol,
+    ///Address could not be matched to a dynamic link library
+    AddrNotMatchingDll
 }
 
 impl ErrorTrait for Error {
     fn description(&self) -> &str {
+        use self::Error::*;
         match self {
-            &Error::NullCharacter(_) => "String had a null character",
-            &Error::OpeningLibraryError(_) => "Could not open library",
-            &Error::SymbolGettingError(_) => "Could not obtain symbol from the library",
-            &Error::NullSymbol => "The symbol is NULL",
+            &NullCharacter(_) => "String had a null character",
+            &OpeningLibraryError(_) => "Could not open library",
+            &SymbolGettingError(_) => "Could not obtain symbol from the library",
+            &NullSymbol => "The symbol is NULL",
+            &AddrNotMatchingDll => "Address does not match any dynamic link library"
         }
     }
 
     fn cause(&self) -> Option<&ErrorTrait> {
+        use self::Error::*;
         match self {
-            &Error::NullCharacter(ref val) => Some(val),
-            &Error::OpeningLibraryError(_) | &Error::SymbolGettingError(_) | &Error::NullSymbol => {
+            &NullCharacter(ref val) => Some(val),
+            &OpeningLibraryError(_) | &SymbolGettingError(_) | &NullSymbol | &AddrNotMatchingDll=> {
                 None
             }
         }
@@ -40,17 +45,18 @@ impl ErrorTrait for Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        use self::Error::*;
         f.write_str(self.description())?;
         match self {
-            &Error::OpeningLibraryError(ref msg) => {
+            &OpeningLibraryError(ref msg) => {
                 f.write_str(": ")?;
                 msg.fmt(f)
             }
-            &Error::SymbolGettingError(ref msg) => {
+            &SymbolGettingError(ref msg) => {
                 f.write_str(": ")?;
                 msg.fmt(f)
             }
-            &Error::NullSymbol | &Error::NullCharacter(_) => Ok(()),
+            &NullSymbol | &NullCharacter(_) | AddrNotMatchingDll=> Ok(()),
         }
     }
 }

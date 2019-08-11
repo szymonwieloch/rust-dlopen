@@ -139,3 +139,12 @@ impl Drop for Library {
 
 unsafe impl Sync for Library {}
 unsafe impl Send for Library {}
+
+
+pub struct AddressInfo {
+    pub dll_path: String,
+    pub dll_base_addr: * const (),
+    pub overlapping_symbol_addr: Option<* const ()>,
+    pub overlapping_symbol_name: Option<String>,
+
+}
