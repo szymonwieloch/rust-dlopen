@@ -34,4 +34,4 @@ mod windows;
 #[cfg(test)]
 mod tests;
 
-pub use self::common::Library;
+pub use self::common::{Library, AddressInfo, address_info};

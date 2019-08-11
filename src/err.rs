@@ -56,7 +56,7 @@ impl Display for Error {
                 f.write_str(": ")?;
                 msg.fmt(f)
             }
-            &NullSymbol | &NullCharacter(_) | AddrNotMatchingDll=> Ok(()),
+            &NullSymbol | &NullCharacter(_) | &AddrNotMatchingDll=> Ok(()),
         }
     }
 }

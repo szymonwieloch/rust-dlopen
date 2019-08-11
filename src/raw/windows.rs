@@ -1,5 +1,6 @@
 use winapi;
 use kernel32;
+use dbghelp;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::io::{Error as IoError, ErrorKind};
@@ -8,14 +9,13 @@ use std::ptr::{null, null_mut};
 use std::ffi::{CStr, OsStr, OsString};
 use std::sync::Mutex;
 use super::common::AddressInfo;
-use winapi::winint::WCHAR;
+use winapi::shared::ntdef::WCHAR;
 use std::mem::uninitialized;
-use kernel32::dbghelp::SymGetModuleBase64;
 
 
 static USE_ERRORMODE: AtomicBool = ATOMIC_BOOL_INIT;
 
-const PATH_MAX: usize = 256;
+const PATH_MAX: u32 = 256;
 
 
 struct SetErrorModeData {
@@ -162,7 +162,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 #[inline]
 pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
     let process_handle = unsafe{kernel32::GetCurrentProcess()};
-    let module_base = SymGetModuleBase(process_handle, addr);
+    let module_base = unsafe{dbghelp::SymGetModuleBase64(process_handle, addr as u64)};
     let mut buffer: [WCHAR; kernel32::PATH_MAX] = unsafe{uninitialized()};
 
     let path_len = unsafe{kernel32::GetModuleFileNameW(null(), buffer.as_mut_ptr(), PATH_MAX)};
@@ -173,7 +173,7 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
     Ok({
         AddressInfo{
             dll_path: OsString::from_wide(buffer[0..path_len])..to_string_lossy().into_owned(),
-            dll_base_addr: module_base,
+            dll_base_addr: module_base as * const (),
             overlapping_symbol_name: None,
             overlapping_symbol_addr: None
         }

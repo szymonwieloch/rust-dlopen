@@ -3,9 +3,9 @@ use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -147,4 +147,8 @@ pub struct AddressInfo {
     pub overlapping_symbol_addr: Option<* const ()>,
     pub overlapping_symbol_name: Option<String>,
 
+}
+
+pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
+    addr_info(addr)
 }
