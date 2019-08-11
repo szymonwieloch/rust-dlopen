@@ -17,8 +17,8 @@ path = "rust-dlopen-derive"
 version = "0.1.4"
 
 [target.'cfg(windows)'.dependencies]
-winapi = "0.2"
-kernel32-sys = "0.2"
+winapi = "0.3.7"
+kernel32-sys = "0.2.2"
 dbghelp-sys = "0.2.0"
 
 [target.'cfg(unix)'.dependencies]
