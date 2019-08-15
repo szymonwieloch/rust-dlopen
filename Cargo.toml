@@ -67,5 +67,9 @@ name = "wrapper_api"
 crate-type = ["bin"]
 
 [[example]]
+name = "raw_addr_info"
+crate-type = ["bin"]
+
+[[example]]
 name = "wrapper_multi_api"
 crate-type = ["bin"]

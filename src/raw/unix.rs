@@ -5,7 +5,7 @@ use std::ptr::{null, null_mut};
 use std::os::unix::ffi::OsStrExt;
 use std::io::{Error as IoError, ErrorKind};
 use std::mem::uninitialized;
-use super::common::AddressInfo;
+use super::common::{AddressInfo, OverlappingSymbol};
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 
@@ -84,11 +84,18 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
     if result == 0 {
         Err(Error::AddrNotMatchingDll)
     } else {
+        let os = if dlinfo.dli_saddr.is_null() || dlinfo.dli_sname.is_null() {
+            None
+        } else {
+            Some(OverlappingSymbol{
+                addr: dlinfo.dli_saddr as * const (),
+                name: unsafe{CStr::from_ptr(dlinfo.dli_sname)}.to_string_lossy().into_owned()
+            })
+        };
         Ok(AddressInfo{
             dll_path: unsafe{CStr::from_ptr(dlinfo.dli_fname)}.to_string_lossy().into_owned(),
             dll_base_addr: dlinfo.dli_fbase as * const (),
-            overlapping_symbol_addr: if dlinfo.dli_saddr.is_null() {None} else {Some(dlinfo.dli_saddr as * const ())},
-            overlapping_symbol_name: if dlinfo.dli_sname.is_null() {None} else {Some(unsafe{CStr::from_ptr(dlinfo.dli_sname)}.to_string_lossy().into_owned())}
+            overlapping_symbol: os
         })
     }
 

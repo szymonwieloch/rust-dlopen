@@ -10,20 +10,20 @@ use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info, Handle}
 use std::mem::{size_of, transmute_copy};
 
 /**
-    Main interface for opening and working with a dynamic link library.
+Main interface for opening and working with a dynamic link library.
 
-    **Note:** Several methods have their "*_cstr" equivalents. This is because all native OS
-    interfaces actually use C-strings. If you pass
-    [`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
-    as an argument, Library doesn't need to perform additional conversion from Rust string to
-    C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
-    It is recommended that you use
-    [const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated
-    C-strings.
+**Note:** Several methods have their "*_cstr" equivalents. This is because all native OS
+interfaces actually use C-strings. If you pass
+[`CStr`](https://doc.rust-lang.org/std/ffi/struct.CStr.html)
+as an argument, Library doesn't need to perform additional conversion from Rust string to
+C-string.. This makes `*_cstr" functions slightly more optimal than their normal equivalents.
+It is recommended that you use
+[const-cstr](https://github.com/abonander/const-cstr) crate to create statically allocated
+C-strings.
 
-    **Note:** The handle to the library gets released when the library object gets dropped.
-    Unless your application opened the library multiple times, this is the moment when symbols
-    obtained from the library become dangling symbols.
+**Note:** The handle to the library gets released when the library object gets dropped.
+Unless your application opened the library multiple times, this is the moment when symbols
+obtained from the library become dangling symbols.
 */
 #[derive(Debug)]
 pub struct Library {
@@ -41,7 +41,7 @@ impl Library {
     Please refer to your operating system guide for precise information about the directories
     where the operating system searches for dynamic link libraries.
 
-    #Example
+    # Example
 
     ```no_run
     extern crate dlopen;
@@ -63,6 +63,7 @@ impl Library {
             handle: unsafe { open_lib(name.as_ref()) }?,
         })
     }
+
     /**
     Open the main program itself as a library.
 
@@ -74,6 +75,7 @@ impl Library {
             handle: unsafe { open_self() }?,
         })
     }
+
     /**
     Obtain symbol from opened library.
 
@@ -88,7 +90,7 @@ impl Library {
     This method checks the address value and returns `Error::NullSymbol` error if the value is null.
     If your code does require obtaining symbols with null value, please do something like this:
 
-    #Example
+    # Example
 
     ```no_run
     extern crate dlopen;
@@ -140,15 +142,54 @@ impl Drop for Library {
 unsafe impl Sync for Library {}
 unsafe impl Send for Library {}
 
-
-pub struct AddressInfo {
-    pub dll_path: String,
-    pub dll_base_addr: * const (),
-    pub overlapping_symbol_addr: Option<* const ()>,
-    pub overlapping_symbol_name: Option<String>,
-
+///Container for information about overlapping symbol from dynamic load library.
+#[derive(Debug)]
+pub struct OverlappingSymbol{
+    ///Overlapping symbol name
+    pub name: String,
+    /// Overlapping symbol address
+    pub addr: * const ()
 }
 
+/// Container for information about an address obtained from dynamic load library.
+#[derive(Debug)]
+pub struct AddressInfo {
+    /// Path to the library that is the source of this symbol.
+    pub dll_path: String,
+    /// Base address of the library that is the source of this symbol.
+    pub dll_base_addr: * const (),
+    /// Information about the overlapping symbol from the dynamic load library.
+    ///
+    /// The information is optional since the given address may not overlap with any symbol.
+    pub overlapping_symbol: Option<OverlappingSymbol>
+}
+
+/**
+Obtains information about an address previously loaded from a dynamic load library.
+
+# Example
+
+```no_run
+extern crate dlopen;
+use dlopen::raw::{Library, address_info};
+fn main() {
+    let lib = Library::open("libyourlib.so").unwrap();
+    let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();
+
+    // now we can obtain information about the symbol - library, base address etc.
+    let addr_info = address_info(ptr as * const ()).unwrap();
+    println!("Library path: {}", &addr_info.dll_path);
+    println!("Library base address: {:?}", addr_info.dll_base_addr);
+    if let Some(os) = addr_info.overlapping_symbol{
+        println!("Overlapping symbol name: {}", &os.name);
+        println!("Overlapping symbol address: {:?}", os.addr);
+    }
+
+
+
+}
+```
+*/
 pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
     addr_info(addr)
 }

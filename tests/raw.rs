@@ -2,7 +2,7 @@
 extern crate const_cstr;
 extern crate dlopen;
 extern crate libc;
-use dlopen::raw::Library;
+use dlopen::raw::{Library, address_info};
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 
@@ -56,4 +56,17 @@ fn open_play_close_raw() {
     assert_eq!(converted, "Hi!");
 
     ::std::mem::forget(lib);
+}
+
+#[test]
+fn example_address_info(){
+    let lib_path = example_lib_path();
+    let lib = Library::open(&lib_path).expect("Could not open library");
+    let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int =
+        unsafe { lib.symbol("c_fun_add_two") }.unwrap();
+    let ai = address_info(c_fun_add_two as * const ()).unwrap();
+    assert_eq!(&ai.dll_path, lib_path.to_str().unwrap());
+    let os = ai.overlapping_symbol.unwrap();
+    assert_eq!(os.name, "c_fun_add_two");
+    assert_eq!(os.addr, c_fun_add_two as * const ())
 }
