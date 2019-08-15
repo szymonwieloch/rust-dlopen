@@ -3,22 +3,25 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
 use std::ptr::null_mut;
+use std::slice;
 use std::ffi::{CStr, OsStr, OsString};
 use std::sync::Mutex;
-use super::common::AddressInfo;
+use super::common::{AddressInfo, OverlappingSymbol};
 use winapi::um::winnt::WCHAR;
-use winapi::shared::minwindef::{HMODULE, DWORD};
+use winapi::shared::minwindef::{HMODULE, DWORD, TRUE};
+use winapi::shared::basetsd::DWORD64;
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
 use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
 use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
-use winapi::um::dbghelp::{SymGetModuleBase64};
+use winapi::um::dbghelp::{SymGetModuleBase64, SymGetSymFromAddr64, IMAGEHLP_SYMBOL64};
 use winapi::um::processthreadsapi::GetCurrentProcess;
-use std::mem::uninitialized;
+use std::mem::{uninitialized, size_of, size_of_val};
 
 
 static USE_ERRORMODE: AtomicBool = AtomicBool::new(false);
 
 const PATH_MAX: DWORD = 256;
+const MAX_SYMBOL_LEN:usize = 256;
 
 
 struct SetErrorModeData {
@@ -168,17 +171,29 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
     let module_base = unsafe{SymGetModuleBase64(process_handle, addr as u64)};
     let mut buffer: [WCHAR; PATH_MAX as usize] = unsafe{uninitialized()};
 
-    let path_len = unsafe{GetModuleFileNameW(null_mut(), buffer.as_mut_ptr(), PATH_MAX)};
+    let path_len = unsafe{GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX)};
     if path_len == 0 {
         return Err(Error::AddrNotMatchingDll);
     }
-
+	let mut symbol_buffer: [u8; size_of::<IMAGEHLP_SYMBOL64>() + MAX_SYMBOL_LEN+1] = unsafe{uninitialized()};
+	symbol_buffer[size_of::<IMAGEHLP_SYMBOL64>() + MAX_SYMBOL_LEN] = 0;
+	let imghlp_symbol: * mut IMAGEHLP_SYMBOL64 = symbol_buffer.as_mut_ptr() as  * mut IMAGEHLP_SYMBOL64;
+	unsafe{(*imghlp_symbol).SizeOfStruct = size_of_val(&symbol_buffer)as DWORD};
+	let mut displacement:DWORD64 = 0;
+	let result = unsafe{SymGetSymFromAddr64(process_handle, addr as DWORD64, &mut displacement, imghlp_symbol)};
+	let os = if result == TRUE {
+		let name_len = unsafe{(*imghlp_symbol).MaxNameLength} as usize;
+		let name = unsafe{slice::from_raw_parts((*imghlp_symbol).Name.as_ptr() as * const u8, name_len)};
+		Some(OverlappingSymbol{
+		name: String::from_utf8_lossy(name).into_owned(),
+		addr // on Windows there is no overlappping, just a straight match
+		})
+	} else {None};
     Ok({
         AddressInfo{
             dll_path: OsString::from_wide(&buffer[0..(path_len as usize)]).to_string_lossy().into_owned(),
             dll_base_addr: module_base as * const (),
-            overlapping_symbol_name: None,
-            overlapping_symbol_addr: None
+            overlapping_symbol: os,
         }
     })
 

@@ -17,7 +17,7 @@ path = "rust-dlopen-derive"
 version = "0.1.4"
 
 [target.'cfg(windows)'.dependencies]
-winapi = {version = "0.3.7", features=["winnt", "minwindef", "winerror", "libloaderapi", "errhandlingapi", "dbghelp", "processthreadsapi"]}
+winapi = {version = "0.3.7", features=["winnt", "minwindef", "winerror", "libloaderapi", "errhandlingapi", "dbghelp", "processthreadsapi", "basetsd"]}
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.29"
