@@ -1,26 +1,29 @@
-use winapi;
-use kernel32;
-use dbghelp;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
-use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
-use std::ptr::{null, null_mut};
+use std::ptr::null_mut;
 use std::ffi::{CStr, OsStr, OsString};
 use std::sync::Mutex;
 use super::common::AddressInfo;
-use winapi::WCHAR;
+use winapi::um::winnt::WCHAR;
+use winapi::shared::minwindef::{HMODULE, DWORD};
+use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
+use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
+use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
+use winapi::um::dbghelp::{SymGetModuleBase64};
+use winapi::um::processthreadsapi::GetCurrentProcess;
 use std::mem::uninitialized;
 
 
-static USE_ERRORMODE: AtomicBool = ATOMIC_BOOL_INIT;
+static USE_ERRORMODE: AtomicBool = AtomicBool::new(false);
 
-const PATH_MAX: u32 = 256;
+const PATH_MAX: DWORD = 256;
 
 
 struct SetErrorModeData {
     pub count: u32,
-    pub previous: winapi::DWORD,
+    pub previous: DWORD,
 }
 
 lazy_static! {
@@ -31,7 +34,7 @@ lazy_static! {
 }
 
 
-pub type Handle = winapi::HMODULE;
+pub type Handle = HMODULE;
 
 /*
 Windows has an ugly feature: by default not finding the given library opens a window
@@ -46,10 +49,10 @@ process.
 https://msdn.microsoft.com/pl-pl/library/windows/desktop/dd553630(v=vs.85).aspx
 */
 
-const ERROR_MODE: winapi::DWORD = 1; //app handles everything
+const ERROR_MODE: DWORD = 1; //app handles everything
 
 enum ErrorModeGuard {
-    ThreadPreviousValue(winapi::DWORD),
+    ThreadPreviousValue(DWORD),
     DoNothing,
     Process,
 }
@@ -57,11 +60,11 @@ enum ErrorModeGuard {
 impl ErrorModeGuard {
     fn new() -> Result<ErrorModeGuard, IoError> {
         if !USE_ERRORMODE.load(Ordering::Acquire) {
-            let mut previous: winapi::DWORD = 0;
-            if unsafe { kernel32::SetThreadErrorMode(ERROR_MODE, &mut previous) } == 0 {
+            let mut previous: DWORD = 0;
+            if unsafe { SetThreadErrorMode(ERROR_MODE, &mut previous) } == 0 {
                 //error. On some systems SetThreadErrorMode may not be implemented
-                let error = unsafe { kernel32::GetLastError() };
-                if error == winapi::ERROR_CALL_NOT_IMPLEMENTED {
+                let error = unsafe { GetLastError() };
+                if error == ERROR_CALL_NOT_IMPLEMENTED {
                     USE_ERRORMODE.store(true, Ordering::Release);
                 } else {
                     //this is an actual error
@@ -83,7 +86,7 @@ impl ErrorModeGuard {
         //poisoning should never happen
         let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
         if lock.count == 0 {
-            lock.previous = unsafe { kernel32::SetErrorMode(ERROR_MODE) };
+            lock.previous = unsafe { SetErrorMode(ERROR_MODE) };
             if lock.previous == ERROR_MODE {
                 return Ok(ErrorModeGuard::DoNothing);
             }
@@ -102,18 +105,18 @@ impl Drop for ErrorModeGuard {
                 let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
                 lock.count -= 1;
                 if lock.count == 0 {
-                    unsafe { kernel32::SetErrorMode(lock.previous) };
+                    unsafe { SetErrorMode(lock.previous) };
                 }
             }
             &mut ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
-                kernel32::SetThreadErrorMode(previous, null_mut());
+                SetThreadErrorMode(previous, null_mut());
             },
         }
     }
 }
 
 unsafe fn get_win_error() -> IoError {
-    let error = kernel32::GetLastError();
+    let error = GetLastError();
     if error == 0 {
         IoError::new(
             ErrorKind::Other,
@@ -126,7 +129,7 @@ unsafe fn get_win_error() -> IoError {
 
 #[inline]
 pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
-    let symbol = kernel32::GetProcAddress(handle, name.as_ptr());
+    let symbol = GetProcAddress(handle, name.as_ptr());
     if symbol.is_null() {
         Err(Error::SymbolGettingError(get_win_error()))
     } else {
@@ -137,7 +140,7 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
 #[inline]
 pub unsafe fn open_self() -> Result<Handle, Error> {
     let mut handle: Handle = null_mut();
-    if kernel32::GetModuleHandleExW(0, null(), &mut handle) == 0 {
+    if GetModuleHandleExW(0, null_mut(), &mut handle) == 0 {
         Err(Error::OpeningLibraryError(get_win_error()))
     } else {
         Ok(handle)
@@ -151,7 +154,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
         Ok(val) => val,
         Err(err) => return Err(Error::OpeningLibraryError(err)),
     };
-    let handle = kernel32::LoadLibraryW(wide_name.as_ptr());
+    let handle = LoadLibraryW(wide_name.as_ptr());
     if handle.is_null() {
         Err(Error::OpeningLibraryError(get_win_error()))
     } else {
@@ -161,18 +164,18 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 
 #[inline]
 pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
-    let process_handle = unsafe{kernel32::GetCurrentProcess()};
-    let module_base = unsafe{dbghelp::SymGetModuleBase64(process_handle, addr as u64)};
-    let mut buffer: [WCHAR; PATH_MAX] = unsafe{uninitialized()};
+    let process_handle = unsafe{GetCurrentProcess()};
+    let module_base = unsafe{SymGetModuleBase64(process_handle, addr as u64)};
+    let mut buffer: [WCHAR; PATH_MAX as usize] = unsafe{uninitialized()};
 
-    let path_len = unsafe{kernel32::GetModuleFileNameW(null(), buffer.as_mut_ptr(), PATH_MAX)};
+    let path_len = unsafe{GetModuleFileNameW(null_mut(), buffer.as_mut_ptr(), PATH_MAX)};
     if path_len == 0 {
         return Err(Error::AddrNotMatchingDll);
     }
 
     Ok({
         AddressInfo{
-            dll_path: OsString::from_wide(buffer[0..path_len]).to_string_lossy().into_owned(),
+            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)]).to_string_lossy().into_owned(),
             dll_base_addr: module_base as * const (),
             overlapping_symbol_name: None,
             overlapping_symbol_addr: None
@@ -183,7 +186,7 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
 
 #[inline]
 pub fn close_lib(handle: Handle) -> Handle {
-    if unsafe { kernel32::FreeLibrary(handle) } == 0 {
+    if unsafe { FreeLibrary(handle) } == 0 {
         //this should not happen
         panic!("FreeLibrary() failed, the error is {}", unsafe {
             get_win_error()
