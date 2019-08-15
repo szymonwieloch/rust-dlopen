@@ -82,7 +82,7 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
     let mut dlinfo: Dl_info = unsafe{uninitialized()};
     let result = unsafe {dladdr(addr as * const c_void, & mut dlinfo)};
     if result == 0 {
-        Err(Error::AddrNotMatchingDll)
+        Err(Error::AddrNotMatchingDll(IoError::new(ErrorKind::NotFound, String::new())))
     } else {
         let os = if dlinfo.dli_saddr.is_null() || dlinfo.dli_sname.is_null() {
             None

@@ -17,7 +17,7 @@ pub enum Error {
     ///Value of the symbol was null.
     NullSymbol,
     ///Address could not be matched to a dynamic link library
-    AddrNotMatchingDll
+    AddrNotMatchingDll(IoError)
 }
 
 impl ErrorTrait for Error {
@@ -28,7 +28,7 @@ impl ErrorTrait for Error {
             &OpeningLibraryError(_) => "Could not open library",
             &SymbolGettingError(_) => "Could not obtain symbol from the library",
             &NullSymbol => "The symbol is NULL",
-            &AddrNotMatchingDll => "Address does not match any dynamic link library"
+            &AddrNotMatchingDll(_) => "Address does not match any dynamic link library"
         }
     }
 
@@ -36,7 +36,7 @@ impl ErrorTrait for Error {
         use self::Error::*;
         match self {
             &NullCharacter(ref val) => Some(val),
-            &OpeningLibraryError(_) | &SymbolGettingError(_) | &NullSymbol | &AddrNotMatchingDll=> {
+            &OpeningLibraryError(_) | &SymbolGettingError(_) | &NullSymbol | &AddrNotMatchingDll(_)=> {
                 None
             }
         }
@@ -56,7 +56,7 @@ impl Display for Error {
                 f.write_str(": ")?;
                 msg.fmt(f)
             }
-            &NullSymbol | &NullCharacter(_) | &AddrNotMatchingDll=> Ok(()),
+            &NullSymbol | &NullCharacter(_) | &AddrNotMatchingDll(_)=> Ok(()),
         }
     }
 }
