@@ -32,7 +32,7 @@ impl ErrorTrait for Error {
         }
     }
 
-    fn cause(&self) -> Option<&ErrorTrait> {
+    fn cause(&self) -> Option<&dyn ErrorTrait> {
         use self::Error::*;
         match self {
             &NullCharacter(ref val) => Some(val),
