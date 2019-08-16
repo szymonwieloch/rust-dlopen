@@ -60,7 +60,7 @@ fn main(){
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |
 | Object-oriented friendly           | Yes        | **No**       | Yes     |
 | Load from the program itself       | Yes        | **No**       | **No**  |
-| Obtaining address information (dladdr) | Yes    |  **Unix only** | **no**|
+| Obtaining address information (dladdr) | Yes    |  **Unix only** | **No**|
 
 ## Safety
 
