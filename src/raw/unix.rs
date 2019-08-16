@@ -78,9 +78,13 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 }
 
 #[inline]
-pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
-    let mut dlinfo: Dl_info = unsafe{uninitialized()};
-    let result = unsafe {dladdr(addr as * const c_void, & mut dlinfo)};
+pub unsafe fn addr_info_init(){}
+pub unsafe fn addr_info_cleanup(){}
+
+#[inline]
+pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
+    let mut dlinfo: Dl_info = uninitialized();
+    let result = dladdr(addr as * const c_void, & mut dlinfo);
     if result == 0 {
         Err(Error::AddrNotMatchingDll(IoError::new(ErrorKind::NotFound, String::new())))
     } else {
@@ -89,11 +93,11 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
         } else {
             Some(OverlappingSymbol{
                 addr: dlinfo.dli_saddr as * const (),
-                name: unsafe{CStr::from_ptr(dlinfo.dli_sname)}.to_string_lossy().into_owned()
+                name: CStr::from_ptr(dlinfo.dli_sname).to_string_lossy().into_owned()
             })
         };
         Ok(AddressInfo{
-            dll_path: unsafe{CStr::from_ptr(dlinfo.dli_fname)}.to_string_lossy().into_owned(),
+            dll_path: CStr::from_ptr(dlinfo.dli_fname).to_string_lossy().into_owned(),
             dll_base_addr: dlinfo.dli_fbase as * const (),
             overlapping_symbol: os
         })

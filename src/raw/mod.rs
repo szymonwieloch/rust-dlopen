@@ -34,4 +34,4 @@ mod windows;
 #[cfg(test)]
 mod tests;
 
-pub use self::common::{Library, AddressInfo, OverlappingSymbol, address_info};
+pub use self::common::{Library, AddressInfo, OverlappingSymbol, AddressInfoObtainer};

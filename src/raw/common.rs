@@ -164,33 +164,48 @@ pub struct AddressInfo {
     pub overlapping_symbol: Option<OverlappingSymbol>
 }
 
-/**
-Obtains information about an address previously loaded from a dynamic load library.
+///Obtains information about an address previously loaded from a dynamic load library.
+pub struct AddressInfoObtainer {
+}
 
-# Example
-
-```no_run
-extern crate dlopen;
-use dlopen::raw::{Library, address_info};
-fn main() {
-    let lib = Library::open("libyourlib.so").unwrap();
-    let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();
-
-    // now we can obtain information about the symbol - library, base address etc.
-    let addr_info = address_info(ptr as * const ()).unwrap();
-    println!("Library path: {}", &addr_info.dll_path);
-    println!("Library base address: {:?}", addr_info.dll_base_addr);
-    if let Some(os) = addr_info.overlapping_symbol{
-        println!("Overlapping symbol name: {}", &os.name);
-        println!("Overlapping symbol address: {:?}", os.addr);
+impl AddressInfoObtainer {
+    pub fn new() -> AddressInfoObtainer {
+        unsafe{addr_info_init()};
+        AddressInfoObtainer{}
     }
 
+    /**
+    Obtains information about an address previously loaded from a dynamic load library.
 
+    # Example
 
+    ```no_run
+    extern crate dlopen;
+    use dlopen::raw::{Library, AddressInfoObtainer};
+    fn main() {
+        let lib = Library::open("libyourlib.so").unwrap();
+        let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();
+
+        // now we can obtain information about the symbol - library, base address etc.
+        let aio = AddressInfoObtainer::new();
+        let addr_info = aio.obtain(ptr as * const ()).unwrap();
+        println!("Library path: {}", &addr_info.dll_path);
+        println!("Library base address: {:?}", addr_info.dll_base_addr);
+        if let Some(os) = addr_info.overlapping_symbol{
+            println!("Overlapping symbol name: {}", &os.name);
+            println!("Overlapping symbol address: {:?}", os.addr);
+        }
+
+    }
+    ```
+    */
+    pub fn obtain(&self, addr: * const ()) -> Result<AddressInfo, Error>{
+        unsafe {addr_info_obtain(addr)}
+    }
 }
-```
-*/
-pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
-	unsafe{addr_info_init()};
-    unsafe{addr_info_obtain(addr)}
+
+impl Drop for AddressInfoObtainer{
+    fn drop(&mut self) {
+        unsafe{addr_info_cleanup()}
+    }
 }
