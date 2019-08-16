@@ -13,9 +13,9 @@ use winapi::shared::basetsd::DWORD64;
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
 use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
 use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
-use winapi::um::dbghelp::{SymGetModuleBase64, SymGetSymFromAddr64, IMAGEHLP_SYMBOL64};
+use winapi::um::dbghelp::{SymGetModuleBase64, SymFromAddrW, SYMBOL_INFOW, SymInitializeW};
 use winapi::um::processthreadsapi::GetCurrentProcess;
-use std::mem::{uninitialized, size_of, size_of_val};
+use std::mem::{uninitialized, size_of};
 
 
 static USE_ERRORMODE: AtomicBool = AtomicBool::new(false);
@@ -166,26 +166,44 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 }
 
 #[inline]
-pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
-    let process_handle = unsafe{GetCurrentProcess()};
-    let module_base = unsafe{SymGetModuleBase64(process_handle, addr as u64)};
-    let mut buffer: [WCHAR; PATH_MAX as usize] = unsafe{uninitialized()};
-
-    let path_len = unsafe{GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX)};
+pub unsafe fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
+    let process_handle = GetCurrentProcess();
+	let result = SymInitializeW(process_handle, null_mut(), TRUE);
+	assert_eq!(result, TRUE);
+	
+    let module_base = SymGetModuleBase64(process_handle, addr as u64);
+	
+	if module_base == 0 {
+		return Err(Error::AddrNotMatchingDll(get_win_error()));
+	}
+    let mut buffer: [WCHAR; PATH_MAX as usize] = uninitialized();
+	
+    let path_len = GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX);
+	
     if path_len == 0 {
-        return Err(Error::AddrNotMatchingDll);
+        return Err(Error::AddrNotMatchingDll(get_win_error()));
     }
-	let mut symbol_buffer: [u8; size_of::<IMAGEHLP_SYMBOL64>() + MAX_SYMBOL_LEN+1] = unsafe{uninitialized()};
-	symbol_buffer[size_of::<IMAGEHLP_SYMBOL64>() + MAX_SYMBOL_LEN] = 0;
-	let imghlp_symbol: * mut IMAGEHLP_SYMBOL64 = symbol_buffer.as_mut_ptr() as  * mut IMAGEHLP_SYMBOL64;
-	unsafe{(*imghlp_symbol).SizeOfStruct = size_of_val(&symbol_buffer)as DWORD};
+	
+	let mut symbol_buffer: [u8; size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()] = uninitialized();
+	let symbol_info: * mut SYMBOL_INFOW = symbol_buffer.as_mut_ptr() as  * mut SYMBOL_INFOW;
+	
+	(*symbol_info).SizeOfStruct = size_of::<SYMBOL_INFOW>() as DWORD;
+	(*symbol_info).MaxNameLen = MAX_SYMBOL_LEN as DWORD;
 	let mut displacement:DWORD64 = 0;
-	let result = unsafe{SymGetSymFromAddr64(process_handle, addr as DWORD64, &mut displacement, imghlp_symbol)};
+	let result = SymFromAddrW(process_handle, addr as DWORD64, &mut displacement, symbol_info);
+	
 	let os = if result == TRUE {
-		let name_len = unsafe{(*imghlp_symbol).MaxNameLength} as usize;
-		let name = unsafe{slice::from_raw_parts((*imghlp_symbol).Name.as_ptr() as * const u8, name_len)};
+		let name_len = (*symbol_info).NameLen as usize;
+		let name_slice = slice::from_raw_parts((*symbol_info).Name.as_ptr(), name_len);
+		let name = OsString::from_wide(name_slice).to_string_lossy().into_owned();
+		//winapi doesn't have implementation of the SymSetOptions() for now
+		//we need to manually strip off the namespace of the symbol.
+		let name = match name.find("::"){
+			None => name,
+			Some(idx) => name[idx +2 ..].to_string()
+		};
 		Some(OverlappingSymbol{
-		name: String::from_utf8_lossy(name).into_owned(),
+		name,
 		addr // on Windows there is no overlappping, just a straight match
 		})
 	} else {None};

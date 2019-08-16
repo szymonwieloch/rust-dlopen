@@ -191,5 +191,5 @@ fn main() {
 ```
 */
 pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
-    addr_info(addr)
+    unsafe{addr_info(addr)}
 }
