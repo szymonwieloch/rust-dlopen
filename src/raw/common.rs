@@ -3,9 +3,9 @@ use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -191,5 +191,6 @@ fn main() {
 ```
 */
 pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
-    unsafe{addr_info(addr)}
+	unsafe{addr_info_init()};
+    unsafe{addr_info_obtain(addr)}
 }

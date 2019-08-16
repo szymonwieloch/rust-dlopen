@@ -13,7 +13,7 @@ use winapi::shared::basetsd::DWORD64;
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
 use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
 use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
-use winapi::um::dbghelp::{SymGetModuleBase64, SymFromAddrW, SYMBOL_INFOW, SymInitializeW};
+use winapi::um::dbghelp::{SymGetModuleBase64, SymFromAddrW, SYMBOL_INFOW, SymInitializeW, SymCleanup};
 use winapi::um::processthreadsapi::GetCurrentProcess;
 use std::mem::{uninitialized, size_of};
 
@@ -166,11 +166,16 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 }
 
 #[inline]
-pub unsafe fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
-    let process_handle = GetCurrentProcess();
+pub unsafe fn addr_info_init(){
+	let process_handle = GetCurrentProcess();
 	let result = SymInitializeW(process_handle, null_mut(), TRUE);
 	assert_eq!(result, TRUE);
-	
+}
+
+#[inline]
+pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
+    
+	let process_handle = GetCurrentProcess();
     let module_base = SymGetModuleBase64(process_handle, addr as u64);
 	
 	if module_base == 0 {
@@ -215,6 +220,13 @@ pub unsafe fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
         }
     })
 
+}
+
+#[inline]
+pub unsafe fn addr_info_cleanup(){
+	let process_handle = GetCurrentProcess();
+	let result = SymCleanup(process_handle);
+	assert_eq!(result, TRUE);
 }
 
 #[inline]
