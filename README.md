@@ -11,15 +11,15 @@
 [vcii]: https://codecov.io/api/gh/szymonwieloch/rust-dlopen/branch/master/graph/badge.svg
 [vci]: https://codecov.io/gh/szymonwieloch/rust-dlopen
 
-# Overview
+## Overview
 
 This library is my effort to make use of dynamic link libraries in Rust simple.
 Previously existing solutions were either unsafe, provided huge overhead of required writing too much code to achieve simple things.
 I hope that this library will help you to quickly get what you need and avoid errors.
 
-# Features
+## Features
 
-## Main features
+### Main features
 
 * Supports majority of platforms and is platform independent.
 * Is consistent with Rust error handling mechanism and makes making mistakes much more difficult.
@@ -47,31 +47,32 @@ I hope that this library will help you to quickly get what you need and avoid er
 | Load from the program itself       | Yes        | **No**       | **No**  |
 
 ## Safety
-	
+
 Please note that while Rust aims at being 100% safe language, it does not yet provide mechanisms that would allow me to create a 100% safe library, so I had to settle on 99%.
 Also the nature of dynamic link libraries requires casting obtained pointers into types that are defined on the application side. And this cannot be safe. 
 Having said that I still think that this library provides the best approach and greatest safety possible in Rust.
 
-# Usage:
+## Usage:
 
 Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen = "0.1"
+dlopen = "0.1.8"
 ```
 
-# Documentation
-    
+## Documentation
+
 [Cargo documentation](https://docs.rs/dlopen)
-    
-# License
+
+## License
+
 This code is licensed under [MIT](./LICENSE) license.
 
-# Changelog
+## Changelog
 
-[GitHub changelog](https://github.com/szymonwieloch/rust-dlopen/releases)
+[GitHub changelog](https://github.com/ahmed-masud/rust-dlopen/releases)
 
-# Acknowledgement
+## Acknowledgement
 
 Special thanks to [Simonas Kazlauskas](https://github.com/nagisa) whose [libloading](https://github.com/nagisa/rust_libloading) became code base for my project.

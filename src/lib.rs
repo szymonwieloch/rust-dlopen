@@ -102,6 +102,9 @@ extern crate winapi;
 #[macro_use]
 extern crate const_cstr;
 
+#[cfg(test)]
+extern crate serde;
+
 pub mod raw;
 pub mod symbor;
 pub mod utils;
