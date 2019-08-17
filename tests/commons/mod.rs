@@ -1,14 +1,17 @@
-extern crate dlopen;
 extern crate libc;
 extern crate regex;
+
 use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
-use std::env;
 use std::path::{Path, PathBuf};
 use libc::c_int;
 use std::fs;
 
+use serde::Deserialize;
 
-
+#[derive(Deserialize)]
+struct Manifest  {
+    workspace_root: String,
+}
 pub fn example_lib_path() -> PathBuf {
 
     //Rust when building dependencies adds some weird numbers to file names
@@ -21,8 +24,15 @@ pub fn example_lib_path() -> PathBuf {
     );
     let file_regex = regex::Regex::new(file_pattern.as_ref()).unwrap();
 
-    //find the directory with dependencies - there shold be our example library
-    let mut deps_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    //find the directory with dependencies - there shold be our
+    //example library
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("metadata")
+        .arg("--format-version=1")
+        .output()
+        .unwrap();
+    let manifest: Manifest = serde_json::from_slice(&output.stdout).unwrap();
+    let mut deps_dir = PathBuf::from(manifest.workspace_root);
     deps_dir.extend(["target", "debug", "deps"].iter());
 
     //unfortunately rust has no strict pattern of naming dependencies in this directory
