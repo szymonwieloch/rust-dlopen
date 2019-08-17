@@ -1,7 +1,9 @@
 [package]
 name = "dlopen"
-version = "0.1.7"
-authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
+version = "0.2.0"
+authors = [
+    "Szymon Wieloch <szymon.wieloch@gmail.com>",
+    "Ahmed Masud <ahmed.masud@saf.ai>"]
 description = "Library for opening and operating on dynamic link libraries (also known as shared objects or shared libraries)."
 keywords = [
     #common functions
