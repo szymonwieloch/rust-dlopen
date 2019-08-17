@@ -8,6 +8,7 @@ keywords = [
     "dlopen", "dll", "so", "dylib", "shared"]
 license = "MIT"
 repository = "https://github.com/szymonwieloch/rust-dlopen"
+edition = "2018"
 
 [dependencies]
 lazy_static = "1.2.0"
