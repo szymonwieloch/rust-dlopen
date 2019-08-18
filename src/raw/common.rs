@@ -3,9 +3,9 @@ use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -164,32 +164,48 @@ pub struct AddressInfo {
     pub overlapping_symbol: Option<OverlappingSymbol>
 }
 
-/**
-Obtains information about an address previously loaded from a dynamic load library.
+///Obtains information about an address previously loaded from a dynamic load library.
+pub struct AddressInfoObtainer {
+}
 
-# Example
-
-```no_run
-extern crate dlopen;
-use dlopen::raw::{Library, address_info};
-fn main() {
-    let lib = Library::open("libyourlib.so").unwrap();
-    let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();
-
-    // now we can obtain information about the symbol - library, base address etc.
-    let addr_info = address_info(ptr as * const ()).unwrap();
-    println!("Library path: {}", &addr_info.dll_path);
-    println!("Library base address: {:?}", addr_info.dll_base_addr);
-    if let Some(os) = addr_info.overlapping_symbol{
-        println!("Overlapping symbol name: {}", &os.name);
-        println!("Overlapping symbol address: {:?}", os.addr);
+impl AddressInfoObtainer {
+    pub fn new() -> AddressInfoObtainer {
+        unsafe{addr_info_init()};
+        AddressInfoObtainer{}
     }
 
+    /**
+    Obtains information about an address previously loaded from a dynamic load library.
 
+    # Example
 
+    ```no_run
+    extern crate dlopen;
+    use dlopen::raw::{Library, AddressInfoObtainer};
+    fn main() {
+        let lib = Library::open("libyourlib.so").unwrap();
+        let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();
+
+        // now we can obtain information about the symbol - library, base address etc.
+        let aio = AddressInfoObtainer::new();
+        let addr_info = aio.obtain(ptr as * const ()).unwrap();
+        println!("Library path: {}", &addr_info.dll_path);
+        println!("Library base address: {:?}", addr_info.dll_base_addr);
+        if let Some(os) = addr_info.overlapping_symbol{
+            println!("Overlapping symbol name: {}", &os.name);
+            println!("Overlapping symbol address: {:?}", os.addr);
+        }
+
+    }
+    ```
+    */
+    pub fn obtain(&self, addr: * const ()) -> Result<AddressInfo, Error>{
+        unsafe {addr_info_obtain(addr)}
+    }
 }
-```
-*/
-pub fn address_info(addr: * const ()) -> Result<AddressInfo, Error> {
-    addr_info(addr)
+
+impl Drop for AddressInfoObtainer{
+    fn drop(&mut self) {
+        unsafe{addr_info_cleanup()}
+    }
 }

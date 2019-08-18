@@ -1,6 +1,6 @@
 # rust-dlopen
 
-[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci] [![Crates CI][ccii]][cci]  [![Codedov CI][vcii]][vci]  
+[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci] [![Crates CI][ccii]][cci]  [![Codedov CI][vcii]][vci]  [![Docs][dcii]][dci]
 
 [tcii]: https://travis-ci.org/szymonwieloch/rust-dlopen.svg?branch=master
 [tci]: https://travis-ci.org/szymonwieloch/rust-dlopen
@@ -10,12 +10,38 @@
 [cci]: https://crates.io/crates/dlopen
 [vcii]: https://codecov.io/api/gh/szymonwieloch/rust-dlopen/branch/master/graph/badge.svg
 [vci]: https://codecov.io/gh/szymonwieloch/rust-dlopen
+[dcii]: https://docs.rs/dlopen/badge.svg
+[dci]: https://docs.rs/dlopen
 
 ## Overview
 
 This library is my effort to make use of dynamic link libraries in Rust simple.
 Previously existing solutions were either unsafe, provided huge overhead of required writing too much code to achieve simple things.
 I hope that this library will help you to quickly get what you need and avoid errors.
+
+## Quick example
+
+```rust
+extern crate dlopen;
+#[macro_use]
+extern crate dlopen_derive;
+use dlopen::wrapper::{Container, WrapperApi};
+
+#[derive(WrapperApi)]
+struct Api<'a> {
+    example_rust_fun: fn(arg: i32) -> u32,
+    example_c_fun: unsafe extern "C" fn(),
+    example_reference: &'a mut i32,
+}
+
+fn main(){
+    let mut cont: Container<Api> =
+        unsafe { Container::load("libexample.so") }.expect("Could not open library or load symbols");
+    cont.example_rust_fun(5);
+    unsafe{cont.example_c_fun()};
+    *cont.example_reference_mut() = 5;
+}
+```
 
 ## Features
 
@@ -40,11 +66,12 @@ I hope that this library will help you to quickly get what you need and avoid er
 | Multiplatform                      | Yes        | Yes        | Yes       |
 |Dangling symbol prevention          | Yes        | Yes        | Yes       |
 | Thread safety                      | Yes        | **Potential problem with SetErrorMode() on older Windows platforms** | **No support for SetErrorMode (library may block the application on Windows)**|
-| Loading of symbols into structures | Yes        | **No**     | **No**     
+| Loading of symbols into structures | Yes        | **No**     | **No**
 | Overhead                           | Minimal    | Minimal    | **Some overhead** |
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |
-| Object-oriented friendly           | Yes        | **No**       | Yes     | 
+| Object-oriented friendly           | Yes        | **No**       | Yes     |
 | Load from the program itself       | Yes        | **No**       | **No**  |
+| Obtaining address information (dladdr) | Yes    |  **Unix only** | **No**|
 
 ## Safety
 
@@ -52,7 +79,7 @@ Please note that while Rust aims at being 100% safe language, it does not yet pr
 Also the nature of dynamic link libraries requires casting obtained pointers into types that are defined on the application side. And this cannot be safe. 
 Having said that I still think that this library provides the best approach and greatest safety possible in Rust.
 
-## Usage:
+## Usage
 
 Cargo.toml:
 

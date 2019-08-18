@@ -8,6 +8,30 @@ This library is an effort to make use of dynamic link libraries in Rust simple.
 Previously existing solutions were either unsafe, provided huge overhead of required writing too much code to achieve simple things.
 I hope that this library will help you to quickly get what you need and avoid errors.
 
+# Quick example
+
+```no_run
+extern crate dlopen;
+#[macro_use]
+extern crate dlopen_derive;
+use dlopen::wrapper::{Container, WrapperApi};
+
+#[derive(WrapperApi)]
+struct Api<'a> {
+    example_rust_fun: fn(arg: i32) -> u32,
+    example_c_fun: unsafe extern "C" fn(),
+    example_reference: &'a mut i32,
+}
+
+fn main(){
+    let mut cont: Container<Api> =
+        unsafe { Container::load("libexample.so") }.expect("Could not open library or load symbols");
+    cont.example_rust_fun(5);
+    unsafe{cont.example_c_fun()};
+    *cont.example_reference_mut() = 5;
+}
+```
+
 # Features
 
 ## Main features
@@ -36,6 +60,7 @@ I hope that this library will help you to quickly get what you need and avoid er
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |
 | Object-oriented friendly           | Yes        | **No**       | Yes     |
 | Load from the program itself       | Yes        | **No**       | **No**  |
+| Obtaining address information (dladdr) | Yes    |  **Unix only** | **No**|
 
 ## Safety
 

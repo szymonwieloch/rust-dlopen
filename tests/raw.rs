@@ -2,7 +2,7 @@
 extern crate const_cstr;
 extern crate dlopen;
 extern crate libc;
-use dlopen::raw::{Library, address_info};
+use dlopen::raw::{Library, AddressInfoObtainer};
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 
@@ -64,7 +64,8 @@ fn example_address_info(){
     let lib = Library::open(&lib_path).expect("Could not open library");
     let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int =
         unsafe { lib.symbol("c_fun_add_two") }.unwrap();
-    let ai = address_info(c_fun_add_two as * const ()).unwrap();
+    let aio = AddressInfoObtainer::new();
+    let ai = aio.obtain(c_fun_add_two as * const ()).unwrap();
     assert_eq!(&ai.dll_path, lib_path.to_str().unwrap());
     let os = ai.overlapping_symbol.unwrap();
     assert_eq!(os.name, "c_fun_add_two");

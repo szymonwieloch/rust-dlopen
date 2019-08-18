@@ -96,11 +96,11 @@ pub fn addr_info(addr: * const ()) -> Result<AddressInfo, Error>{
         } else {
             Some(OverlappingSymbol{
                 addr: dlinfo.dli_saddr as * const (),
-                name: unsafe{CStr::from_ptr(dlinfo.dli_sname)}.to_string_lossy().into_owned()
+                name: CStr::from_ptr(dlinfo.dli_sname).to_string_lossy().into_owned()
             })
         };
         Ok(AddressInfo{
-            dll_path: unsafe{CStr::from_ptr(dlinfo.dli_fname)}.to_string_lossy().into_owned(),
+            dll_path: CStr::from_ptr(dlinfo.dli_fname).to_string_lossy().into_owned(),
             dll_base_addr: dlinfo.dli_fbase as * const (),
             overlapping_symbol: os
         })
