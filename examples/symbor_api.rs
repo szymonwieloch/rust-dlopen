@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate dlopen_derive;
 extern crate libc;
 
 mod commons;
