@@ -10,6 +10,11 @@ use libc::c_int;
 // find the file using this pattern:
 //const FILE_PATTERN: &str = concat!(PLATFORM_FILE_PREFIX, "example.*\\.", PLATFORM_FILE_EXTENSION);
 
+use serde::Deserialize;
+#[derive(Deserialize)]
+struct Manifest  {
+    workspace_root: String,
+}
 
 pub fn example_lib_path() -> PathBuf {
     let file_pattern = format!(
@@ -19,7 +24,13 @@ pub fn example_lib_path() -> PathBuf {
     );
     let file_regex = regex::Regex::new(file_pattern.as_ref()).unwrap();
     //build path to the example library that covers most cases
-    let mut lib_path = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("metadata")
+        .arg("--format-version=1")
+        .output()
+        .unwrap();
+    let manifest: Manifest = serde_json::from_slice(&output.stdout).unwrap();
+    let mut lib_path = PathBuf::from(manifest.workspace_root);
     lib_path.extend(["target", "debug", "deps"].iter());
     let entry = lib_path.read_dir().unwrap().find(|e| match e {
         &Ok(ref entry) => file_regex.is_match(entry.file_name().to_str().unwrap()),
