@@ -200,7 +200,7 @@ impl AddressInfoObtainer {
     ```
     */
     pub fn obtain(&self, addr: * const ()) -> Result<AddressInfo, Error>{
-        unsafe {addr_info_obtain(addr)}
+        addr_info_obtain(addr)
     }
 }
 
