@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate const_cstr;
-extern crate dlopen;
 extern crate libc;
 
 mod commons;

@@ -1,4 +1,3 @@
-extern crate dlopen;
 extern crate libc;
 
 mod commons;
