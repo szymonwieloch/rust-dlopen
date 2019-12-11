@@ -10,4 +10,4 @@ name = "example"
 crate-type = ["cdylib"]
 
 [dependencies]
-libc = "0.2.29"
+libc = "0.2"

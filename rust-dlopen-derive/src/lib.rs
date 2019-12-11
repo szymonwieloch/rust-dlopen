@@ -1,23 +1,18 @@
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 
 extern crate proc_macro;
-#[macro_use]
-extern crate syn;
-#[macro_use]
-extern crate quote;
 
 mod api;
+mod common;
 mod multi_api;
 mod wrapper;
-mod common;
-
-
 
 use proc_macro::TokenStream;
-use api::impl_library_api;
-use wrapper::impl_wrapper_api;
-use multi_api::impl_wrapper_multi_api;
-use syn::{DeriveInput};
+use syn::{parse_macro_input, DeriveInput};
+
+use self::api::impl_library_api;
+use self::multi_api::impl_wrapper_multi_api;
+use self::wrapper::impl_wrapper_api;
 
 #[proc_macro_derive(WrapperApi, attributes(dlopen_name, dlopen_allow_null))]
 pub fn wrapper_api(input: TokenStream) -> TokenStream {
