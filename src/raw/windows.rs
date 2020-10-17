@@ -227,7 +227,7 @@ pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
 	} else {None};
     Ok({
         AddressInfo{
-            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)]).to_string_lossy().into_owned(),
+            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)]),
             dll_base_addr: module_base as * const (),
             overlapping_symbol: os,
         }
