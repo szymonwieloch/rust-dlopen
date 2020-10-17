@@ -1,5 +1,5 @@
 use super::super::err::Error;
-use std::ffi::{CStr, CString, OsStr};
+use std::ffi::{CStr, CString, OsStr, OsString};
 
 //choose the right platform implementation here
 #[cfg(unix)]
@@ -155,7 +155,7 @@ pub struct OverlappingSymbol{
 #[derive(Debug)]
 pub struct AddressInfo {
     /// Path to the library that is the source of this symbol.
-    pub dll_path: String,
+    pub dll_path: OsString,
     /// Base address of the library that is the source of this symbol.
     pub dll_base_addr: * const (),
     /// Information about the overlapping symbol from the dynamic load library.
@@ -189,7 +189,7 @@ impl AddressInfoObtainer {
         // now we can obtain information about the symbol - library, base address etc.
         let aio = AddressInfoObtainer::new();
         let addr_info = aio.obtain(ptr as * const ()).unwrap();
-        println!("Library path: {}", &addr_info.dll_path);
+        println!("Library path: {}", &addr_info.dll_path.to_string_lossy());
         println!("Library base address: {:?}", addr_info.dll_base_addr);
         if let Some(os) = addr_info.overlapping_symbol{
             println!("Overlapping symbol name: {}", &os.name);

@@ -4,7 +4,7 @@ use libc::{c_int, c_void, dlclose, dlerror, dlopen, dlsym, dladdr, Dl_info, RTLD
 use std::ptr::{null, null_mut};
 use std::os::unix::ffi::OsStrExt;
 use std::io::{Error as IoError, ErrorKind};
-use std::mem::uninitialized;
+use std::mem::MaybeUninit;
 use super::common::{AddressInfo, OverlappingSymbol};
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
@@ -79,12 +79,15 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 
 #[inline]
 pub unsafe fn addr_info_init(){}
+
+#[inline]
 pub unsafe fn addr_info_cleanup(){}
 
 #[inline]
 pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
-    let mut dlinfo: Dl_info = uninitialized();
-    let result = dladdr(addr as * const c_void, & mut dlinfo);
+    let mut dlinfo = MaybeUninit::< Dl_info>::uninit();
+    let result = dladdr(addr as * const c_void, dlinfo.as_mut_ptr());
+    let dlinfo = dlinfo.assume_init();
     if result == 0 {
         Err(Error::AddrNotMatchingDll(IoError::new(ErrorKind::NotFound, String::new())))
     } else {
@@ -97,7 +100,7 @@ pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
             })
         };
         Ok(AddressInfo{
-            dll_path: CStr::from_ptr(dlinfo.dli_fname).to_string_lossy().into_owned(),
+            dll_path: OsStr::from_bytes(CStr::from_ptr(dlinfo.dli_fname).to_bytes()).to_os_string(),
             dll_base_addr: dlinfo.dli_fbase as * const (),
             overlapping_symbol: os
         })

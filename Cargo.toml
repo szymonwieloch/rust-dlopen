@@ -11,17 +11,17 @@ license = "MIT"
 repository = "https://github.com/szymonwieloch/rust-dlopen"
 
 [dependencies]
-lazy_static = "1.2.0"
+lazy_static = "1.4.0"
 
 [dependencies.dlopen_derive]
 path = "rust-dlopen-derive"
 version = "0.1.4"
 
 [target.'cfg(windows)'.dependencies]
-winapi = {version = "0.3.7", features=["winnt", "minwindef", "winerror", "libloaderapi", "errhandlingapi", "dbghelp", "processthreadsapi", "basetsd"]}
+winapi = {version = "0.3.9", features=["winnt", "minwindef", "winerror", "libloaderapi", "errhandlingapi", "dbghelp", "processthreadsapi", "basetsd"]}
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.29"
+libc = "0.2.79"
 
 
 [dev-dependencies.example_dylib]
@@ -30,7 +30,7 @@ version = "0.1.0"
 
 [dev-dependencies]
 const-cstr = "0.1"
-libc = "0.2.29"
+libc = "0.2.79"
 regex = "0.2"
 
 
