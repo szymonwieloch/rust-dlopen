@@ -1,6 +1,7 @@
 [package]
 name = "dlopen"
 version = "0.1.8"
+rust="1.47.0"
 readme = "README.md"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 description = "Library for opening and operating on dynamic link libraries (also known as shared objects or shared libraries). This is a modern and more flexible alternative to the already existing libraries like libloading or sharedlib"
