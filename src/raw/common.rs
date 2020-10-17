@@ -1,11 +1,11 @@
 use super::super::err::Error;
-use std::ffi::{CStr, CString, OsStr};
+use std::ffi::{CStr, CString, OsStr, OsString};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, path, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, path, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -131,6 +131,16 @@ impl Library {
             Ok(transmute_copy(&raw))
         }
     }
+
+    ///Returns path to the file that was loaded
+    pub fn path(&self) -> OsString {
+        unsafe{path(self.handle)}
+    }
+
+    ///Returns base address of this library.
+    pub fn base_addr(&self) -> * const () {
+        self.handle as * const ()
+    }
 }
 
 impl Drop for Library {
@@ -155,7 +165,7 @@ pub struct OverlappingSymbol{
 #[derive(Debug)]
 pub struct AddressInfo {
     /// Path to the library that is the source of this symbol.
-    pub dll_path: String,
+    pub dll_path: OsString,
     /// Base address of the library that is the source of this symbol.
     pub dll_base_addr: * const (),
     /// Information about the overlapping symbol from the dynamic load library.

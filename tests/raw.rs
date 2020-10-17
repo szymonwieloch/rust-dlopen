@@ -71,3 +71,10 @@ fn example_address_info(){
     assert_eq!(os.name, "c_fun_add_two");
     assert_eq!(os.addr, c_fun_add_two as * const ())
 }
+
+#[test]
+fn path(){
+    let lib_path = example_lib_path();
+    let lib = Library::open(&lib_path).expect("Could not open library");
+    assert_eq!(lib_path, lib.path())
+}

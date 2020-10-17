@@ -55,6 +55,8 @@ https://msdn.microsoft.com/pl-pl/library/windows/desktop/dd553630(v=vs.85).aspx
 
 const ERROR_MODE: DWORD = 1; //app handles everything
 
+type PathBuffer = [WCHAR; PATH_MAX as usize];
+
 enum ErrorModeGuard {
     ThreadPreviousValue(DWORD),
     DoNothing,
@@ -184,7 +186,7 @@ pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
 	let process_handle = GetCurrentProcess();
 	
 	//calls to Sym* functions are not thread safe.
-	let mut buffer: [WCHAR; PATH_MAX as usize] = uninitialized();
+	let mut buffer: PathBuffer = uninitialized();
 	let mut symbol_buffer: [u8; size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()] = uninitialized();
 	let (module_base, path_len, symbol_info, result) = {
 		let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
@@ -242,6 +244,15 @@ pub unsafe fn addr_info_cleanup(){
 		let result = SymCleanup(process_handle);
 		assert_eq!(result, TRUE);
 	}
+}
+
+#[inline]
+pub unsafe fn path(handle: Handle) -> OsString {
+    let mut buffer: PathBuffer = uninitialized();
+    let path_len = GetModuleFileNameW(handle as HMODULE, buffer.as_mut_ptr(), PATH_MAX);		
+    // Handle should be always valid, no error is expected.
+    assert_ne!(path_len, 0);
+    OsString::from_wide(&buffer[0..(path_len as usize)])
 }
 
 #[inline]
