@@ -12,7 +12,7 @@ of those versions have broader API than others. This structure allows you to use
 same time - one obligatory and one optional. If symbols of the optional API are found in the
 library, the optional API gets loaded. Otherwise the `optional()` method will return `None`.
 
-#Example
+# Example
 
 ```no_run
 #[macro_use]

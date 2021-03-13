@@ -54,7 +54,7 @@ fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
         } else {
             normal_field(field)
         },
-        _ => panic!("Only bare functions, references an pointers are allowed in structures implementing WrapperApi trait")
+        _ => panic!("Only bare functions, references and pointers are allowed in structures implementing WrapperApi trait")
     }
 }
 

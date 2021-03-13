@@ -23,7 +23,7 @@ dangling symbols is prevented.
 * `ptr_or_null()` and `ptr_or_null_mut()` - for obtaining pointers if you accept null values of
 pointers (in 99% of cases you should rather use previously mentioned methods).
 
-#Example
+# Example
 
 ```no_run
 extern crate dlopen;

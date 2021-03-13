@@ -8,7 +8,7 @@ User of API does not have direct access to raw symbols and therefore symbols can
 Symbols and library handle are kept in one `Container` structure and therefore both the the library
 and symbols get released at the same time.
 
-#Example
+# Example
 
 ```no_run
 #[macro_use]
@@ -40,7 +40,7 @@ be 100% safe. This API aims to be 99% safe by providing zero cost functional wra
 raw symbols. However it is possible to make a mistake if you create API as a standalone object
 (not in container):
 
-#Example of a mistake - dangling symbol
+# Example of a mistake - dangling symbol
 
 ```no_run
 #[macro_use]

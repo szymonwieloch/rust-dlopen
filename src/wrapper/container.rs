@@ -11,7 +11,7 @@ Keeping both library and its symbols together makes it safe to use it because sy
 together with the library. `Container` also doesn't have any external lifetimes - this makes it
 easy to use `Container` inside structures.
 
-#Example
+# Example
 
 ```no_run
 #[macro_use]

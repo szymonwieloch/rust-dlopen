@@ -29,7 +29,7 @@ Wrappers are not generated only for:
 * Variadic functions. Rust doesn't have any mechanism that allows creating safe wrappers around
     them. You need to handle them manually.
 
-#Example
+# Example
 
 ```no_run
 #[macro_use]

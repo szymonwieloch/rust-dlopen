@@ -13,7 +13,7 @@ structure has two objects and one of the objects has a reference to the second o
 Normally you can't put `Library` and a structure that implements `SymBorApi` into one structure.
 This structure allows you to do it.
 
-#Example
+# Example
 
 ```no_run
 #[macro_use]
