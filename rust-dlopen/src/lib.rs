@@ -134,5 +134,11 @@ pub mod wrapper;
 mod err;
 pub use err::Error;
 
-#[cfg(dlopen_derive)]
-pub mod wrapper;
+// Derive feature. Re-export the macros.
+#[cfg(feature = "dlopen_derive")]
+#[allow(unused_imports)]
+#[macro_use]
+extern crate dlopen_derive;
+#[cfg(feature = "dlopen_derive")]
+#[doc(hidden)]
+pub use dlopen_derive::*;
