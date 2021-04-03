@@ -6,6 +6,7 @@ description = "Derive macros for the dlopen crate."
 license = "MIT"
 
 [lib]
+name = "dlopen_derive"
 proc-macro = true
 
 [dependencies]
