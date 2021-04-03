@@ -135,4 +135,4 @@ mod err;
 pub use err::Error;
 
 #[cfg(dlopen_derive)]
-#[macro_use] pub extern crate dlopen_derive;
+pub mod wrapper;
