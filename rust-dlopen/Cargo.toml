@@ -14,7 +14,7 @@ repository = "https://github.com/szymonwieloch/rust-dlopen"
 
 [dependencies]
 lazy_static = "1.4.0"
-dlopen_derive = { path = "../rust-dlopen-derive", version = "0.1.4" }
+dlopen_derive = { path = "../rust-dlopen-derive", optional = true, version = "0.1.4" }
 
 [target.'cfg(windows)'.dependencies]
 winapi = {version = "0.3.9", features=["winnt", "minwindef", "winerror", "libloaderapi", "errhandlingapi", "dbghelp", "processthreadsapi", "basetsd"]}
@@ -28,3 +28,7 @@ const-cstr = "0.1"
 libc = "0.2.79"
 regex = "0.2"
 example_dylib = { path = "../rust-example-dylib", version = "0.1.0" }
+
+[features]
+default = ["derive"]
+derive = ["dlopen_derive"]
