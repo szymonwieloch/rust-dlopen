@@ -14,8 +14,9 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
         let _ = field.ident.as_ref().expect("All fields of structures deriving WrapperAPI need to be identificable");
         match field.vis {
             Visibility::Inherited => (),
-            _ => panic!("All fields of structures deriving {} need to be private and '{}' is not",
-                        TRAIT_NAME, field.ident.as_ref().unwrap())
+            _ = (),
+            /*_ => panic!("All fields of structures deriving {} need to be private and '{}' is not",
+                        TRAIT_NAME, field.ident.as_ref().unwrap())*/
         }
     }
 
