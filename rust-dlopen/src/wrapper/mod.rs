@@ -86,3 +86,8 @@ pub use self::api::WrapperApi;
 pub use self::multi_api::WrapperMultiApi;
 pub use self::container::Container;
 pub use self::optional::OptionalContainer;
+
+// Derive feature. Re-export the macros.
+#[cfg(feature = "dlopen_derive")]
+#[doc(hidden)]
+pub use dlopen_derive::*;

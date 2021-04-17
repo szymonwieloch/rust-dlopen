@@ -1,6 +1,6 @@
 [package]
 name = "dlopen"
-version = "0.1.8"
+version = "0.1.9"
 rust="1.47.0"
 readme = "README.md"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
