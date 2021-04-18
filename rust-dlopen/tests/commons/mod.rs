@@ -22,7 +22,8 @@ pub fn example_lib_path() -> PathBuf {
     let file_regex = regex::Regex::new(file_pattern.as_ref()).unwrap();
 
     //find the directory with dependencies - there shold be our example library
-    let mut deps_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let manifest_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let mut deps_dir = PathBuf::from( manifest_dir.parent().unwrap() ); // Use the parent of the cwd since rust-dlopen is now a separate file from the crate/workspace root
     deps_dir.extend(["target", "debug", "deps"].iter());
 
     //unfortunately rust has no strict pattern of naming dependencies in this directory

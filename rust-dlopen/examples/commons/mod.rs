@@ -19,7 +19,8 @@ pub fn example_lib_path() -> PathBuf {
     );
     let file_regex = regex::Regex::new(file_pattern.as_ref()).unwrap();
     //build path to the example library that covers most cases
-    let mut lib_path = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let manifest_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let mut lib_path = PathBuf::from( manifest_dir.parent().unwrap() ); // Use the parent of the cwd since rust-dlopen is now a separate file from the crate/workspace root
     lib_path.extend(["target", "debug", "deps"].iter());
     let entry = lib_path.read_dir().unwrap().find(|e| match e {
         &Ok(ref entry) => file_regex.is_match(entry.file_name().to_str().unwrap()),

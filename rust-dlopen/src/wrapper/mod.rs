@@ -88,6 +88,7 @@ pub use self::container::Container;
 pub use self::optional::OptionalContainer;
 
 // Derive feature. Re-export the macros.
+// May get the macro the same way you get the WrapperApi struct. 'use dlopen::wrapper::WrapperApi'
 #[cfg(feature = "dlopen_derive")]
 #[doc(hidden)]
 pub use dlopen_derive::*;
