@@ -104,8 +104,14 @@ fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
                     ::std::option::Option::Some((ref arg_name, _)) => arg_name,
                     ::std::option::Option::None => panic!("This should never happen")
                 });
+                let lifetimes = fun.lifetimes.as_ref().map(|lt| {
+                    let lt = &lt.lifetimes;
+                    quote! {
+                        <#lt>
+                    }
+                });
                 Some(quote! {
-                    pub #unsafety fn #ident (&self, #(#arg_iter),* ) #output {
+                    pub #unsafety fn #ident #lifetimes (&self, #(#arg_iter),* ) #output {
                         (self.#ident)(#(#arg_names),*)
                     }
                 })
