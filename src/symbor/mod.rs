@@ -5,7 +5,7 @@ It is based on symbol borrowing mechanism and supports automatic loading of symb
 This API uses Rust borrowing mechanism to prevent problems with dangling symbols
 that take place when the library gets closed but the symbols still exist and are used.
 
-#Example of a dangling symbol prevention
+# Example of a dangling symbol prevention
 ```no_run
 extern crate dlopen;
 use dlopen::symbor::Library;
