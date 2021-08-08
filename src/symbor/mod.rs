@@ -5,7 +5,7 @@ It is based on symbol borrowing mechanism and supports automatic loading of symb
 This API uses Rust borrowing mechanism to prevent problems with dangling symbols
 that take place when the library gets closed but the symbols still exist and are used.
 
-#Example of a dangling symbol prevention
+# Example of a dangling symbol prevention
 ```no_run
 extern crate dlopen;
 use dlopen::symbor::Library;
@@ -66,7 +66,7 @@ Unfortunately in Rust it is not possible to create an API for dynamic link libra
 be 100% safe. This API aims to be 99% safe by providing zero cost wrappers around raw symbols.
 However it is possible to make a mistake if you dereference safe wrappers into raw symbols.
 
-#Example of a mistake - dangling symbol
+# Example of a mistake - dangling symbol
 
 ```no_run
 extern crate dlopen;
