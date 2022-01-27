@@ -11,7 +11,7 @@ use winapi::um::winnt::WCHAR;
 use winapi::shared::minwindef::{HMODULE, DWORD, TRUE};
 use winapi::shared::basetsd::DWORD64;
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
-use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
+use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryExW, GetModuleFileNameW, FreeLibrary};
 use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
 use winapi::um::dbghelp::{SymGetModuleBase64, SymFromAddrW, SYMBOL_INFOW, SymInitializeW, SymCleanup};
 use winapi::um::processthreadsapi::GetCurrentProcess;
@@ -154,18 +154,23 @@ pub unsafe fn open_self() -> Result<Handle, Error> {
 }
 
 #[inline]
-pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
+pub unsafe fn open_lib_with_flags(name: &OsStr, flags: u32) -> Result<Handle, Error> {
     let wide_name: Vec<u16> = name.encode_wide().chain(Some(0)).collect();
     let _guard = match ErrorModeGuard::new() {
         Ok(val) => val,
         Err(err) => return Err(Error::OpeningLibraryError(err)),
     };
-    let handle = LoadLibraryW(wide_name.as_ptr());
+    let handle = LoadLibraryExW(wide_name.as_ptr(), std::ptr::null(), flags);
     if handle.is_null() {
         Err(Error::OpeningLibraryError(get_win_error()))
     } else {
         Ok(handle)
     }
+}
+
+#[inline]
+pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
+    open_lib_with_flags(name, 0)
 }
 
 #[inline]

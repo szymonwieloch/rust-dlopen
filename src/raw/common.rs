@@ -3,9 +3,9 @@ use std::ffi::{CStr, CString, OsStr, OsString};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::unix::{close_lib, get_sym, open_self, open_lib, open_lib_with_flags, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::windows::{close_lib, get_sym, open_self, open_lib, open_lib_with_flags, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -61,6 +61,15 @@ impl Library {
     {
         Ok(Self {
             handle: unsafe { open_lib(name.as_ref()) }?,
+        })
+    }
+
+    pub fn open_with_flags<S>(name: S, flags: u32) -> Result<Library, Error>
+    where
+        S: AsRef<OsStr>,
+    {
+        Ok(Self {
+            handle: unsafe { open_lib_with_flags(name.as_ref(), flags) }?,
         })
     }
 
