@@ -126,7 +126,7 @@ impl Library {
         }
         let raw = get_sym(self.handle, name)?;
         if raw.is_null() {
-            return Err(Error::NullSymbol);
+            Err(Error::NullSymbol)
         } else {
             Ok(transmute_copy(&raw))
         }

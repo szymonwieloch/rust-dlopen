@@ -67,7 +67,7 @@ where
     {
         let lib = Library::open(name)?;
         let api = T::load(&lib)?;
-        Ok(Self { lib: lib, api: api })
+        Ok(Self { lib, api })
     }
     ///Load all symbols from the program itself.
     ///
@@ -76,7 +76,7 @@ where
     pub unsafe fn load_self() -> Result<Container<T>, Error> {
         let lib = Library::open_self()?;
         let api = T::load(&lib)?;
-        Ok(Self { lib: lib, api: api })
+        Ok(Self { lib, api })
     }
 }
 

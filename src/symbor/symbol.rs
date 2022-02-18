@@ -18,7 +18,7 @@ pub struct Symbol<'lib, T: 'lib> {
 impl<'lib, T> Symbol<'lib, T> {
     pub fn new(symbol: T) -> Symbol<'lib, T> {
         Symbol {
-            symbol: symbol,
+            symbol,
             pd: PhantomData,
         }
     }
@@ -44,14 +44,14 @@ impl<'lib, T> FromRawResult for Symbol<'lib, T> {
 impl<'lib, T> Deref for Symbol<'lib, T> {
     type Target = T;
     fn deref(&self) -> &T {
-        return &self.symbol;
+        &self.symbol
     }
 }
 
 impl<'lib, T> DerefMut for Symbol<'lib, T> {
     //type Target =  T;
     fn deref_mut(&mut self) -> &mut T {
-        return &mut self.symbol;
+        &mut self.symbol
     }
 }
 

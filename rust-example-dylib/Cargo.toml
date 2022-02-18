@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 license = "MIT"
 description = "Example dynamic link library for executing tests of libraries that load and operate on dynamic link libraries"
+edition = "2018"
 
 [lib]
 name = "example"

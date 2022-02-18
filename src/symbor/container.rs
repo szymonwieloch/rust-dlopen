@@ -60,7 +60,7 @@ where
         //and therefore it is released at the same time.
         let static_ref: &'static Library = transmute(&lib);
         let api = T::load(static_ref)?;
-        Ok(Self { api: api, lib: lib })
+        Ok(Self { api, lib })
     }
     ///Load all symbols from the program itself.
     ///
@@ -73,7 +73,7 @@ where
         //and therefore it is released at the same time.
         let static_ref: &'static Library = transmute(&lib);
         let api = T::load(static_ref)?;
-        Ok(Self { api: api, lib: lib })
+        Ok(Self { api, lib })
     }
 }
 

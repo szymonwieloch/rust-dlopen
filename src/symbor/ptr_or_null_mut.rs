@@ -15,7 +15,7 @@ pub struct PtrOrNullMut<'lib, T: 'lib> {
 impl<'lib, T> PtrOrNullMut<'lib, T> {
     pub fn new(pointer: *mut T) -> PtrOrNullMut<'lib, T> {
         PtrOrNullMut {
-            pointer: pointer,
+            pointer,
             pd: PhantomData,
         }
     }

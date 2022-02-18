@@ -95,12 +95,12 @@ where
 
     ///Gives access to the optional API - constant version.
     pub fn optional(&self) -> &Option<Optional> {
-        return &self.optional;
+        &self.optional
     }
 
     ///Gives access to the optional API - constant version.
     pub fn optional_mut(&mut self) -> &Option<Optional> {
-        return &mut self.optional;
+        &mut self.optional
     }
 }
 

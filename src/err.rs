@@ -37,11 +37,11 @@ impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         use self::Error::*;
         match self {
-            &NullCharacter(_) => write!(f, "String had a null character"),
-            &OpeningLibraryError(ref msg) => write!(f, "Could not open library: {}", msg),
-            &SymbolGettingError(ref msg) => write!(f, "Could not obtain symbol from the library: {}", msg),
-            &NullSymbol => write!(f, "The symbol is NULL"),
-            &AddrNotMatchingDll(_) => write!(f, "Address does not match any dynamic link library")
+            NullCharacter(_) => write!(f, "String had a null character"),
+            OpeningLibraryError(ref msg) => write!(f, "Could not open library: {}", msg),
+            SymbolGettingError(ref msg) => write!(f, "Could not obtain symbol from the library: {}", msg),
+            NullSymbol => write!(f, "The symbol is NULL"),
+            AddrNotMatchingDll(_) => write!(f, "Address does not match any dynamic link library")
         }
     }
 }

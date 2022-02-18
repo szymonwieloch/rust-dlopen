@@ -4,6 +4,7 @@ version = "0.1.4"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>"]
 description = "Derive macros for the dlopen crate."
 license = "MIT"
+edition = "2018"
 
 [lib]
 proc-macro = true
