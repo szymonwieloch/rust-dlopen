@@ -15,7 +15,7 @@ pub struct PtrOrNull<'lib, T: 'lib> {
 impl<'lib, T> PtrOrNull<'lib, T> {
     pub fn new(pointer: *const T) -> PtrOrNull<'lib, T> {
         PtrOrNull {
-            pointer: pointer,
+            pointer,
             pd: PhantomData,
         }
     }

@@ -56,7 +56,7 @@ pub unsafe fn open_self() -> Result<Handle, Error> {
 pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
     let mut v: Vec<u8> = Vec::new();
     //as_bytes i a unix-specific extension
-    let cstr = if name.len() > 0 && name.as_bytes()[name.len() - 1] == 0 {
+    let cstr = if !name.is_empty() && name.as_bytes()[name.len() - 1] == 0 {
         //don't need to convert
         CStr::from_bytes_with_nul_unchecked(name.as_bytes())
     } else {
