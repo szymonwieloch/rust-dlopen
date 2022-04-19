@@ -15,7 +15,7 @@ pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<String
     for attr in field.attrs.iter() {
         match attr.parse_meta() {
             Ok(Meta::NameValue(ref meta)) => {
-                if meta.ident == attr_name {
+                if meta.path.is_ident(attr_name) {
                     return match &meta.lit {
                         &Lit::Str(ref val, ..) => {
                             Some(val.value())
@@ -33,7 +33,7 @@ pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<String
 pub fn has_marker_attr(field :&Field, attr_name: &str) -> bool {
     for attr in field.attrs.iter() {
         match attr.parse_meta() {
-            Ok(Meta::Word(ref val)) => if val == attr_name{
+            Ok(Meta::Path(ref val)) => if val.is_ident(attr_name) {
               return true;
             },
             _ => continue

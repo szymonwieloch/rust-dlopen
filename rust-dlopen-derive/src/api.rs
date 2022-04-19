@@ -1,8 +1,7 @@
 use syn::{Field, DeriveInput};
-use syn;
 use super::common::{get_fields, symbol_name};
 
-pub fn impl_library_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
+pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let name = &ast.ident;
     let fields = get_fields(ast, "SymBorApi");
 
@@ -22,7 +21,7 @@ pub fn impl_library_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
 }
 
 
-fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
+fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
     let symbol_name = symbol_name(field);
 

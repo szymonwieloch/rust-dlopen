@@ -1,10 +1,9 @@
 use syn::{Field, DeriveInput};
-use syn;
 use super::common::{get_fields};
 
 const TRATIT_NAME: &str = "WrapperMultiApi";
 
-pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
+pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let name = &ast.ident;
     let generics = &ast.generics;
     let fields = get_fields(ast, TRATIT_NAME);
@@ -28,7 +27,7 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
 }
 
 
-fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
+fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
 
     //panic!("type_name = {}, {:?}", field_type_name, field);
