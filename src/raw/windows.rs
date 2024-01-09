@@ -65,13 +65,13 @@ enum ErrorModeGuard {
 
 impl ErrorModeGuard {
     fn new() -> Result<ErrorModeGuard, IoError> {
-        if !USE_ERRORMODE.load(Ordering::Acquire) {
+        if !USE_ERRORMODE.load(Ordering::Relaxed) {
             let mut previous: DWORD = 0;
             if unsafe { SetThreadErrorMode(ERROR_MODE, &mut previous) } == 0 {
                 //error. On some systems SetThreadErrorMode may not be implemented
                 let error = unsafe { GetLastError() };
                 if error == ERROR_CALL_NOT_IMPLEMENTED {
-                    USE_ERRORMODE.store(true, Ordering::Release);
+                    USE_ERRORMODE.store(true, Ordering::Relaxed);
                 } else {
                     //this is an actual error
                     //SetErrorMode never fails. Shouldn't we use it now?
